@@ -101,9 +101,17 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 /* Shared row/accordion */
 .toc-bar{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 10px}
 .toc-bar h2,.group-h{font:500 11px/1 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
-.seg{display:flex;gap:6px;overflow-x:auto;margin:18px 0 14px;padding-bottom:2px}
-.seg-b{flex:none;border:1px solid var(--line-2);background:transparent;color:var(--ink);border-radius:999px;padding:9px 15px;font:500 14px var(--body);cursor:pointer;white-space:nowrap}
-.seg-b.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.fseg{display:flex;gap:6px;overflow-x:auto;margin:18px 0 14px;padding-bottom:2px}
+.fseg-b{flex:none;border:1px solid var(--line-2);background:transparent;color:var(--ink);border-radius:999px;padding:9px 15px;font:500 14px var(--body);cursor:pointer;white-space:nowrap}
+.fseg-b{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.25}
+.fseg-2{font-size:15px;font-weight:600;letter-spacing:.02em}
+.fseg-s1{background:#efe3c8;color:#4a3f26;border-color:#e2d3ae}
+.fseg-s2{background:#6b7348;color:#f6f4e8;border-color:#5a6239}
+.fseg-b.fseg-s1.on,.fseg-b.fseg-s2.on{box-shadow:0 0 0 2px var(--paper),0 0 0 4px currentColor}
+.fseg-b.fseg-s1.on{background:#e8d8b2;border-color:#4a3f26}
+.fseg-b.fseg-s2.on{background:#5a6239;border-color:#f6f4e8}
+.fseg{padding:5px 6px}
+.fseg-b.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .fin-hero{margin:0 0 14px}
 .fin-hero img{display:block;width:100%;border-radius:var(--r);aspect-ratio:3/2;object-fit:cover}
 .fin-hero figcaption{font-size:13px;color:var(--muted);margin-top:6px}
@@ -464,7 +472,7 @@ main.wrap{max-width:760px;padding:0 0 56px}
     <div class="divider"><h2>Finishes &amp;<br>Fixtures</h2><p>West Residences</p><img class="sketch" src="img/sketch-street.webp" alt="" aria-hidden="true"></div>
     <div class="page-in">
       <div class="intro">What your apartment is made of, for repairs and touch-ups. Pick your apartment's colour scheme: Steam (cream) or Patina (green). Not sure? Check your Handover documents or ask the strata manager.</div>
-      <div class="seg" id="finSeg" role="tablist" aria-label="Schedule sections"></div>
+      <div class="fseg" id="finSeg" role="tablist" aria-label="Schedule sections"></div>
       <div class="toolbar"><input class="search grow" id="qFin" type="search" placeholder="Search tiles, paint, taps…" aria-label="Search the finishes schedule"></div>
       <div class="note" id="finNote"></div>
       <div id="finList"></div>
@@ -1213,7 +1221,7 @@ let finSel=lsGet("wr-fin")||"s1"; const finOpen=new Set();
 function renderFinishes(){
   if(!FIN_SCHED.some(g=>g.id===finSel)) finSel="s1";
   const q=norm($("qFin").value).trim(), seg=$("finSeg"), box=$("finList");
-  seg.replaceChildren(...FIN_SCHED.map(g=>el("button",{type:"button",class:"seg-b"+(g.id===finSel?" on":""),role:"tab","aria-selected":g.id===finSel,text:g.name,onclick:()=>{ finSel=g.id; lsSet("wr-fin",g.id); renderFinishes(); }})));
+  seg.replaceChildren(...FIN_SCHED.map(g=>el("button",{type:"button",class:"fseg-b fseg-"+g.id+(g.id===finSel?" on":""),role:"tab","aria-selected":g.id===finSel,onclick:()=>{ finSel=g.id; lsSet("wr-fin",g.id); renderFinishes(); }},...g.name.split(" · ").map((t,k)=>el("span",{class:k?"fseg-2":"fseg-1",text:t})))));
   const g=FIN_SCHED.find(x=>x.id===finSel);
   let hero=$("finHero"); if(!hero){ hero=el("figure",{id:"finHero",class:"fin-hero"}); $("finNote").before(hero); }
   hero.replaceChildren(); hero.hidden=!g.hero||!!q;
