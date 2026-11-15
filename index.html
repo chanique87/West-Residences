@@ -58,6 +58,8 @@ button,input,textarea,select{font:inherit;color:inherit}
 .hero h1{font-size:clamp(40px,11vw,64px);line-height:1;letter-spacing:-.01em;margin-top:34px;font-weight:400}
 .hero h1 em{font-style:italic}
 .hero .rule{width:44px;height:1px;background:var(--brass);margin:20px 0 14px}
+.addr-link{color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-decoration-thickness:1px}
+.addr-link:hover{text-decoration-style:solid}
 .hero .addr{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--board-ink) 72%,transparent)}
 .burger{width:44px;height:44px;margin-right:-10px;border-radius:50%;border:0;background:transparent;color:var(--board-ink);cursor:pointer;display:grid;place-items:center}
 .burger:hover{background:color-mix(in srgb,var(--board-ink) 10%,transparent)}
@@ -741,7 +743,16 @@ function actBtn(label,url,primary,title){
 const telHref=p=>"tel:"+(p||"").replace(/[^\d+]/g,"");
 const mailHref=(e,subject)=>"mailto:"+e+(subject?"?subject="+encodeURIComponent(subject):"");
 const siteLabel=u=>{ try{ return new URL(u).hostname.replace(/^www\./,""); }catch{ return u; } };
-const mapHref=a=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(a);
+const isApple=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+/* Apple Maps on iPhone and iPad, Google Maps everywhere else */
+const mapHref=a=>isApple?"https://maps.apple.com/?q="+encodeURIComponent(a):"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(a);
+const ADDR_RE=/\b(?:(?:Unit|Level|Suite|Shop|Lot)\s+\d+[A-Za-z]?,\s+)?\d{1,4}[A-Za-z]?(?:\/\d{1,4}[A-Za-z]?)?(?:[-–]\d{1,4})?\s+(?:[A-Z][A-Za-z'’-]*\s+){0,3}[A-Z][A-Za-z'’-]*\s+(?:Street|St|Road|Rd|Avenue|Ave|Parade|Pde|Drive|Dr|Lane|Ln|Place|Pl|Court|Ct|Crescent|Cres|Terrace|Tce|Boulevard|Blvd|Highway|Hwy|Way|Close|Circuit|Cct)\b\.?,?\s+(?:[A-Z][A-Za-z'’-]*\s+){0,3}(?:WA|NSW|VIC|QLD|SA|TAS|NT|ACT)\s+\d{4}\b/g;
+function addrLink(a,child){ return el("a",{class:"addr-link",href:mapHref(a),target:"_blank",rel:"noopener","aria-label":"Open "+a+" in maps"},child); }
+function addrFrag(text,q){
+  const f=document.createDocumentFragment(); let last=0, m; const re=new RegExp(ADDR_RE.source,"g");
+  while((m=re.exec(text))){ f.append(highlight(text.slice(last,m.index),q), addrLink(m[0],highlight(m[0],q))); last=m.index+m[0].length; }
+  f.append(highlight(text.slice(last),q)); return f;
+}
 function linkButtons(links){
   if(!Array.isArray(links)||!links.length) return null;
   const row=el("div",{class:"acts"});
@@ -754,13 +765,13 @@ function rich(text,q){
   const frag=document.createDocumentFragment(); let last=0, m;
   text=text||""; const re=new RegExp(LINK_RE.source,"g");
   while((m=re.exec(text))){
-    frag.append(highlight(text.slice(last,m.index),q));
+    frag.append(addrFrag(text.slice(last,m.index),q));
     let label=m[1].trim(), primary=false;
     if(label.startsWith("!")){ primary=true; label=label.slice(1).trim(); }
     frag.append(actBtn(label,m[2].trim(),primary)||label);
     last=m.index+m[0].length;
   }
-  frag.append(highlight(text.slice(last),q));
+  frag.append(addrFrag(text.slice(last),q));
   return frag;
 }
 function onlyButtons(line){ return line.replace(new RegExp(LINK_RE.source,"g"),"").trim()===""; }
@@ -813,7 +824,9 @@ function textToLinks(t){
 function renderMeta(){
   $("bName").textContent = state.meta.name || "West Residences";
   const addr = state.meta.address || "Add your building's address";
-  $("bAddr").textContent = settings.apt ? `Apartment ${settings.apt} \u00b7 ${addr}` : addr;
+  const ba=$("bAddr"); ba.replaceChildren();
+  if(settings.apt) ba.append(`Apartment ${settings.apt} \u00b7 `);
+  ba.append(state.meta.address ? addrLink(addr,addr) : addr);
   document.title = (state.meta.name ? state.meta.name+" Handbook" : "Building Handbook");
 }
 function editBtn(fn){ return state.canEdit ? el("button",{class:"edit",type:"button",onclick:fn,text:"Edit"}) : null; }

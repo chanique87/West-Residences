@@ -498,6 +498,8 @@
     /(?<![\d.+])13(?:[\s-]\d{2}[\s-]\d{2}|\d{4})(?![\d.]|\s?\d)/g,
     /(?<![\d.\w])\+\d{1,3}[\s-]?\(?\d{1,4}\)?(?:[\s-]?\d{2,4}){2,4}(?!\d)/g,
   ];
+  const RE_ADDR = /\b(?:(?:Unit|Level|Suite|Shop|Lot)\s+\d+[A-Za-z]?,\s+)?\d{1,4}[A-Za-z]?(?:\/\d{1,4}[A-Za-z]?)?(?:[-–]\d{1,4})?\s+(?:[A-Z][A-Za-z'’-]*\s+){0,3}[A-Z][A-Za-z'’-]*\s+(?:Street|St|Road|Rd|Avenue|Ave|Parade|Pde|Drive|Dr|Lane|Ln|Place|Pl|Court|Ct|Crescent|Cres|Terrace|Tce|Boulevard|Blvd|Highway|Hwy|Way|Close|Circuit|Cct)\b\.?,?\s+(?:[A-Z][A-Za-z'’-]*\s+){0,3}(?:WA|NSW|VIC|QLD|SA|TAS|NT|ACT)\s+\d{4}\b/g;
+  const mapHref = (a) => (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ? "https://maps.apple.com/?q=" : "https://www.google.com/maps/search/?api=1&query=") + encodeURIComponent(a);
   function findContacts(text) {
     const out = [], used = (a, b) => out.some((o) => a < o.e && b > o.s);
     let m;
@@ -509,6 +511,8 @@
       let u = m[0]; if (/-$/.test(u)) u = u.slice(0, u.lastIndexOf("/") + 1) || u.slice(0, -1);   // a link that wrapped mid-word: open the section it is in
       out.push({ s: a, e: b, href: /^https?:/i.test(u) ? u : "https://" + u, kind: "web" });
     }
+    RE_ADDR.lastIndex = 0;
+    while ((m = RE_ADDR.exec(text))) { const a = m.index, b = a + m[0].length; if (!used(a, b)) out.push({ s: a, e: b, href: mapHref(m[0]), kind: "map" }); }
     for (const re of RE_PHONE) {
       re.lastIndex = 0;
       while ((m = re.exec(text))) {
@@ -540,8 +544,8 @@
         for (const q of r.getClientRects()) {
           if (q.width < 2 || q.height < 2) continue;
           const l = document.createElement("a"); l.className = "rd-lnk ext " + f.kind; l.href = f.href;
-          if (f.kind === "web") { l.target = "_blank"; l.rel = "noopener"; }
-          l.setAttribute("aria-label", (f.kind === "phone" ? "Call " : f.kind === "email" ? "Email " : "Open ") + text.slice(f.s, f.e));
+          if (f.kind === "web" || f.kind === "map") { l.target = "_blank"; l.rel = "noopener"; }
+          l.setAttribute("aria-label", (f.kind === "phone" ? "Call " : f.kind === "email" ? "Email " : f.kind === "map" ? "Show on the map: " : "Open ") + text.slice(f.s, f.e));
           l.style.left = q.left - er.left - 1 + "px"; l.style.top = q.top - er.top - 1 + "px"; l.style.width = q.width + 2 + "px"; l.style.height = q.height + 2 + "px";
           layer.append(l);
         }
