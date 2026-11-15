@@ -1387,20 +1387,23 @@ const FIN_SCHED=[{"id":"s1","name":"Scheme 01 · Steam","sub":"Cream colour sche
 const FIN_NOTES={s1:"Steam: cream and oak (Dekton Reverie splashback, Aged Ash and Raw Cotton joinery, Trapani 04 tiles, Apollo oak floors, Fyans Fawn carpet). Items marked Upgrade were optional extras.",s2:"Patina: deep green (Dekton Morpheus splashback, Green Slate and Otway joinery, Trapani 18M tiles, Walnut floors, Fyans Mineral carpet). Items marked Upgrade were optional extras.",common:"Shared areas of the building: lobbies, lifts, mailboxes and the orangery.",fix:"Taps, sinks, basins, toilets and bathroom accessories. All black unless noted."};
 let finSel=lsGet("wr-fin")||"s1"; const finOpen=new Set();
 function renderFinishes(){
-  if(!FIN_SCHED.some(g=>g.id===finSel)) finSel="s1";
+  const FIX=FIN_SCHED.find(x=>x.id==="fix"), TABS_FIN=FIN_SCHED.filter(x=>x.id!=="fix");
+  if(!TABS_FIN.some(g=>g.id===finSel)) finSel="s1";
   const q=norm($("qFin").value).trim(), seg=$("finSeg"), box=$("finList");
-  seg.replaceChildren(...FIN_SCHED.map(g=>el("button",{type:"button",class:"fseg-b fseg-"+g.id+(g.id===finSel?" on":""),role:"tab","aria-selected":g.id===finSel,onclick:()=>{ finSel=g.id; lsSet("wr-fin",g.id); renderFinishes(); }},...g.name.split(" · ").map((t,k)=>el("span",{class:k?"fseg-2":"fseg-1",text:t})))));
+  seg.replaceChildren(...TABS_FIN.map(g=>el("button",{type:"button",class:"fseg-b fseg-"+g.id+(g.id===finSel?" on":""),role:"tab","aria-selected":g.id===finSel,onclick:()=>{ finSel=g.id; lsSet("wr-fin",g.id); renderFinishes(); }},...g.name.split(" · ").map((t,k)=>el("span",{class:k?"fseg-2":"fseg-1",text:t})))));
   const g=FIN_SCHED.find(x=>x.id===finSel);
+  const withFix=(g.id==="s1"||g.id==="s2")&&FIX;
+  const allItems=withFix?g.items.concat(FIX.items.map(r=>({...r,_fix:true}))):g.items;
   let hero=$("finHero"); if(!hero){ hero=el("figure",{id:"finHero",class:"fin-hero"}); $("finNote").before(hero); }
   hero.replaceChildren(); hero.hidden=!g.hero||!!q;
   if(g.hero&&!q) hero.append(el("img",{src:g.hero,alt:g.name+" kitchen"}),el("figcaption",{text:g.name.replace("·","–")+" ("+g.sub+")"}));
-  $("finNote").textContent=q?`Searching ${g.name.toLowerCase()}`:(FIN_NOTES[g.id]||"");
+  $("finNote").textContent=q?`Searching ${g.name.toLowerCase()}`:((FIN_NOTES[g.id]||"")+(withFix?" Taps & fixtures are included below.":""));
   box.replaceChildren();
-  const rows=g.items.filter(r=>!q||norm(Object.values(r).join(" ")).includes(q));
+  const rows=allItems.filter(r=>!q||norm(Object.values(r).join(" ")).includes(q));
   if(!rows.length){ box.append(el("div",{class:"empty",text:"Nothing matches that search."})); }
   const GROUPS={"Benchtops":"Benchtops & stone","Stone Cladding":"Benchtops & stone","Stone":"Benchtops & stone","Joinery":"Cabinetry","Floor Tiling":"Tiles","Wall Tiling":"Tiles","Timber Flooring":"Flooring","Carpet":"Flooring","Carpet Tiling":"Flooring","Paint":"Paint","Glass Components":"Glass & mirrors","Glass":"Glass & mirrors","Mirror":"Glass & mirrors","Cladding":"Cladding & metalwork","Interior Film":"Cladding & metalwork","Metal wall cladding":"Cladding & metalwork","Pendant Light":"Lighting"};
   const order=[], by={};
-  for(const r of rows){ const n=GROUPS[r.cat]||r.cat; if(!by[n]){ by[n]=[]; order.push(n); } by[n].push(r); }
+  for(const r of rows){ const n=r._fix?"Taps & fixtures":(GROUPS[r.cat]||r.cat); if(!by[n]){ by[n]=[]; order.push(n); } by[n].push(r); }
   for(const n of order){
     const key=g.id+"|"+n, list=by[n];
     const d=el("details",{class:"fin-g",open:!!q||finOpen.has(key)},
@@ -1408,8 +1411,10 @@ function renderFinishes(){
       el("div",{class:"fin-body"}));
     d.addEventListener("toggle",()=>{ if(q) return; d.open?finOpen.add(key):finOpen.delete(key); });
     const body=d.lastChild;
+    let lastCat=null;
     for(const r of list){
-      const isFix=g.id==="fix";
+      const isFix=!!r._fix;
+      if(isFix&&r.cat!==lastCat){ lastCat=r.cat; body.append(el("div",{class:"man-sub",text:r.cat})); }
       const title=isFix?r.mat:(r.col||r.mat||r.loc);
       const kv=(k,v)=>v?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:k}),el("span",{class:"fin-v",text:v})):null;
       body.append(el("div",{class:"fin-card"},
