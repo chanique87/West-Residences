@@ -156,12 +156,16 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 
 /* Contact details */
 .details{display:grid;gap:12px;font-size:15px}
-.details .dl{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:center}
-.details .dk{color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.18em}
-.details .dv{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;overflow-wrap:anywhere}
+.details .dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center}
+.details .dk{grid-column:1/-1;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.18em}
+.details .dv{min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;overflow-wrap:anywhere}
+.details .da{grid-column:2;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px;margin-left:auto}
+.details .dl.noval{grid-template-columns:76px minmax(0,1fr);align-items:start}
+.details .dl.noval .dk{grid-column:1;padding-top:9px}
+.details .dl.noval .da{grid-column:2;width:100%}
+#conList .prose .acts{justify-content:flex-end}
 .details a.plain{color:var(--accent);text-decoration:none}
-.details .dv .act{padding:6px 12px;font-size:13px}
-@media (max-width:420px){.details .dl{grid-template-columns:1fr;gap:4px}}
+.details .da .act{padding:6px 12px;font-size:13px}
 
 /* Sheet editor */
 .scrim{position:fixed;inset:0;background:rgba(10,14,12,.5);display:none;align-items:flex-end;justify-content:center;z-index:30}
@@ -948,18 +952,18 @@ function renderContacts(){
     const g=groupOf(c);
     if(g!==group){ group=g; box.append(el("h3",{class:"group-h",text:g})); toc=el("div",{class:"toc"}); box.append(toc); }
     const site=c.website?cleanHref(c.website):null;
-    const dl=(k,...v)=>el("div",{class:"dl"},el("span",{class:"dk",text:k}),el("span",{class:"dv"},...v));
+    const dl=(k,val,...acts)=>{ acts=acts.filter(Boolean); return el("div",{class:"dl"+(val?"":" noval")},el("span",{class:"dk",text:k}),val?el("span",{class:"dv"},val):null,acts.length?el("span",{class:"da"},...acts):null); };
     const cp=(t)=>el("button",{type:"button",class:"act",text:"Copy",onclick:e=>copy(t,e.target)});
     const details=el("div",{class:"details"},
       c.phone?dl("Phone",el("span",{class:"phone",text:c.phone}),actBtn("Call",telHref(c.phone),true),cp(c.phone)):null,
       c.phone2?dl(c.phone2Label||"Phone 2",el("span",{class:"phone",text:c.phone2}),actBtn("Call",telHref(c.phone2),true)):null,
       c.email?dl("Email",el("span",{text:c.email}),actBtn("Send email",mailHref(c.email,c.emailSubject))):null,
       c.email2?dl("Email 2",el("span",{text:c.email2}),actBtn("Send email",mailHref(c.email2))):null,
-      site?dl("Website",el("a",{class:"plain",href:site,target:"_blank",rel:"noopener",text:siteLabel(site)})):null,
+      site?dl("Website",el("span",{text:siteLabel(site)}),actBtn("Visit site",site)):null,
       c.address?dl("Address",el("span",{text:c.address}),actBtn("Map",mapHref(c.address))):null,
       c.hours?dl("Hours",el("span",{text:c.hours})):null,
-      (c.ios||c.android)?dl("App",c.ios?actBtn("App Store",c.ios):null,c.android?actBtn("Google Play",c.android):null):null,
-      c.links?.length?dl("Forms",...c.links.map(l=>actBtn(l.label,l.url))):null);
+      (c.ios||c.android)?dl("App",null,c.ios?actBtn("App Store",c.ios):null,c.android?actBtn("Google Play",c.android):null):null,
+      c.links?.length?dl("Forms",null,...c.links.map(l=>actBtn(l.label,l.url))):null);
     const quick=c.phone?el("span",{class:"quick"},(()=>{ const b=actBtn("",telHref(c.phone),true); b.classList.add("icon-only"); b.setAttribute("aria-label","Call "+(c.name||c.role)); return b; })())
       : c.email?el("span",{class:"quick"},(()=>{ const b=actBtn("",mailHref(c.email,c.emailSubject)); b.classList.add("icon-only"); b.setAttribute("aria-label","Email "+(c.name||c.role)); return b; })()):null;
     const d=el("details",{"data-id":c.id,open: q ? rows.length<=3 : openCon.has(c.id)},
