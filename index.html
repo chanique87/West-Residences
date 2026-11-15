@@ -75,6 +75,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 .bl-l{flex:none;min-width:34px;color:var(--muted);font-size:13px}
 .bl-x{flex:1;min-width:0}
 #blPdf{margin:22px 0 8px}
+.man-sub{font:600 12px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin:14px 0 4px 2px}
 
 .hero .addr{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--board-ink) 72%,transparent)}
 .burger{width:44px;height:44px;margin-right:-10px;border-radius:50%;border:0;background:transparent;color:var(--board-ink);cursor:pointer;display:grid;place-items:center}
@@ -161,7 +162,7 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 .toc .ttl{font:400 20px/1.25 var(--display);flex:1;min-width:0}
 .toc .sub{display:block;font:400 13.5px/1.4 var(--body);color:var(--muted);margin-top:4px;letter-spacing:.01em}
 .toc .chev{width:18px;height:18px;flex:none;color:var(--muted);transition:transform .25s ease}
-.toc details[open] .chev{transform:rotate(90deg);color:var(--accent)}
+.toc details[open]>summary .chev{transform:rotate(90deg);color:var(--accent)}
 .toc summary:hover .ttl{color:var(--accent)}
 .toc .toc-body{padding:0 2px 28px 40px;display:grid;gap:16px}
 .toc .quick{flex:none}
@@ -347,8 +348,8 @@ main.wrap{max-width:760px;padding:0 0 56px}
 .group-h::after{background:var(--line)}
 .toc .num{font:400 13px/1 var(--body);color:var(--salmon)}
 .toc .ttl{font:500 16.5px/1.3 var(--body)}
-.toc summary:hover .ttl,.toc details[open] summary .ttl{color:var(--salmon)}
-.toc details[open] .chev{color:var(--salmon)}
+.toc summary:hover .ttl,.toc details[open]>summary .ttl{color:var(--salmon)}
+.toc details[open]>summary .chev{color:var(--salmon)}
 .prose li::before{background:var(--salmon)}
 .prose .lead{font-weight:600}
 .search:focus{border-color:var(--salmon)}
@@ -997,7 +998,7 @@ $("toggleAll").onclick=()=>{
 };
 
 function renderFilters(){
-  const box=$("roomFilters"); box.replaceChildren();
+  const box=$("roomFilters"); box.replaceChildren(); box.hidden=true; return;
   const used=new Set(state.appliances.map(a=>a.room).filter(Boolean));
   const rooms=["All",...ROOMS.filter(r=>used.has(r)),...[...used].filter(r=>!ROOMS.includes(r))];
   if(!rooms.includes(state.room)) state.room="All";
@@ -1013,10 +1014,8 @@ function renderManuals(){
   const rows=all.filter(a=>(state.room==="All"||a.room===state.room) && (!q||norm([a.name,a.brand,a.model,a.room,a.notes].join(" ")).includes(q)))
     .sort((a,b)=>ROOMS.indexOf(a.room)-ROOMS.indexOf(b.room)||norm(a.name).localeCompare(norm(b.name)));
   if(!rows.length){ box.append(el("div",{class:"empty",text: state.loaded.appliances ? (all.length?"Nothing matches.":"No appliances yet."+(state.canEdit?" Tap Add appliance.":"")) : "Loading…"})); return; }
-  let group=null, toc=null;
-  for(const a of rows){
-    const g=a.room||"Other";
-    if(g!==group){ group=g; box.append(el("h3",{class:"group-h",text:g})); toc=el("div",{class:"toc"}); box.append(toc); }
+  const secOf=a=>MAN_SECTIONS.find(sx=>(sx.rooms||sx.cats.flatMap(c=>c.rooms)).includes(a.room))||MAN_SECTIONS[MAN_SECTIONS.length-1];
+  const manItem=a=>{
     const w=warranty(a.warrantyUntil);
     const has=fileKey(a.file)||a.link;
     const sub=[a.brand,a.model].filter(Boolean).join(" · ");
@@ -1036,8 +1035,46 @@ function renderManuals(){
           ...((a.links||[]).map(l=>actBtn(l.label,l.url,l.primary)))):null,
         state.canEdit?el("div",{},el("button",{class:"edit",type:"button",text:"Edit",onclick:()=>openAppliance(a)})):null));
     d.addEventListener("toggle",()=>{ d.open?openMan.add(a.id):openMan.delete(a.id); });
-    toc.append(d);
+    return d;
+  };
+  const trackOpen=(d,key)=>d.addEventListener("toggle",()=>{ if(q) return; d.open?openMan.add(key):openMan.delete(key); });
+  const byRoom=(list,rooms)=>list.filter(a=>rooms.includes(a.room)).sort((a,b)=>rooms.indexOf(a.room)-rooms.indexOf(b.room)||norm(a.name).localeCompare(norm(b.name)));
+  const top=el("div",{class:"toc"}); let num=0;
+  for(const sx of MAN_SECTIONS){
+    const mine=rows.filter(a=>secOf(a)===sx); if(!mine.length) continue;
+    const body=el("div",{class:"toc-body",style:"padding-left:0"});
+    if(sx.cats){
+      for(const c of sx.cats){
+        const items=byRoom(mine,c.rooms); if(!items.length) continue;
+        const inner=el("div",{class:"bl-body"});
+        if(c.rooms.length>1){
+          for(const r of c.rooms){ const ri=items.filter(a=>a.room===r); if(!ri.length) continue; inner.append(el("div",{class:"man-sub",text:r}),el("div",{class:"toc"},...ri.map(manItem))); }
+        } else inner.append(el("div",{class:"toc"},...items.map(manItem)));
+        const key="cat:"+sx.id+"|"+c.title;
+        const d=el("details",{class:"fin-g",open:!!q||openMan.has(key)},el("summary",{},el("span",{class:"ttl",text:c.title}),el("span",{class:"fin-n",text:String(items.length)}),chev()),inner);
+        trackOpen(d,key); body.append(d);
+      }
+    } else body.append(el("div",{class:"toc"},...byRoom(mine,sx.rooms||[]).concat(mine.filter(a=>!(sx.rooms||[]).includes(a.room))).map(manItem)));
+    num++;
+    const key="sec:"+sx.id;
+    const d=el("details",{"data-sec":sx.id,open:!!q||openMan.has(key)},
+      el("summary",{},el("span",{class:"num",text:String(num).padStart(2,"0")}),el("span",{class:"ttl",text:sx.title}),el("span",{class:"fin-n",text:String(mine.length)}),chev()),body);
+    trackOpen(d,key); top.append(d);
   }
+  box.append(top);
+}
+const MAN_SECTIONS=[
+  {id:"building",title:"Building documents",rooms:["Building documents"]},
+  {id:"appliances",title:"Appliances",cats:[
+    {title:"Kitchen",rooms:["Kitchen"]},
+    {title:"Laundry",rooms:["Laundry"]},
+    {title:"Apartment",rooms:["Bathroom","Living","Bedroom","Balcony","Whole apartment"]},
+    {title:"Common areas",rooms:["Common areas"]}]},
+  {id:"certs",title:"Certificates",rooms:["Certificates"]},
+  {id:"other",title:"Other",rooms:["Other"]}];
+function manKeys(a){
+  const sx=MAN_SECTIONS.find(sx=>(sx.rooms||sx.cats.flatMap(c=>c.rooms)).includes(a.room))||MAN_SECTIONS[MAN_SECTIONS.length-1];
+  const keys=["sec:"+sx.id]; if(sx.cats){ const c=sx.cats.find(c=>c.rooms.includes(a.room)); if(c) keys.push("cat:"+sx.id+"|"+c.title); } return keys;
 }
 const openMan=new Set(), openCon=new Set();
 function safeUrl(u){ try{ const x=new URL(u); return /^https?:$/.test(x.protocol)?x.href:"#"; }catch{ return "#"; } }
@@ -1476,7 +1513,7 @@ function goTo(h){
   ["qInfo","qMan","qCon"].forEach(id=>{ $(id).value=""; });
   if(h.kind==="info") openSet.add(h.id);
   if(h.kind==="contact") openCon.add(h.id);
-  if(h.kind==="manual"){ openMan.add(h.id); state.room="All"; }
+  if(h.kind==="manual"){ openMan.add(h.id); state.room="All"; const ma=state.appliances.find(x=>x.id===h.id); if(ma) manKeys(ma).forEach(k=>openMan.add(k)); }
   if(location.hash!=="#"+h.tab) history.replaceState(null,"","#"+h.tab);
   route(); renderAll();
   requestAnimationFrame(()=>{
