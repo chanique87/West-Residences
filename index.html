@@ -1248,7 +1248,7 @@ function renderFinishes(){
         r.img?el("img",{class:"fin-img",src:r.img,alt:"Swatch: "+title,loading:"lazy"}):null,
         el("div",{class:"fin-h"},el("div",{class:"fin-t"},highlight(title,q)),el("span",{class:"fin-c",text:r.code})),
         r.loc?el("div",{class:"fin-s",text:r.loc}):null,
-        ...(isFix?[el("div",{class:"acts",style:"margin-top:10px"},actBtn("See photos","https://www.google.com/search?tbm=isch&q="+encodeURIComponent(r.mat.replace(/\(.*?\)/g,"").replace(/\s+/g," ").trim())))]:[kv("Material",r.col?r.mat:""),kv("Size",r.desc),kv("Finish",r.fin),kv("Reference",r.ref),kv("Supplier",r.sup),kv("Notes",r.notes)])));
+        ...(isFix?[]:[kv("Material",r.col?r.mat:""),kv("Size",r.desc),kv("Finish",r.fin),kv("Reference",r.ref),kv("Supplier",r.sup),kv("Notes",r.notes)])));
     }
     box.append(d);
   }
