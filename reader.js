@@ -185,6 +185,7 @@
       el._done = true;
       markSearch(tx); drawHighlights(i);
       drawLinks(el, page, vp, tok);
+      linkifyText(el, tx, tok);
     } catch (e) { if (!e || e.name !== "RenderingCancelledException") console.warn("page " + (i + 1), e); }
     finally { el._busy = false; }
   }
@@ -487,6 +488,68 @@
     } catch (e) { console.warn("links", e); }
   }
 
+  /* ---------- phone numbers, emails and web addresses in the text ---------- */
+  const RE_EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;
+  const RE_URL = /(?:https?:\/\/|www\.)[^\s<>"')\]]*[^\s<>"')\].,;:!?]|(?<![@\w.-])[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.(?:com|net|org|gov|edu|io|co)(?:\.au|\.nz|\.uk)?(?:\/[^\s<>"')\]]*[^\s<>"')\].,;:!?])?(?![\w@-])/gi;
+  const RE_PHONE = [
+    /(?<![\d.+])(?:\+?61[\s-]?\(?0?\)?[\s-]?|\(?0)[2378]\)?[\s-]?\d{4}[\s-]?\d{4}(?!\d)/g,
+    /(?<![\d.+])(?:\+?61[\s-]?|0)4\d{2}[\s-]?\d{3}[\s-]?\d{3}(?!\d)/g,
+    /(?<![\d.+])1[38]00[\s-]?\d{3}[\s-]?\d{3}(?!\d)/g,
+    /(?<![\d.+])13(?:[\s-]\d{2}[\s-]\d{2}|\d{4})(?![\d.]|\s?\d)/g,
+    /(?<![\d.\w])\+\d{1,3}[\s-]?\(?\d{1,4}\)?(?:[\s-]?\d{2,4}){2,4}(?!\d)/g,
+  ];
+  function findContacts(text) {
+    const out = [], used = (a, b) => out.some((o) => a < o.e && b > o.s);
+    let m;
+    RE_EMAIL.lastIndex = 0;
+    while ((m = RE_EMAIL.exec(text))) out.push({ s: m.index, e: m.index + m[0].length, href: "mailto:" + m[0], kind: "email" });
+    RE_URL.lastIndex = 0;
+    while ((m = RE_URL.exec(text))) {
+      const a = m.index, b = a + m[0].length; if (used(a, b)) continue;
+      let u = m[0]; if (/-$/.test(u)) u = u.slice(0, u.lastIndexOf("/") + 1) || u.slice(0, -1);   // a link that wrapped mid-word: open the section it is in
+      out.push({ s: a, e: b, href: /^https?:/i.test(u) ? u : "https://" + u, kind: "web" });
+    }
+    for (const re of RE_PHONE) {
+      re.lastIndex = 0;
+      while ((m = re.exec(text))) {
+        const a = m.index, b = a + m[0].length; if (used(a, b)) continue;
+        let digits = m[0].replace(/[^\d+]/g, ""); digits = digits.replace(/^\+610/, "+61"); if (digits.replace(/\D/g, "").length < 6) continue;
+        out.push({ s: a, e: b, href: "tel:" + digits, kind: "phone" });
+      }
+    }
+    return out.sort((x, y) => x.s - y.s);
+  }
+  function linkifyText(el, tx, tok) {
+    try {
+      if (tok !== S.tok || !el.isConnected) return;
+      const nodes = [], walker = document.createTreeWalker(tx, NodeFilter.SHOW_TEXT);
+      let text = "", n, prevTop = null, prevEnd = "";
+      while ((n = walker.nextNode())) {
+        const v = n.nodeValue; if (!v) continue;
+        const top = n.parentElement && n.parentElement.closest("span") ? Math.round(n.parentElement.closest("span").getBoundingClientRect().top / 3) : null;
+        const sep = text && !(prevEnd && !/\s/.test(prevEnd) && !/^\s/.test(v) && top === prevTop) ? " " : "";
+        text += sep; nodes.push({ n, start: text.length, len: v.length }); text += v; prevTop = top; prevEnd = v.slice(-1);
+      }
+      const found = findContacts(text); if (!found.length) return;
+      const layer = document.createElement("div"); layer.className = "rd-links det";
+      const er = el.getBoundingClientRect();
+      const at = (pos, isEnd) => { for (const x of nodes) if (pos >= x.start && pos <= x.start + x.len && (!isEnd ? pos < x.start + x.len || x === nodes[nodes.length - 1] : pos > x.start)) return [x.n, pos - x.start]; return null; };
+      for (const f of found) {
+        const a = at(f.s, false), b = at(f.e, true); if (!a || !b) continue;
+        const r = document.createRange(); r.setStart(a[0], a[1]); r.setEnd(b[0], b[1]);
+        for (const q of r.getClientRects()) {
+          if (q.width < 2 || q.height < 2) continue;
+          const l = document.createElement("a"); l.className = "rd-lnk ext " + f.kind; l.href = f.href;
+          if (f.kind === "web") { l.target = "_blank"; l.rel = "noopener"; }
+          l.setAttribute("aria-label", (f.kind === "phone" ? "Call " : f.kind === "email" ? "Email " : "Open ") + text.slice(f.s, f.e));
+          l.style.left = q.left - er.left - 1 + "px"; l.style.top = q.top - er.top - 1 + "px"; l.style.width = q.width + 2 + "px"; l.style.height = q.height + 2 + "px";
+          layer.append(l);
+        }
+      }
+      if (layer.children.length && el.isConnected) el.append(layer);
+    } catch (e) { console.warn("contact links", e); }
+  }
+
   /* ---------- side panel ---------- */
   function togglePanel(which, forceOpen) {
     const p = byId("rdPanel");
@@ -539,5 +602,5 @@
     }
   }
 
-  window.WRReader = { open, close, isOpen: () => isOpen };
+  window.WRReader = { open, close, isOpen: () => isOpen, find: findContacts };
 })();
