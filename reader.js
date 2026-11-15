@@ -38,6 +38,7 @@
       </div>
       <div class="rd-bars" id="rdBars">
         <div class="rd-bar" role="toolbar" aria-label="Reader tools">
+          <button type="button" id="rdTocBtn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>Contents</button>
           <button type="button" id="rdSearchBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m20 20-4.8-4.8"/></svg>Search</button>
           <button type="button" id="rdMarksBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16l-5-3.6L7 20z"/></svg>Bookmarks</button>
           <span class="grow"></span>
@@ -54,12 +55,15 @@
         <div class="rd-scroll" id="rdScroll"><div class="rd-pages" id="rdPages"></div></div>
         <div class="rd-msg" id="rdMsg" role="status"></div>
         <div class="rd-sel" id="rdSel" hidden></div>
+        <button type="button" class="rd-ret" id="rdRet" hidden></button>
       </div>`;
     document.body.append(root);
 
     byId("rdClose").onclick = close;
     byId("rdSearchBtn").onclick = () => togglePanel("search");
     byId("rdMarksBtn").onclick = () => togglePanel("marks");
+    byId("rdTocBtn").onclick = () => togglePanel("toc");
+    byId("rdRet").onclick = () => { const r = S && S.ret; byId("rdRet").hidden = true; if (r) byId("rdScroll").scrollTo({ top: r.top, behavior: "smooth" }); };
     byId("rdBm").onclick = toggleBookmark;
     byId("rdZoomIn").onclick = () => zoomBy(1);
     byId("rdZoomOut").onclick = () => zoomBy(-1);
@@ -88,11 +92,12 @@
     S = {
       path, title: title || path.split("/").pop(), url: new URL(path, document.baseURI).href,
       bm: saved.bm || [], hl: saved.hl || [], zoom: saved.zoom && ZOOMS.includes(saved.zoom) ? saved.zoom : 1,
-      els: [], sizes: [], cur: 0, tok: 0, words: [], results: [], ri: -1, panel: null, q: "", obs: null, raf: 0,
+      els: [], sizes: [], cur: 0, tok: 0, words: [], results: [], ri: -1, panel: null, toc: null, ret: null, q: "", obs: null, raf: 0,
     };
     isOpen = true; root.hidden = false; document.body.style.overflow = "hidden";
     byId("rdName").textContent = S.title;
     byId("rdPages").replaceChildren(); byId("rdPanel").hidden = true; hideSel();
+    byId("rdBars").classList.remove("away"); byId("rdTocBtn").hidden = true; byId("rdRet").hidden = true; byId("rdTocBtn").classList.remove("on");
     byId("rdOpen").href = S.url; byId("rdDl").href = S.url; byId("rdDl").setAttribute("download", path.split("/").pop());
     byId("rdPg").textContent = "Opening…";
     msg("Opening the manual…");
@@ -116,6 +121,7 @@
       layout(false);
       S.els.forEach((el) => S.obs.observe(el));
       markBookmarks(); onScroll(); updateBm();
+      loadToc(path);
       if (page && page > 1) goTo(page - 1);
     } catch (e) {
       console.warn(e);
@@ -178,6 +184,7 @@
       if (tok !== S.tok) return;
       el._done = true;
       markSearch(tx); drawHighlights(i);
+      drawLinks(el, page, vp, tok);
     } catch (e) { if (!e || e.name !== "RenderingCancelledException") console.warn("page " + (i + 1), e); }
     finally { el._busy = false; }
   }
@@ -199,10 +206,23 @@
       updateBm();
     }
   }
-  function goTo(i, smooth) {
+  function goTo(i, smooth, y) {
     const el = S.els[i]; if (!el) return;
     const sc = byId("rdScroll");
-    sc.scrollTo({ top: el.offsetTop - 8, behavior: smooth === false ? "auto" : "smooth" });
+    let top = el.offsetTop - 8;
+    if (typeof y === "number" && S.sizes[i] && el._scale && y >= 0 && y <= S.sizes[i].h) top = el.offsetTop + (S.sizes[i].h - y) * el._scale - 56;
+    sc.scrollTo({ top: Math.max(el.offsetTop - 8, top), behavior: smooth === false ? "auto" : "smooth" });
+  }
+  /* jump from a contents entry or an in-page link, with a way back */
+  function jump(r) {
+    if (!r || r.page == null || !S.els[r.page]) return;
+    const from = byId("rdScroll").scrollTop, fromPage = S.cur;
+    if (Math.abs(r.page - fromPage) >= 1) {
+      S.ret = { top: from, page: fromPage };
+      const b = byId("rdRet"); b.textContent = "↩ Back to page " + (fromPage + 1); b.hidden = false;
+      clearTimeout(S.retT); S.retT = setTimeout(() => { b.hidden = true; }, 15000);
+    }
+    goTo(r.page, true, r.y);
   }
   function zoomBy(d) {
     const i = Math.max(0, Math.min(ZOOMS.length - 1, ZOOMS.indexOf(S.zoom) + d));
@@ -394,12 +414,85 @@
     }, 150);
   }
 
+  /* ---------- contents (outline) and clickable links ---------- */
+  async function destToPage(dest) {
+    try {
+      let d = dest; if (typeof d === "string") d = await pdf.getDestination(d);
+      if (!Array.isArray(d) || d[0] == null) return null;
+      const page = typeof d[0] === "object" ? await pdf.getPageIndex(d[0]) : +d[0];
+      let y = null;
+      if (d[1] && d[1].name === "XYZ" && typeof d[3] === "number") y = d[3];
+      else if (d[1] && d[1].name === "FitH" && typeof d[2] === "number") y = d[2];
+      return { page, y };
+    } catch { return null; }
+  }
+  async function loadToc(path) {
+    let items = [];
+    try {
+      const ol = await pdf.getOutline();
+      if (ol && ol.length) {
+        const flat = [];
+        (function walk(a, d) { for (const n of a) { flat.push({ t: (n.title || "").replace(/\s+/g, " ").trim(), d, dest: n.dest }); if (n.items && n.items.length) walk(n.items, d + 1); } })(ol, 0);
+        const res = await Promise.all(flat.map((f) => (f.dest ? destToPage(f.dest) : null)));
+        flat.forEach((f, i) => { if (res[i]) { f.page = res[i].page; f.y = res[i].y; } });
+        items = flat.filter((f) => f.t && f.page != null && f.page >= 0);
+      }
+    } catch (e) { console.warn("outline", e); }
+    if (!items.length && pdf.numPages >= 8) { try { items = await printedToc(); } catch (e) { console.warn("printed contents", e); } }
+    if (!S || S.path !== path) return;
+    S.toc = items; byId("rdTocBtn").hidden = !items.length;
+  }
+  /* manuals with no built-in contents list: read the printed contents page (lines like "Title ....... 12") */
+  async function printedToc() {
+    const ix = await indexText();
+    const norm = (x) => x.toLowerCase().replace(/[^a-z0-9]+/g, "");
+    const found = [];
+    for (let pg = 0; pg < Math.min(10, ix.pages.length); pg++) {
+      const txt = ix.pages[pg], re = /\s*(.+?)\s*\.{4,}\s*(\d{1,3})(?=\s|$)/g; let m; const here = [];
+      while ((m = re.exec(txt))) { const t = m[1].replace(/^\d*\s*(table of )?contents\s*/i, "").replace(/\s+/g, " ").trim(); let tt = t; if (tt.length > 70) { const k = tt.search(/\s\d{1,2}\.\s+\S[^.]*$/); tt = k >= 0 ? tt.slice(k + 1) : tt.slice(-50); }
+        if (tt.length > 2) here.push({ t: tt, n: +m[2] }); }
+      if (here.length >= 4) found.push(...here);
+    }
+    if (found.length < 4) return [];
+    let best = -1, bestHits = 0;
+    for (let off = -2; off <= 14; off++) {
+      let hits = 0;
+      for (const e of found) { const pgx = ix.pages[e.n - 1 + off]; const k = norm(e.t).slice(0, 24); if (pgx && k.length > 2 && norm(pgx).includes(k)) hits++; }
+      if (hits > bestHits) { bestHits = hits; best = off; }
+    }
+    if (best === -1 || bestHits < Math.max(3, found.length * 0.5)) return [];
+    return found.map((e) => ({ t: e.t, d: 0, page: e.n - 1 + best, y: null })).filter((e) => e.page >= 0 && e.page < ix.pages.length);
+  }
+  async function drawLinks(el, page, vp, tok) {
+    try {
+      const an = await page.getAnnotations({ intent: "display" });
+      if (tok !== S.tok || !el.isConnected) return;
+      const layer = document.createElement("div"); layer.className = "rd-links";
+      for (const a of an) {
+        if (a.subtype !== "Link" || !a.rect) continue;
+        const url = a.url || a.unsafeUrl, ok = url && /^(https?:|mailto:|tel:)/i.test(url);
+        if (!a.dest && !ok) continue;
+        const T = vp.transform, ap = (x, y) => [T[0] * x + T[2] * y + T[4], T[1] * x + T[3] * y + T[5]];
+        const [x1, y1] = ap(a.rect[0], a.rect[1]), [x2, y2] = ap(a.rect[2], a.rect[3]);
+        const l = document.createElement("a"); l.className = "rd-lnk";
+        l.style.left = Math.min(x1, x2) + "px"; l.style.top = Math.min(y1, y2) + "px"; l.style.width = Math.abs(x2 - x1) + "px"; l.style.height = Math.abs(y2 - y1) + "px";
+        if (a.dest) { l.href = "#"; l._dest = a.dest; l.setAttribute("aria-label", "Jump to this section"); }
+        else { l.href = url; l.target = "_blank"; l.rel = "noopener"; }
+        layer.append(l);
+      }
+      if (layer.children.length) {
+        layer.addEventListener("click", (e) => { const l = e.target.closest(".rd-lnk"); if (l && l._dest) { e.preventDefault(); e.stopPropagation(); destToPage(l._dest).then(jump); } });
+        el.append(layer);
+      }
+    } catch (e) { console.warn("links", e); }
+  }
+
   /* ---------- side panel ---------- */
   function togglePanel(which, forceOpen) {
     const p = byId("rdPanel");
-    if (which === null || (!forceOpen && S.panel === which && !p.hidden)) { p.hidden = true; S.panel = null; byId("rdSearchBtn").classList.remove("on"); byId("rdMarksBtn").classList.remove("on"); return; }
+    if (which === null || (!forceOpen && S.panel === which && !p.hidden)) { p.hidden = true; S.panel = null; byId("rdSearchBtn").classList.remove("on"); byId("rdMarksBtn").classList.remove("on"); byId("rdTocBtn").classList.remove("on"); return; }
     S.panel = which; p.hidden = false; p.classList.remove("compact"); byId("rdBars").classList.remove("away"); renderPanel();
-    byId("rdSearchBtn").classList.toggle("on", which === "search"); byId("rdMarksBtn").classList.toggle("on", which === "marks");
+    byId("rdSearchBtn").classList.toggle("on", which === "search"); byId("rdMarksBtn").classList.toggle("on", which === "marks"); byId("rdTocBtn").classList.toggle("on", which === "toc");
   }
   function renderPanel() {
     const p = byId("rdPanel");
@@ -417,6 +510,18 @@
       byId("rdPx").onclick = () => { S.q = ""; S.words = []; refreshMarks(); togglePanel(null); };
       byId("rdResults").onclick = (e) => { const b = e.target.closest(".rd-res"); if (b) pickResult(+b.dataset.k); };
       if (S.q) { runSearch(S.q).then(() => { if (S.ri >= 0) pickResult(S.ri); }); } else setTimeout(() => q.focus(), 30);
+    } else if (S.panel === "toc") {
+      p.innerHTML = `<div class="rd-find"><input id="rdTq" type="search" placeholder="Filter the contents" autocomplete="off" aria-label="Filter the contents"><button type="button" id="rdPx">Done</button></div><div class="rd-toc" id="rdTocList"></div>`;
+      const list = byId("rdTocList");
+      const fill = (q) => {
+        const w = words(q);
+        const rows = (S.toc || []).map((t, i) => ({ t, i })).filter(({ t }) => !w.length || w.every((x) => t.t.toLowerCase().includes(x)));
+        list.innerHTML = rows.length ? rows.map(({ t, i }) => `<button type="button" class="rd-t d${Math.min(t.d, 3)}" data-i="${i}"><span>${esc(t.t)}</span><em>${t.page + 1}</em></button>`).join("") : `<p class="rd-empty">Nothing in the contents matches that.</p>`;
+      };
+      fill("");
+      byId("rdTq").addEventListener("input", (e) => fill(e.target.value));
+      byId("rdPx").onclick = () => togglePanel(null);
+      list.onclick = (e) => { const b = e.target.closest(".rd-t"); if (!b) return; const t = S.toc[+b.dataset.i]; togglePanel(null); jump(t); };
     } else if (S.panel === "marks") {
       const bm = S.bm.length ? S.bm.map((b) => `<div class="rd-row" data-id="${b.id}"><button type="button" class="go" data-page="${b.page}"><b>${esc(b.label)}</b>${b.label === "Page " + (b.page + 1) ? "" : `<span>Page ${b.page + 1}</span>`}</button><button type="button" class="ren" data-ren="${b.id}" aria-label="Rename bookmark">Rename</button><button type="button" class="del" data-delbm="${b.id}" aria-label="Delete bookmark">✕</button></div>`).join("")
         : `<p class="rd-empty">No bookmarks yet. Tap the bookmark at the top to save the page you're on.</p>`;

@@ -1,9 +1,0 @@
-WEST RESIDENCES HANDBOOK - LIVE VERSION SETUP (free)
-1. Firebase: console.firebase.google.com > Add project (new, e.g. west-residences) > Build > Firestore Database (create, production mode) > Authentication > Sign-in method > enable Google.
-2. Project settings > Your apps > Web (</>) > copy the config values into firebase-config.js (replace the PASTE_ placeholders).
-3. Firestore > Rules: paste the contents of firestore.rules and Publish.
-4. Netlify: app.netlify.com/drop - drag this whole folder in. Copy the site address.
-5. Firebase > Authentication > Settings > Authorized domains: add the Netlify address.
-6. Open your site, menu > Owner sign in > Claim this handbook (do this BEFORE sharing the link) > Load the handbook content.
-To add a manual: put the PDF in the files folder, redeploy, then edit the item and type files/name.pdf.
-Bookmarks and highlights are saved on each resident's own device.
