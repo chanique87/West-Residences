@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/meta/owner)
+        && get(/databases/$(database)/documents/meta/owner).data.uid == request.auth.uid;
+    }
+    // The first person to sign in and press "Claim this handbook" becomes the owner. It can't be changed afterwards.
+    match /meta/owner {
+      allow read: if true;
+      allow create: if request.auth != null
+        && !exists(/databases/$(database)/documents/meta/owner)
+        && request.resource.data.uid == request.auth.uid;
+    }
+    // Anyone can read the handbook. Only the owner can change it.
+    match /{collection}/{document} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+  }
+}

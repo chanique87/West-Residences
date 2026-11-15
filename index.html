@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>West Residences Handbook</title>
+<link rel="stylesheet" href="reader.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2b4a3e">
+<link rel="apple-touch-icon" href="icon-180.png">
+<script src="firebase-config.js"></script>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* Direction: a boutique-hotel concierge book. Deep bottle-green hero with a high-contrast serif name,
+   then quiet travertine pages: hairline dividers, generous spacing, one champagne accent for detail.
+   Layout: hero → sticky text tabs → a titled section per tab of collapsible rows, one column. */
+:root{
+  --ink:#1b1f1d; --muted:#6b706c; --paper:#f3f2ee; --panel:#fbfaf7; --line:#e2ded5; --line-2:#d3cec2;
+  --accent:var(--acc-l,#24443a); --accent-ink:#f7f4ec; --brass:#9c7a3c; --brass-soft:#efe6d3;
+  --good:#3f6f53; --good-soft:#e2ece4; --warn:#9a5a12; --warn-soft:#f5e7d2; --off:#7d827e; --off-soft:#ebe9e3;
+  --board:#17241f; --board-ink:#f1ece0; color-scheme:light;
+  --display:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --body:"Jost","Futura","Avenir Next",system-ui,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]):not([data-mode="light"]){
+  --ink:#ece8de; --muted:#9ea39d; --paper:#101413; --panel:#161c1a; --line:#252d2a; --line-2:#323b37;
+  --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#d4b27a; --brass-soft:#2c2619;
+  --good:#8fc8a4; --good-soft:#18281f; --warn:#e6b26c; --warn-soft:#2e2414; --off:#8c928d; --off-soft:#1e2422;
+  --board:#0c1512; --board-ink:#efe8d8; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]:not([data-mode="light"]), :root[data-mode="dark"]{
+  --ink:#ece8de; --muted:#9ea39d; --paper:#101413; --panel:#161c1a; --line:#252d2a; --line-2:#323b37;
+  --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#d4b27a; --brass-soft:#2c2619;
+  --good:#8fc8a4; --good-soft:#18281f; --warn:#e6b26c; --warn-soft:#2e2414; --off:#8c928d; --off-soft:#1e2422;
+  --board:#0c1512; --board-ink:#efe8d8; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:400 16.5px/1.65 var(--body);letter-spacing:.005em;-webkit-text-size-adjust:100%;zoom:var(--zoom,1)}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;font-weight:500}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+[hidden]{display:none!important}
+
+/* Hero */
+.hero{background:var(--board);color:var(--board-ink);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:1px;background:linear-gradient(90deg,transparent,var(--brass),transparent);opacity:.6}
+.hero .wrap{padding-top:22px;padding-bottom:40px}
+.hero .top{display:flex;justify-content:space-between;align-items:center}
+.eyebrow{font:500 11px/1 var(--body);letter-spacing:.32em;text-transform:uppercase;color:var(--brass)}
+.hero h1{font-size:clamp(40px,11vw,64px);line-height:1;letter-spacing:-.01em;margin-top:34px;font-weight:400}
+.hero h1 em{font-style:italic}
+.hero .rule{width:44px;height:1px;background:var(--brass);margin:20px 0 14px}
+.hero .addr{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--board-ink) 72%,transparent)}
+.burger{width:44px;height:44px;margin-right:-10px;border-radius:50%;border:0;background:transparent;color:var(--board-ink);cursor:pointer;display:grid;place-items:center}
+.burger:hover{background:color-mix(in srgb,var(--board-ink) 10%,transparent)}
+.burger svg{width:22px;height:22px}
+:root[data-header="minimal"] .hero{background:var(--paper);color:var(--ink);--board-ink:var(--ink)}
+:root[data-header="minimal"] .hero h1{font-size:clamp(34px,9vw,48px);margin-top:22px}
+:root[data-header="minimal"] .hero .wrap{padding-bottom:24px}
+
+/* Tabs */
+.tabs-bar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:28px;max-width:720px;margin:0 auto;padding:0 20px}
+.tabs a{position:relative;text-decoration:none;color:var(--muted);font:500 13px/1 var(--body);letter-spacing:.18em;text-transform:uppercase;padding:18px 0 16px}
+.tabs a[aria-current="page"]{color:var(--ink)}
+.tabs a[aria-current="page"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent)}
+
+main.wrap{padding-top:34px;padding-bottom:72px}
+.view-head{display:grid;gap:6px;margin-bottom:22px}
+.view-head h2{font-size:32px;line-height:1.1}
+.view-head p{margin:0;color:var(--muted);font-size:15px;max-width:52ch}
+
+.note{font-size:14px;color:var(--muted);padding:12px 14px;border:1px solid var(--line);border-radius:var(--r);margin-bottom:16px;background:var(--panel)}
+.note.err{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,var(--line))}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:22px}
+.toolbar .grow{flex:1 1 200px}
+.search{width:100%;padding:13px 16px 13px 42px;border-radius:999px;border:1px solid var(--line);background:var(--panel) no-repeat 16px 50%/16px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8e8a' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");font-size:15px}
+.search::placeholder{color:var(--muted)}
+.search:focus{outline:none;border-color:var(--brass)}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:11px 18px;font-weight:500;font-size:14px;letter-spacing:.04em;cursor:pointer;white-space:nowrap}
+.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--line-2)}
+.btn.danger{background:transparent;color:var(--warn);border:1px solid var(--warn)}
+.btn.small{padding:8px 14px;font-size:13px}
+.summary{font-size:13px;color:var(--muted);margin:0 0 14px;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.empty{text-align:center;color:var(--muted);padding:40px 12px;font-family:var(--display);font-style:italic;font-size:18px}
+.edit{background:none;border:0;color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:4px 0}
+.edit:hover{color:var(--accent)}
+.meta{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.phone{font-variant-numeric:tabular-nums;font-weight:500;letter-spacing:.02em}
+
+/* Shared row/accordion */
+.toc-bar{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 10px}
+.toc-bar h2,.group-h{font:500 11px/1 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.group-h{margin:30px 0 10px;display:flex;align-items:center;gap:12px}
+.group-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.group-h:first-child{margin-top:0}
+.linkbtn{background:none;border:0;color:var(--accent);font-size:13px;letter-spacing:.06em;cursor:pointer;padding:4px 0}
+.toc{border-top:1px solid var(--line)}
+.toc details{border-bottom:1px solid var(--line)}
+.toc summary{list-style:none;display:flex;align-items:center;gap:16px;padding:20px 2px;cursor:pointer}
+.toc summary::-webkit-details-marker{display:none}
+.toc .num{font:italic 400 15px/1 var(--display);color:var(--brass);width:24px;flex:none;font-variant-numeric:lining-nums}
+.toc .ttl{font:400 20px/1.25 var(--display);flex:1;min-width:0}
+.toc .sub{display:block;font:400 13.5px/1.4 var(--body);color:var(--muted);margin-top:4px;letter-spacing:.01em}
+.toc .chev{width:18px;height:18px;flex:none;color:var(--muted);transition:transform .25s ease}
+.toc details[open] .chev{transform:rotate(90deg);color:var(--accent)}
+.toc summary:hover .ttl{color:var(--accent)}
+.toc .toc-body{padding:0 2px 28px 40px;display:grid;gap:16px}
+.toc .quick{flex:none}
+@media (prefers-reduced-motion:no-preference){.toc details[open] .toc-body{animation:fade .3s ease}@keyframes fade{from{opacity:0;transform:translateY(-4px)}}}
+.toc mark{background:var(--brass-soft);color:inherit;border-radius:3px;padding:0 2px}
+
+/* Readable body text */
+.prose{display:grid;gap:14px;max-width:60ch;font-size:16px}
+.prose p{margin:0}
+.prose .lead{font-weight:500;color:var(--ink)}
+.prose ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.prose li{position:relative;padding-left:20px}
+.prose li::before{content:"";position:absolute;left:2px;top:.8em;width:8px;height:1px;background:var(--brass)}
+.prose .acts{margin-top:-2px}
+.prose .spec{display:grid;grid-template-columns:auto 1fr;gap:4px 18px;font-size:15px}
+.prose .spec dt{color:var(--muted)}
+.prose .spec dd{margin:0;font-variant-numeric:tabular-nums}
+.prose h4{margin:6px 0 -4px;font:500 11px/1 var(--body);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+
+/* Action buttons */
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.act{display:inline-flex;align-items:center;gap:7px;text-decoration:none;border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:500;letter-spacing:.02em;border:1px solid var(--line-2);background:transparent;color:var(--ink);cursor:pointer;line-height:1.2;transition:border-color .15s,background .15s}
+.act svg{width:15px;height:15px;flex:none;opacity:.85}
+.act:hover{border-color:var(--accent);color:var(--accent)}
+.act.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.act.primary:hover{color:var(--accent-ink);filter:brightness(1.08)}
+.act.icon-only{padding:9px;width:38px;height:38px;justify-content:center}
+.act.icon-only svg{width:16px;height:16px}
+
+/* Chips */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:11.5px;font-weight:500;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:var(--off-soft);color:var(--off)}
+.chip.room{background:transparent;color:var(--brass);border:1px solid color-mix(in srgb,var(--brass) 40%,transparent)}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin:-6px 0 14px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{border:1px solid var(--line-2);background:transparent;border-radius:999px;padding:7px 14px;font-size:13px;letter-spacing:.04em;cursor:pointer;white-space:nowrap;color:var(--muted)}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* Contact details */
+.details{display:grid;gap:12px;font-size:15px}
+.details .dl{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:center}
+.details .dk{color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.18em}
+.details .dv{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;overflow-wrap:anywhere}
+.details a.plain{color:var(--accent);text-decoration:none}
+.details .dv .act{padding:6px 12px;font-size:13px}
+@media (max-width:420px){.details .dl{grid-template-columns:1fr;gap:4px}}
+
+/* Sheet editor */
+.scrim{position:fixed;inset:0;background:rgba(10,14,12,.5);display:none;align-items:flex-end;justify-content:center;z-index:30}
+.scrim.open{display:flex}
+.sheet{background:var(--panel);width:100%;max-width:620px;max-height:92%;overflow:auto;border-radius:20px 20px 0 0;padding:24px 22px 28px;display:grid;gap:14px}
+@media (min-width:700px){.scrim{align-items:center}.sheet{border-radius:20px}}
+.sheet h2{font-size:26px}
+.field{display:grid;gap:6px}
+.field label{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.field input,.field textarea,.field select{width:100%;padding:11px 14px;border:1px solid var(--line-2);border-radius:10px;background:var(--paper)}
+.field textarea{min-height:120px;resize:vertical;line-height:1.55}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:420px){.two{grid-template-columns:1fr}}
+.sheet .foot{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:6px}
+.sheet .foot .right{display:flex;gap:8px}
+.filebox{font-size:14px;color:var(--muted);display:grid;gap:6px}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(16px);opacity:.6}}}
+
+/* Density + motion settings */
+:root[data-density="compact"] .toc summary{padding:13px 2px}
+:root[data-density="compact"] .toc .ttl{font-size:18px}
+:root[data-density="compact"] .toc .toc-body{padding-bottom:18px}
+:root[data-density="compact"] .prose{gap:10px}
+:root[data-motion="reduce"] *{animation:none!important;transition:none!important}
+
+/* Menu drawer */
+.drawer-scrim{position:fixed;inset:0;background:rgba(10,14,12,.5);z-index:20;display:none}
+.drawer-scrim.open{display:block}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(360px,88vw);background:var(--panel);color:var(--ink);z-index:21;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s ease,visibility .28s;visibility:hidden}
+.drawer.open{transform:none;visibility:visible;box-shadow:-12px 0 40px rgba(0,0,0,.18)}
+.drawer header{display:flex;align-items:center;gap:8px;padding:18px 14px 16px 22px;border-bottom:1px solid var(--line)}
+.drawer header h2{font-size:24px;flex:1}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:0;background:transparent;cursor:pointer;display:grid;place-items:center;font-size:22px;line-height:1;color:var(--ink)}
+.icon-btn:hover{background:var(--off-soft)}
+.drawer .scroll{overflow:auto;flex:1;padding:10px 0 24px}
+.menu a,.menu button{display:flex;width:100%;align-items:center;gap:14px;padding:15px 22px;border:0;background:none;text-align:left;text-decoration:none;color:var(--ink);font-size:16px;cursor:pointer}
+.menu a:hover,.menu button:hover{background:var(--off-soft)}
+.menu .count{margin-left:auto;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.menu .mi{width:20px;text-align:center;color:var(--brass);font-family:var(--display);font-style:italic}
+.menu hr{border:0;border-top:1px solid var(--line);margin:10px 22px}
+.drawer .foot-note{font-size:13px;color:var(--muted);padding:14px 22px}
+.set-group{padding:8px 22px 16px;display:grid;gap:14px}
+.set-group h3{font:500 11px/1 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--muted);padding-top:14px}
+.set-row{display:grid;gap:8px}
+.set-row > label,.set-row > .lbl{font-size:14.5px;font-weight:500}
+.seg{display:flex;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:8px 4px;font-size:13px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.swatches{display:flex;gap:12px;flex-wrap:wrap}
+.swatch{width:34px;height:34px;border-radius:50%;border:3px solid var(--panel);box-shadow:0 0 0 1px var(--line-2);cursor:pointer}
+.swatch[aria-pressed="true"]{box-shadow:0 0 0 1.5px var(--ink)}
+.set-row select,.set-row input[type=text]{width:100%;padding:11px 14px;border:1px solid var(--line-2);border-radius:10px;background:var(--paper)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14.5px;font-weight:500}
+.toggle input{width:44px;height:26px;appearance:none;-webkit-appearance:none;background:var(--line-2);border-radius:999px;position:relative;cursor:pointer;flex:none;transition:background .15s}
+.toggle input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle input:checked{background:var(--accent)}
+.toggle input:checked::after{left:21px}
+.hint{font-size:13px;color:var(--muted);font-weight:400}
+
+/* ===== Folder look: green cloth binder, olive tabs with blush lettering, blush dividers, white pages, salmon headings ===== */
+:root{
+  --binder:#2b4a3e; --binder-ink:#e9dfcf; --gold:#c9a66b; --olive:#5c6259; --olive-ink:#efc3b5;
+  --blush:#edc0b2; --blush-ink:#4b4c46; --salmon:#cf7656;
+  --ink:#1e201f; --muted:#6c6f6b; --paper:#ffffff; --panel:#ffffff; --line:#e9e4dc; --line-2:#d9d3c9;
+  --accent:var(--acc-l,#2a463b); --accent-ink:#ffffff; --brass:#cf7656; --brass-soft:#f8e4dc;
+  --display:"Jost","Futura",system-ui,sans-serif; --body:"Libre Franklin","Franklin Gothic Book","Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]):not([data-mode="light"]){
+  --binder:#111b17; --binder-ink:#e6dccb; --gold:#d6b67f; --olive:#383d36; --olive-ink:#eab8a9;
+  --blush:#3a2925; --blush-ink:#f0cabd; --salmon:#e99b7f;
+  --ink:#ece7de; --muted:#a2a59f; --paper:#181e1b; --panel:#181e1b; --line:#29312d; --line-2:#36403b;
+  --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#e99b7f; --brass-soft:#33241f; color-scheme:dark; } }
+:root[data-theme="dark"]:not([data-mode="light"]), :root[data-mode="dark"]{
+  --binder:#111b17; --binder-ink:#e6dccb; --gold:#d6b67f; --olive:#383d36; --olive-ink:#eab8a9;
+  --blush:#3a2925; --blush-ink:#f0cabd; --salmon:#e99b7f;
+  --ink:#ece7de; --muted:#a2a59f; --paper:#181e1b; --panel:#181e1b; --line:#29312d; --line-2:#36403b;
+  --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#e99b7f; --brass-soft:#33241f; color-scheme:dark; }
+
+body{background:var(--binder);background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 3px);font:400 16px/1.6 var(--body);letter-spacing:0}
+h1,h2,h3{font-family:var(--body)}
+
+/* Cover */
+.cover{color:var(--binder-ink)}
+.cover .wrap{padding-top:16px;padding-bottom:30px;text-align:center}
+.cover .top{display:flex;justify-content:space-between;align-items:center;text-align:left}
+.cover .eyebrow{font:400 11px/1 var(--display);letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.9}
+.cover h1{margin-top:38px;font:300 clamp(36px,10.5vw,58px)/1 var(--display);letter-spacing:.06em;
+  background:linear-gradient(100deg,#a7834a 0%,#e8cf98 28%,#b8925a 52%,#f0dcae 74%,#a8844b 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .sub{margin-top:14px;font:400 11.5px/1.4 var(--display);letter-spacing:.34em;text-transform:uppercase;color:var(--gold)}
+.cover .addr{margin-top:8px;font-size:13px;letter-spacing:.06em;color:color-mix(in srgb,var(--binder-ink) 70%,transparent)}
+.burger{color:var(--binder-ink)}
+:root[data-header="minimal"] .cover h1{font-size:clamp(28px,8vw,40px);margin-top:20px}
+:root[data-header="minimal"] .cover .sub{display:none}
+
+/* Divider tabs */
+.tabs-bar{position:sticky;top:0;z-index:5;background:var(--binder);border:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+.tabs{max-width:760px;margin:0 auto;padding:10px 14px 0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{flex:none;background:var(--olive);color:var(--olive-ink);border-radius:12px 12px 0 0;padding:12px 14px 11px;font:500 10.5px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.tabs a[aria-current="page"]{background:var(--paper);color:var(--salmon)}
+.tabs a[aria-current="page"]::after{display:none}
+
+/* Page */
+main.wrap{max-width:760px;padding:0 0 56px}
+.page{background:var(--paper);min-height:60vh;padding:0 0 36px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+@media (min-width:760px){.page{border-radius:0 0 6px 6px}}
+.page-in{padding:0 22px}
+.divider{background:var(--blush);color:var(--blush-ink);text-align:center;padding:40px 20px 0;margin-bottom:28px;position:relative;overflow:hidden}
+.divider .sketch{display:block;width:103%;clip-path:inset(0 3% 0 0);max-width:640px;margin:18px auto 0;opacity:.85;mix-blend-mode:multiply;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%,#000 82%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 18%,#000 82%,transparent 100%)}
+:root[data-mode="dark"] .divider .sketch{filter:invert(1);mix-blend-mode:screen;opacity:.55}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-mode="light"]) .divider .sketch{filter:invert(1);mix-blend-mode:screen;opacity:.55}}
+:root[data-theme="dark"]:not([data-mode="light"]) .divider .sketch{filter:invert(1);mix-blend-mode:screen;opacity:.55}
+.divider::before{content:"";position:absolute;inset:14px 14px 0;border-bottom:0;border:1px solid color-mix(in srgb,var(--blush-ink) 22%,transparent);pointer-events:none}
+.divider h2{font:200 clamp(26px,7.2vw,38px)/1.15 var(--display);letter-spacing:.1em;text-transform:uppercase;text-wrap:balance}
+.divider p{margin:12px auto 0;font:400 10.5px/1 var(--display);letter-spacing:.32em;text-transform:uppercase;opacity:.75}
+.sec-h{font:500 15px/1.3 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--salmon);margin:0 0 14px}
+.view-head{display:none}
+.intro{color:var(--ink);max-width:62ch;margin:0 0 22px;font-size:15.5px}
+.intro p{margin:0 0 12px}
+
+/* Contents list = like the folder's contents page */
+.toc-bar h2,.group-h{font:500 12.5px/1.2 var(--body);letter-spacing:.08em;color:var(--salmon)}
+.group-h{text-transform:uppercase;margin:30px 0 6px}
+.group-h::after{background:var(--line)}
+.toc .num{font:400 13px/1 var(--body);color:var(--salmon)}
+.toc .ttl{font:500 16.5px/1.3 var(--body)}
+.toc summary:hover .ttl,.toc details[open] summary .ttl{color:var(--salmon)}
+.toc details[open] .chev{color:var(--salmon)}
+.prose li::before{background:var(--salmon)}
+.prose .lead{font-weight:600}
+.search:focus{border-color:var(--salmon)}
+
+/* Welcome letter */
+.letter{max-width:62ch}
+.letter .body p{margin:0 0 13px}
+.letter .sign{margin-top:22px}
+.letter .sign .name{font:italic 400 22px/1 var(--body);margin:10px 0 4px}
+.folder-map{margin-top:34px;display:grid;gap:10px}
+.folder-map a{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-left:4px solid var(--olive);border-radius:8px;padding:14px 16px;background:var(--panel)}
+.folder-map a:hover{border-color:var(--salmon);border-left-color:var(--salmon)}
+.folder-map .t{font:500 12px/1.2 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--salmon)}
+.folder-map .d{font-size:14px;color:var(--muted);margin-top:3px}
+.folder-map .chev{margin-left:auto;color:var(--muted)}
+
+/* Whole-app search */
+.top-actions{display:flex;gap:2px;margin-right:-10px}
+.top-actions{align-items:center;gap:6px}
+.top-actions .burger{margin:0}
+.search-pill{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px 0 11px;border-radius:999px;border:1px solid color-mix(in srgb,var(--binder-ink) 22%,transparent);background:color-mix(in srgb,var(--binder-ink) 14%,transparent);color:var(--binder-ink);font:400 13px/1 var(--body);letter-spacing:.04em;cursor:pointer;transition:background .15s}
+.search-pill:hover{background:color-mix(in srgb,var(--binder-ink) 22%,transparent)}
+.search-pill svg{width:16px;height:16px;flex:none}
+:root[data-header="minimal"] .search-pill{color:var(--ink);background:color-mix(in srgb,var(--ink) 7%,transparent);border-color:var(--line-2)}
+.gs{position:fixed;inset:0;z-index:40;background:var(--paper);display:flex;flex-direction:column}
+.gs[hidden]{display:none!important}
+.gs-bar{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--paper)}
+.gs-ic{width:20px;height:20px;color:var(--muted);flex:none;margin-left:4px}
+.gs-bar input{flex:1;min-width:0;border:0;background:transparent;font:400 17px/1.3 var(--body);padding:10px 0;color:var(--ink)}
+.gs-bar input:focus{outline:none}
+.gs-x{border:0;background:none;color:var(--salmon);font:500 14px var(--body);cursor:pointer;padding:8px}
+.gs-body{overflow:auto;flex:1;padding:6px 18px 40px;max-width:760px;width:100%;margin:0 auto}
+.gs-group{font:500 11.5px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--salmon);margin:22px 0 6px}
+.gs-hit{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:13px 2px;cursor:pointer;color:var(--ink)}
+.gs-hit:hover .gs-t{color:var(--salmon)}
+.gs-t{font:500 16px/1.3 var(--body)}
+.gs-s{font-size:14px;color:var(--muted);margin-top:4px;line-height:1.45}
+.gs-hit mark,.gs-t mark{background:var(--brass-soft);color:inherit;border-radius:3px;padding:0 2px}
+.ask{border:1px solid var(--line-2);border-radius:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--blush) 22%,var(--paper)),var(--paper));padding:16px 16px 12px;margin:16px 0 6px}
+.ask-head{display:flex;gap:12px;align-items:flex-start}
+.ask-ic{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--salmon);color:#fff;font-size:14px;margin-top:2px}
+.ask-q{flex:1;min-width:0}
+.ask-k{font:500 11px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--salmon);margin-bottom:5px}
+.ask-t{font:500 16px/1.35 var(--body);color:var(--ink)}
+.ask-go{flex:none}
+.ask-out:empty{display:none}
+.ask-out{margin:14px 0 4px;padding-top:12px;border-top:1px solid var(--line)}
+.ask-out .prose p{margin:0 0 .6em}
+.ask-note{color:var(--muted);font-size:14.5px;margin:0}
+.ask-src{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:12.5px;color:var(--muted)}
+.ask-src button{border:1px solid var(--line-2);background:var(--paper);border-radius:999px;padding:5px 11px;font-size:13px;cursor:pointer;color:var(--ink)}
+.ask-src button:hover{border-color:var(--salmon);color:var(--salmon)}
+.ask-foot{font-size:11.5px;color:var(--muted);margin-top:10px}
+.ask-wait{display:flex;gap:5px;padding:6px 0}
+.ask-wait span{width:7px;height:7px;border-radius:50%;background:var(--salmon);opacity:.3;animation:askdot 1s infinite}
+.ask-wait span:nth-child(2){animation-delay:.15s}.ask-wait span:nth-child(3){animation-delay:.3s}
+@keyframes askdot{50%{opacity:1}}
+.gs-empty{color:var(--muted);padding:30px 4px;font-size:15px}
+.gs-tips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.gs-tips button{border:1px solid var(--line-2);background:none;border-radius:999px;padding:7px 13px;font-size:13.5px;cursor:pointer;color:var(--ink)}
+@keyframes flash{0%{background:var(--brass-soft)}100%{background:transparent}}
+.flash{animation:flash 2.2s ease-out}
+</style>
+</head>
+<body>
+<header class="cover">
+  <div class="wrap">
+    <div class="top">
+      <span class="eyebrow">Home Owners Manual</span>
+      <span class="top-actions">
+      <button class="search-pill" id="searchBtn" type="button" aria-label="Search the handbook" aria-controls="gs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></svg>
+        <span>Search</span>
+      </button>
+      <button class="burger" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg>
+      </button>
+      </span>
+    </div>
+    <h1 id="bName">West Residences</h1>
+    <div class="sub">Mt Lawley Residences</div>
+    <div class="addr" id="bAddr">141 West Parade, Mount Lawley WA 6050</div>
+  </div>
+</header>
+<div class="tabs-bar">
+  <nav class="tabs" aria-label="Sections" id="tabs">
+    <a href="#welcome" data-tab="welcome">Welcome</a>
+    <a href="#important" data-tab="important">Important Information</a>
+    <a href="#residence" data-tab="residence">Your New Residence</a>
+    <a href="#strata" data-tab="strata">Strata</a>
+    <a href="#contacts" data-tab="contacts">Contacts</a>
+    <a href="#manuals" data-tab="manuals">Manuals &amp; Certificates</a>
+  </nav>
+</div>
+
+<div class="gs" id="gs" role="dialog" aria-modal="true" aria-label="Search the handbook" hidden>
+  <div class="gs-bar">
+    <svg class="gs-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></svg>
+    <input id="gsInput" type="search" placeholder="Search or ask a question" aria-label="Search the whole handbook" autocomplete="off">
+    <button type="button" class="gs-x" id="gsClose">Cancel</button>
+  </div>
+  <div class="gs-body" id="gsResults"></div>
+</div>
+<div class="drawer-scrim" id="drawerScrim"></div>
+<aside class="drawer" id="drawer" aria-label="Menu" aria-hidden="true" inert>
+  <header>
+    <button class="icon-btn" id="drawerBack" type="button" aria-label="Back to menu" hidden>&#8249;</button>
+    <h2 id="drawerTitle">Menu</h2>
+    <button class="icon-btn" id="drawerClose" type="button" aria-label="Close menu">&times;</button>
+  </header>
+  <div class="scroll" id="drawerBody"></div>
+</aside>
+<main class="wrap"><div class="page">
+  <section id="view-welcome" hidden>
+    <div class="divider"><h2>Welcome</h2><p>West Residences</p><img class="sketch" src="img/sketch-street.webp" alt="" aria-hidden="true"></div>
+    <div class="page-in">
+      <div class="letter" id="letter"></div>
+      <div class="folder-map" id="folderMap"></div>
+    </div>
+  </section>
+  <div class="page-in"><div id="status" class="note" hidden></div></div>
+
+  <section id="view-info" hidden>
+    <div class="divider"><h2 id="divTitle">Your New Residence</h2><p>West Residences</p><img class="sketch" src="img/sketch-street.webp" alt="" aria-hidden="true"></div>
+    <div class="page-in">
+    <div class="intro" id="tabIntro"></div>
+    <div class="view-head"><h2>Living at <em id="vhName">the building</em></h2><p>Everything you need to know, one topic at a time. Tap a topic to open it.</p></div>
+    <div class="toolbar">
+      <input class="search grow" id="qInfo" type="search" placeholder="Search parking, bins, pets…" aria-label="Search building info">
+      <button class="btn" id="addInfo" hidden>Add section</button>
+    </div>
+    <div class="toc-bar">
+      <h2 id="tocLabel">Contents</h2>
+      <button class="linkbtn" id="toggleAll" type="button">Expand all</button>
+    </div>
+    <div id="infoList"></div>
+    </div>
+  </section>
+
+  <section id="view-manuals" hidden>
+    <div class="divider"><h2>Manuals &amp;<br>Certificates</h2><p>West Residences</p><img class="sketch" src="img/sketch-street.webp" alt="" aria-hidden="true"></div>
+    <div class="page-in">
+    <div class="intro"><p>The USB in your folder holds the detailed operation manuals (including warranty information) for the equipment, appliances and hardware in your apartment, plus the completion and compliance certificates and the finishes and fixtures schedules.</p><p>Everything from the folder is kept here, and you can add the USB manuals to each appliance below.</p></div>
+    <div class="view-head"><h2>Manuals &amp; documents</h2><p>Your welcome folder and the guide for every appliance, kept in one place.</p></div>
+    <div class="toolbar">
+      <input class="search grow" id="qMan" type="search" placeholder="Search by appliance, brand or model" aria-label="Search manuals">
+      <button class="btn" id="addMan" hidden>Add appliance</button>
+    </div>
+    <div class="filters" id="roomFilters" role="group" aria-label="Filter by room"></div>
+    <p class="summary" id="manSummary"></p>
+    <div id="manList"></div>
+    </div>
+  </section>
+
+  <section id="view-contacts" hidden>
+    <div class="divider"><h2>Contacts</h2><p>West Residences</p><img class="sketch" src="img/sketch-street.webp" alt="" aria-hidden="true"></div>
+    <div class="page-in">
+    <div class="intro"><p>Tap a name for the full details. The round green button calls straight away.</p></div>
+    <div class="view-head"><h2>Who to call</h2><p>Tap a name for their details. The green button calls straight away.</p></div>
+    <div class="toolbar">
+      <input class="search grow" id="qCon" type="search" placeholder="Search contacts" aria-label="Search contacts">
+      <button class="btn" id="addCon" hidden>Add contact</button>
+    </div>
+    <div id="conList"></div>
+    </div>
+  </section>
+</div></main>
+
+<div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <form class="sheet" id="sheet" novalidate>
+    <h2 id="sheetTitle">Edit</h2>
+    <div id="sheetFields" style="display:grid;gap:12px"></div>
+    <div class="note err" id="sheetErr" hidden></div>
+    <div class="foot">
+      <button type="button" class="btn danger" id="delBtn" hidden>Delete</button>
+      <span class="right">
+        <button type="button" class="btn sec" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn" id="saveBtn">Save</button>
+      </span>
+    </div>
+  </form>
+</div>
+
+<script>
+const TABS=[
+  {id:"welcome",label:"Welcome",desc:"A note from the developer and how this folder is laid out"},
+  {id:"important",label:"Important Information",desc:"Introduction, key contact numbers and moving in or out",intro:"Read this first. It covers the numbers to keep handy and how to book the lift for your move."},
+  {id:"residence",label:"Your New Residence",desc:"Services, home care, defects, house rules, parcel lockers and the car stacker",intro:"How your apartment and the building work, how to look after them, and the house rules."},
+  {id:"strata",label:"Strata",desc:"Strata plan SP87928, the scheme by-laws and the car stacker plan",intro:"The strata plan and scheme by-laws for SP87928. These are the binding rules for owners and residents."},
+  {id:"contacts",label:"Contacts",desc:"Developer, strata manager, builder, trades and the council"},
+  {id:"manuals",label:"Manuals & Certificates",desc:"Appliance manuals, warranties and every document from the folder"}];
+const INFO_TABS=["important","residence","strata"];
+const ROOMS = ["Building documents","Kitchen","Laundry","Bathroom","Living","Bedroom","Balcony","Whole apartment","Common areas","Certificates"];
+const state = { tab:"welcome", meta:{}, info:[], appliances:[], contacts:[], room:"All", canEdit:false, loaded:{info:false,appliances:false,contacts:false} };
+let db = null, assets = null;
+const $ = id => document.getElementById(id);
+const el = (tag, attrs={}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v; else if (k === "text") n.textContent = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids) if (c != null && c !== false) n.append(c);
+  return n;
+};
+const norm = s => (s||"").toString().toLowerCase();
+const byOrder = (a,b) => (a.order ?? 999) - (b.order ?? 999) || norm(a.title||a.name||a.role).localeCompare(norm(b.title||b.name||b.role));
+
+function status(msg, err){ const s=$("status"); s.hidden=!msg; s.textContent=msg||""; s.classList.toggle("err",!!err); }
+
+/* ---------- Settings (per person) ---------- */
+function lsGet(k){ try{ return localStorage.getItem(k); }catch{ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch{} }
+const DEFAULTS={mode:"system",accent:"green",size:"default",density:"comfortable",header:"board",start:"welcome",infoOpen:"closed",motion:false,apt:""};
+const ACCENTS={
+  green:{name:"Bottle green",l:"#24443a",d:"#9cc7b1"},
+  blue:{name:"Harbour blue",l:"#24557e",d:"#7fb3e0"},
+  brass:{name:"Champagne",l:"#7d5f2a",d:"#d4b27a"},
+  plum:{name:"Plum",l:"#6a3d7a",d:"#c49ad6"},
+  rose:{name:"Rose",l:"#a23b55",d:"#ee93a8"},
+  slate:{name:"Slate",l:"#33414d",d:"#b6c3cc"}
+};
+const SIZES={small:.9,default:1,large:1.12,xl:1.25};
+let settings={...DEFAULTS};
+try{ Object.assign(settings, JSON.parse(lsGet("wr-settings")||"{}")); }catch{}
+let settingsRef=null, savedTo="this device", saveTimer=null, saving=Promise.resolve();
+function applySettings(){
+  const r=document.documentElement;
+  if(settings.mode==="system") delete r.dataset.mode; else r.dataset.mode=settings.mode;
+  const a=ACCENTS[settings.accent]||ACCENTS.green;
+  r.style.setProperty("--acc-l",a.l); r.style.setProperty("--acc-d",a.d);
+  r.style.setProperty("--zoom",SIZES[settings.size]||1);
+  r.dataset.density=settings.density; r.dataset.header=settings.header;
+  if(settings.motion) r.dataset.motion="reduce"; else delete r.dataset.motion;
+}
+function setSetting(k,v){
+  settings[k]=v; applySettings(); renderMeta();
+  lsSet("wr-settings",JSON.stringify(settings));
+  if(settingsRef){
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(()=>{ const data={...settings}; saving=saving.then(()=>settingsRef.set(data)).catch(()=>{ settingsRef=null; savedTo="this device"; }); },500);
+  }
+}
+async function loadAccountSettings(user){
+  try{
+    const uid = user ? await user.id() : null;
+    if(!uid || !db) return;
+    const ref=db.doc("data/users/"+uid+"/settings");
+    const snap=await ref.get();
+    if(snap.exists){ settings={...DEFAULTS,...snap.data()}; lsSet("wr-settings",JSON.stringify(settings)); applySettings(); renderMeta(); }
+    settingsRef=ref; savedTo="your account";
+    if(drawerView==="settings") renderSettings();
+  }catch{}
+}
+applySettings();
+
+/* ---------- Menu drawer ---------- */
+let drawerView="menu", lastFocus=null;
+function openDrawer(view="menu"){
+  lastFocus=document.activeElement;
+  $("drawer").classList.add("open"); $("drawerScrim").classList.add("open");
+  $("drawer").removeAttribute("inert"); $("drawer").setAttribute("aria-hidden","false");
+  $("menuBtn").setAttribute("aria-expanded","true");
+  showDrawer(view);
+  setTimeout(()=>$("drawerClose").focus(),30);
+}
+function closeDrawer(){
+  if(!$("drawer").classList.contains("open")) return;
+  $("drawer").classList.remove("open"); $("drawerScrim").classList.remove("open");
+  $("drawer").setAttribute("inert",""); $("drawer").setAttribute("aria-hidden","true");
+  $("menuBtn").setAttribute("aria-expanded","false");
+  lastFocus?.focus?.();
+}
+function showDrawer(view){
+  drawerView=view;
+  $("drawerTitle").textContent = view==="settings" ? "Settings" : "Menu";
+  $("drawerBack").hidden = view!=="settings";
+  view==="settings" ? renderSettings() : renderMenu();
+  $("drawerBody").scrollTop=0;
+}
+$("menuBtn").onclick=()=>openDrawer();
+$("drawerClose").onclick=closeDrawer;
+$("drawerScrim").onclick=closeDrawer;
+$("drawerBack").onclick=()=>showDrawer("menu");
+
+function renderMenu(){
+  const nav=(hash,icon,label,count)=>el("a",{href:"#"+hash,onclick:()=>closeDrawer()},el("span",{class:"mi",text:icon,"aria-hidden":"true"}),label,count!=null?el("span",{class:"count",text:String(count)}):null);
+  const m=el("nav",{class:"menu","aria-label":"Menu"},
+    nav("welcome","·","Welcome",null),
+    nav("important","1","Important Information",state.info.filter(r=>r.tab==='important').length),
+    nav("residence","2","Your New Residence",state.info.filter(r=>(r.tab||'residence')==='residence').length),
+    nav("strata","3","Strata",state.info.filter(r=>r.tab==='strata').length),
+    nav("contacts","4","Contacts",state.contacts.length),
+    nav("manuals","5","Manuals & Certificates",state.appliances.length),
+    el("hr"),
+    el("button",{type:"button",onclick:()=>showDrawer("settings")},el("span",{class:"mi",text:"⚙","aria-hidden":"true"}),"Settings"),
+    state.canEdit?el("button",{type:"button",onclick:()=>{closeDrawer();openBuilding();}},el("span",{class:"mi",text:"✎","aria-hidden":"true"}),"Edit building details"):null,
+    ...ownerMenuItems()
+  );
+  $("drawerBody").replaceChildren(m, el("p",{class:"foot-note",text:(state.meta.name||"Building")+" handbook"}));
+}
+
+function seg(key,options){
+  const wrap=el("div",{class:"seg",role:"group"});
+  for(const [val,label] of options){
+    wrap.append(el("button",{type:"button","aria-pressed":String(settings[key]===val),text:label,onclick:()=>{setSetting(key,val);renderSettings();}}));
+  }
+  return wrap;
+}
+function row(label,control,hint){ return el("div",{class:"set-row"},el("span",{class:"lbl",text:label}),control,hint?el("span",{class:"hint",text:hint}):null); }
+function renderSettings(){
+  const sw=el("div",{class:"swatches",role:"group","aria-label":"Accent colour"});
+  const dark=matchMedia("(prefers-color-scheme: dark)").matches;
+  for(const [k,a] of Object.entries(ACCENTS)){
+    const isDark = settings.mode==="dark" || (settings.mode==="system" && (document.documentElement.dataset.theme==="dark" || (dark && document.documentElement.dataset.theme!=="light")));
+    sw.append(el("button",{type:"button",class:"swatch","aria-label":a.name,title:a.name,"aria-pressed":String(settings.accent===k),style:"background:"+(isDark?a.d:a.l),onclick:()=>{setSetting("accent",k);renderSettings();}}));
+  }
+  const apt=el("input",{type:"text",id:"setApt",inputmode:"numeric",placeholder:"e.g. 12",maxlength:"8"});
+  apt.value=settings.apt||"";
+  apt.addEventListener("input",()=>setSetting("apt",apt.value.trim()));
+  const start=el("select",{id:"setStart"});
+  for(const [v,l] of [...TABS.map(t=>[t.id,t.label]),["last","Where I left off"]]) start.append(el("option",{value:v,text:l}));
+  start.value=settings.start; start.onchange=()=>setSetting("start",start.value);
+  const motion=el("input",{type:"checkbox",id:"setMotion"}); motion.checked=!!settings.motion;
+  motion.onchange=()=>setSetting("motion",motion.checked);
+
+  $("drawerBody").replaceChildren(
+    el("div",{class:"set-group"},
+      el("h3",{text:"Appearance"}),
+      row("Theme",seg("mode",[["system","System"],["light","Light"],["dark","Dark"]])),
+      row("Accent colour",sw,(ACCENTS[settings.accent]||ACCENTS.green).name),
+      row("Text size",seg("size",[["small","Small"],["default","Default"],["large","Large"],["xl","X-Large"]])),
+      row("Layout",seg("density",[["comfortable","Comfortable"],["compact","Compact"]])),
+      row("Header style",seg("header",[["board","Directory board"],["minimal","Minimal"]]))
+    ),
+    el("div",{class:"set-group"},
+      el("h3",{text:"Personal"}),
+      el("div",{class:"set-row"},el("label",{for:"setApt",text:"Your apartment number"}),apt,el("span",{class:"hint",text:"Shown under the building name. Only you see it."})),
+      el("div",{class:"set-row"},el("label",{for:"setStart",text:"Open the app on"}),start),
+      row("Info sections",seg("infoOpen",[["closed","All closed"],["first","First open"],["all","All open"]]),"How the contents list looks when you open the app.")
+    ),
+    el("div",{class:"set-group"},
+      el("h3",{text:"Accessibility"}),
+      el("label",{class:"toggle",for:"setMotion"},el("span",{},"Reduce motion",el("br"),el("span",{class:"hint",text:"Turns off sliding and fading."})),motion)
+    ),
+    el("div",{class:"set-group"},
+      el("h3",{text:"Reset"}),
+      el("button",{type:"button",class:"btn sec",text:"Reset to defaults",onclick:()=>{ Object.keys(DEFAULTS).forEach(k=>settings[k]=DEFAULTS[k]); setSetting("mode",DEFAULTS.mode); renderSettings(); }})
+    ),
+    el("p",{class:"foot-note",text:"Your settings are saved to "+savedTo+" and only change the app for you."})
+  );
+}
+
+/* ---------- Routing ---------- */
+function route(){
+  const ids=TABS.map(t=>t.id), h=location.hash.slice(1);
+  let t = ids.includes(h) ? h : (h==="info" ? "residence" : (settings.start==="last" ? lsGet("wr-last-tab") : settings.start));
+  if(!ids.includes(t)) t="welcome";
+  lsSet("wr-last-tab", t);
+  const changed = state.tab!==t; state.tab=t;
+  document.querySelectorAll(".tabs a").forEach(a => { if (a.dataset.tab===t){ a.setAttribute("aria-current","page"); if(changed) a.scrollIntoView({inline:"nearest",block:"nearest"}); } else a.removeAttribute("aria-current"); });
+  $("view-welcome").hidden = t!=="welcome";
+  $("view-info").hidden = !INFO_TABS.includes(t);
+  $("view-manuals").hidden = t!=="manuals";
+  $("view-contacts").hidden = t!=="contacts";
+  if(INFO_TABS.includes(t)){
+    const cfg=TABS.find(x=>x.id===t);
+    $("divTitle").textContent=cfg.label; $("tabIntro").textContent=cfg.intro||"";
+    if(changed){ $("qInfo").value=""; }
+    renderInfo();
+  }
+  if(changed && document.scrollingElement.scrollTop > $("tabs").getBoundingClientRect().top + window.scrollY) window.scrollTo({top:$("tabs").offsetTop - 0});
+}
+addEventListener("hashchange", route);
+
+/* ---------- Warranty ---------- */
+function fmtDate(iso){ const d=new Date(iso+"T00:00:00"); return isNaN(d)?iso:d.toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}); }
+function warranty(iso){
+  if(!iso) return null;
+  const d=new Date(iso+"T00:00:00"); if(isNaN(d)) return null;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const days=Math.round((d-today)/86400000);
+  if(days<0) return {cls:"", text:"Warranty ended "+fmtDate(iso)};
+  if(days<=60) return {cls:"warn", text:"Warranty ends "+fmtDate(iso)};
+  return {cls:"good", text:"Under warranty to "+fmtDate(iso)};
+}
+
+
+/* ---------- Links & action buttons ---------- */
+const ICONS={
+  call:'<path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+  email:'<rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="m3 7 9 6 9-6" fill="none" stroke="currentColor" stroke-width="2"/>',
+  web:'<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" fill="none" stroke="currentColor" stroke-width="2"/>',
+  ios:'<path d="M16 3c0 2-1.6 3.6-3.4 3.5C12.4 4.6 14 3 16 3ZM19.5 16.5c-.8 1.8-1.9 3.5-3.4 3.5-1.4 0-1.8-.9-3.4-.9s-2.1.9-3.4.9c-1.6 0-3.6-3.2-4.2-6-.9-4 1.2-7 3.9-7 1.4 0 2.4.9 3.6.9s2-.9 3.7-.9c1.2 0 2.6.6 3.5 1.8-3.1 1.8-2.6 6.3-.3 7.7Z" fill="currentColor"/>',
+  android:'<path d="M5 3.5v17l9-8.5-9-8.5Zm10 9.5 3 2.8 2.6-1.5a1.2 1.2 0 0 0 0-2.1L18 10.7 15 13Z" fill="currentColor"/><path d="m5 3.5 13 7.2-3 2.8L5 3.5Zm0 17 10-7 3 2.3L5 20.5Z" fill="currentColor" opacity=".55"/>',
+  doc:'<path d="M7 3h7l5 5v13H7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5M10 13h6M10 17h6" fill="none" stroke="currentColor" stroke-width="2"/>',
+  map:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" fill="currentColor"/>',
+  go:'<path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+};
+function icon(k){ const n=document.createElementNS("http://www.w3.org/2000/svg","svg"); n.setAttribute("viewBox","0 0 24 24"); n.setAttribute("aria-hidden","true"); n.innerHTML=ICONS[k]||ICONS.web; return n; }
+function cleanHref(u){
+  u=(u||"").trim();
+  if(/^tel:[\d+ ()-]+$/i.test(u)) return "tel:"+u.slice(4).replace(/[^\d+]/g,"");
+  if(/^mailto:/i.test(u)) return u;
+  if(/^\/_blob\/[A-Za-z0-9]+$/.test(u)) return u;
+  if(/^files\/[A-Za-z0-9._%()+\- ]+\.pdf(#[\w=&]*)?$/i.test(u)) return u;
+  if(/^#[a-z]+$/.test(u)) return u;
+  return safeUrl(u)==="#" ? null : safeUrl(u);
+}
+function kindOf(u){
+  if(u.startsWith("tel:")) return "call";
+  if(u.startsWith("mailto:")) return "email";
+  if(u.startsWith("/_blob/")||/^files\//.test(u)) return "doc";
+  if(u.startsWith("#")) return "go";
+  if(/apps\.apple\.com/.test(u)) return "ios";
+  if(/play\.google\.com/.test(u)) return "android";
+  if(/google\.[a-z.]+\/maps/.test(u)) return "map";
+  return "web";
+}
+const fileKey=f=>f?(f.path||(f.id&&FILEMAP[f.id])||""):"";
+function fileButtons(a){
+  const p=fileKey(a.file); if(!p) return [];
+  const kind=(a.room==="Building documents"||a.room==="Certificates")?"document":"manual";
+  const title=[a.name,[a.brand,a.model].filter(Boolean).join(" ")].filter(Boolean).join(" · ");
+  return [actBtn("Read "+kind,p,true,title),
+    el("a",{class:"act",href:p,target:"_blank",rel:"noopener"},icon("web"),"Open PDF"),
+    el("a",{class:"act",href:p,download:p.split("/").pop()},icon("doc"),"Download")];
+}
+const FILEMAP={"09be1a7190431be57e1b40e2c075abcf": "files/Car-stacker-plan.pdf", "0be814c0ad544bdfbbfc4e0c34d55d5d": "files/Miele-washer-WWB360WCS.pdf", "160e50b99ff6d02db766bf41e149a3f8": "files/Smoke-alarm.pdf", "288645162880ac84ecac559dd8894428": "files/Scheme-by-laws.pdf", "2d262716f29671a488aeee33a2db894f": "files/Important-Information.pdf", "2e9d77daed4ffd1d3968e25489c3b911": "files/Miele-rangehood-DA2450-1.pdf", "3d3a4b05a0580135332025ffa0e54e11": "files/Miele-microwave-M7244TC.pdf", "3d7c62b535d1c61ea98ad5848c8f0c9e": "files/Bosch-dryer-WTH83002AU.pdf", "4898491f1e4f15e8d81dee3168633e94": "files/Miele-speed-oven-H7240BM.pdf", "48adaa11319fd80fa32fd58ab76b4152": "files/Your-New-Residence-handover-manual.pdf", "50d8a068c230a9506e78ba0cab809bc7": "files/Certificate-mechanical.pdf", "51456d8ef28ef840c82fc5181891e479": "files/Parcel-locker-instructions.pdf", "5430ac8b9321eec89bbba4ec94c1a36a": "files/Miele-washer-WEA125WCS.pdf", "59c3a1c55562c1633f0a37ae88ea0381": "files/Akuvox-intercom-monitor.pdf", "5f4db9cf94bc9c4537a4a3693b2a2c8a": "files/Whitehaven-ceiling-fan.pdf", "6b173e1948810e613933e10a3e52c45f": "files/Certificate-hydraulic.pdf", "7178df3b9bba29f46818858e5f4a0861": "files/Air-conditioning-manual.pdf", "7273e713b3fe198af2d8a8b3297e1480": "files/Phoenix-car-stacker.pdf", "8d5f3cce74814e7cda4d27f095bf12e0": "files/Certificate-fire-walls.pdf", "8e0a9badb5c02f9734ec4aa5366c3b05": "files/Miele-welcome-letter.pdf", "8e747d12131b9c4aa628423534c51faf": "files/Miele-oven-H2851.pdf", "a06653329110b80b217f1fa3896a7851": "files/Certificate-practical-completion.pdf", "b82cdaaba4c2208954b28f4b2ec2a826": "files/Underfloor-heating-dual-instructions.pdf", "bac33e9916e604ec691aa58bb8bdf854": "files/Certificate-fire-doors.pdf", "bf7d54db098e9c17b3c63cfd4b11ad9c": "files/Miele-dishwasher-G5053SCVi.pdf", "c398b00762ff869063be8d2b98bc5541": "files/SIFER-card-reader.pdf", "c3daae77c30d3fb25e9f86757977241f": "files/Underfloor-heating-tips.pdf", "c68a006dc80e2d28a5e26168409ecde9": "files/Strata-plan-SP87928.pdf", "ce05ebcc42dd5355867cf42f58f2fdc1": "files/Bright-Connect-welcome-pack.pdf", "ceb2aac456fadff17513b4dcc649365f": "files/Certificate-electrical.pdf", "d2171b88a676bb30c966ecec4ead5a79": "files/Certificate-sprinklers.pdf", "d87fb8d34d30567efc74507f0cb1cb3c": "files/Miele-cooktop-KM7361FL.pdf", "d99aa8c09d5ef72d0a4d34c18952780f": "files/Underfloor-heating-thermostat.pdf", "e0e34842e53cbf7dedf9faa49f14c877": "files/Stiebel-Eltron-hot-water.pdf", "e1e668f2fab371c180efb8ac30458262": "files/Miele-dryer-TEA325WP.pdf", "e62f05d67a36c19613a8544b9e9a943a": "files/Miele-warranty.pdf", "edc2def69efd8bfd9c891722fd58a096": "files/Contacts-list.pdf", "f233f7f5d91cb05ba8ea85ee503de5a5": "files/Finishes-schedule.pdf", "f58d224e2113c34f03c559bb7a4af72d": "files/Defect-maintenance-request-form.pdf", "fbb41f287eef9029b728b4d77ee69533": "files/Miele-washer-WCA020.pdf", "fddf88a064e1f64fc109ac781890f0a6": "files/Fisher-Paykel-fridge.pdf", "ffc7e84d598fc59048f4c9b255bcdfc8": "files/Miele-dryer-TCB140WP.pdf"};
+function fileUrl(h){ return h.startsWith('/_blob/') ? (FILEMAP[h.slice(7)]||h) : h; }
+function prettyName(p){ return decodeURIComponent((p||"").split("/").pop().replace(/\.pdf$/i,"")).replace(/[-_]+/g," ").trim(); }
+function actBtn(label,url,primary,title){
+  const href=cleanHref(url); if(!href) return null;
+  const k=kindOf(href);
+  const external = k!=="go" && k!=="call" && k!=="email";
+  const a=el("a",{class:"act"+(primary?" primary":""),href:fileUrl(href),target:external?"_blank":null,rel:external?"noopener":null},icon(k),label);
+  if(k==="doc" && /\.pdf(#.*)?$/i.test(href)){
+    a.addEventListener("click",ev=>{
+      if(ev.button||ev.metaKey||ev.ctrlKey||ev.shiftKey||!window.WRReader) return;
+      ev.preventDefault(); const p=href.split("#")[0]; const pg=(href.match(/#page=(\d+)/)||[])[1];
+      WRReader.open(p, title||prettyName(p), pg?+pg:undefined);
+    });
+  }
+  return a;
+}
+const telHref=p=>"tel:"+(p||"").replace(/[^\d+]/g,"");
+const mailHref=(e,subject)=>"mailto:"+e+(subject?"?subject="+encodeURIComponent(subject):"");
+const siteLabel=u=>{ try{ return new URL(u).hostname.replace(/^www\./,""); }catch{ return u; } };
+const mapHref=a=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(a);
+function linkButtons(links){
+  if(!Array.isArray(links)||!links.length) return null;
+  const row=el("div",{class:"acts"});
+  links.forEach((l,i)=>{ const b=actBtn(l.label||"Open",l.url,l.primary); if(b) row.append(b); });
+  return row.childNodes.length?row:null;
+}
+const LINK_RE=/\[\[([^\]|]+)\|([^\]]+)\]\]/g;
+function plainText(t){ return (t||"").replace(LINK_RE,"$1"); }
+function rich(text,q){
+  const frag=document.createDocumentFragment(); let last=0, m;
+  text=text||""; const re=new RegExp(LINK_RE.source,"g");
+  while((m=re.exec(text))){
+    frag.append(highlight(text.slice(last,m.index),q));
+    let label=m[1].trim(), primary=false;
+    if(label.startsWith("!")){ primary=true; label=label.slice(1).trim(); }
+    frag.append(actBtn(label,m[2].trim(),primary)||label);
+    last=m.index+m[0].length;
+  }
+  frag.append(highlight(text.slice(last),q));
+  return frag;
+}
+function onlyButtons(line){ return line.replace(new RegExp(LINK_RE.source,"g"),"").trim()===""; }
+function withLead(line,q){
+  const m=line.match(/^([A-Z][^:.\[]{1,30}):\s+(.*)$/);
+  if(!m) return rich(line,q);
+  const f=document.createDocumentFragment();
+  f.append(el("span",{class:"lead"},highlight(m[1]+":",q))," ",rich(m[2],q)); return f;
+}
+function prose(text,q){
+  const root=el("div",{class:"prose"});
+  for(const block of (text||"").split(/\n\s*\n/)){
+    const lines=block.split("\n").map(l=>l.trim()).filter(Boolean);
+    let ul=null, i=0;
+    if(lines.length>1 && lines[0].length<32 && !/[.:!?\]]$/.test(lines[0]) && !lines[0].startsWith("•") && lines.slice(1).every(l=>/^[^:]{1,30}:\s/.test(l))){
+      root.append(el("h4",{text:lines[0]}));
+      const dlist=el("dl",{class:"spec"});
+      for(const l of lines.slice(1)){ const [k,...v]=l.split(":"); dlist.append(el("dt",{text:k}),el("dd",{},rich(v.join(":").trim(),q))); }
+      root.append(dlist); continue;
+    }
+    for(const line of lines){
+      if(line.startsWith("•")){
+        if(!ul){ ul=el("ul"); root.append(ul); }
+        ul.append(el("li",{},withLead(line.replace(/^•\s*/,""),q))); continue;
+      }
+      if(onlyButtons(line)){
+        const row=el("div",{class:"acts"},rich(line,q));
+        if(ul && ul.lastChild){ row.style.marginTop="8px"; ul.lastChild.append(row); } else root.append(row);
+        continue;
+      }
+      ul=null;
+      root.append(el("p",{},withLead(line,q)));
+    }
+  }
+  return root;
+}
+function linksToText(links){ return (links||[]).map(l=>`${l.label} | ${l.url}`).join("\n"); }
+function textToLinks(t){
+  const out=[];
+  for(const line of (t||"").split("\n")){
+    const [label,...rest]=line.split("|"); const url=rest.join("|").trim();
+    if(!label.trim()&&!url) continue;
+    if(!url||!cleanHref(url)) throw {message:`This button link isn't valid: "${line.trim()}". Use https://…, tel:…, or mailto:…`};
+    out.push({label:label.trim()||"Open",url});
+  }
+  return out;
+}
+
+/* ---------- Render ---------- */
+function renderMeta(){
+  $("bName").textContent = state.meta.name || "West Residences";
+  const addr = state.meta.address || "Add your building's address";
+  $("bAddr").textContent = settings.apt ? `Apartment ${settings.apt} \u00b7 ${addr}` : addr;
+  document.title = (state.meta.name ? state.meta.name+" Handbook" : "Building Handbook");
+}
+function editBtn(fn){ return state.canEdit ? el("button",{class:"edit",type:"button",onclick:fn,text:"Edit"}) : null; }
+
+const openSet=new Set(); let infoInit=false;
+function highlight(text,q){
+  const frag=document.createDocumentFragment();
+  if(!q){ frag.append(text); return frag; }
+  const low=text.toLowerCase(); let i=0, j;
+  while((j=low.indexOf(q,i))!==-1){ frag.append(text.slice(i,j), el("mark",{text:text.slice(j,j+q.length)})); i=j+q.length; }
+  frag.append(text.slice(i)); return frag;
+}
+const chev=()=>{ const n=document.createElementNS("http://www.w3.org/2000/svg","svg"); n.setAttribute("viewBox","0 0 24 24"); n.setAttribute("class","chev"); n.setAttribute("aria-hidden","true"); n.innerHTML='<path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'; return n; };
+function renderInfo(){
+  const q=norm($("qInfo").value).trim(), box=$("infoList"); box.replaceChildren();
+  const inTab = r => (r.tab||"residence")===state.tab;
+  const all=state.info.filter(r=>r.tab!=="welcome" && inTab(r)).sort(byOrder);
+  if(!INFO_TABS.includes(state.tab)) return;
+  if(!infoInit && state.loaded.info && all.length){
+    infoInit=true;
+    if(settings.infoOpen==="all") all.forEach(r=>openSet.add(r.id));
+    else if(settings.infoOpen==="first") openSet.add(all[0].id);
+  }
+  const rows=all.filter(r=>!q||norm(r.title+" "+plainText(r.body)).includes(q));
+  $("tocLabel").textContent = q ? `${rows.length} of ${all.length} sections match` : `${all.length} topics`;
+  $("toggleAll").hidden = !rows.length || !!q;
+  if(!rows.length){ box.append(el("div",{class:"empty",text: state.loaded.info ? (q?"Nothing matches that search.":"No building info yet."+(state.canEdit?" Tap Add section to start.":"")) : "Loading…"})); return; }
+  const toc=el("div",{class:"toc"});
+  for(const r of rows){
+    const num=String(all.indexOf(r)+1).padStart(2,"0");
+    const d=el("details",{"data-id":r.id,open: q || openSet.has(r.id)},
+      el("summary",{}, el("span",{class:"num",text:num}), el("span",{class:"ttl"},highlight(r.title||"Untitled",q)), chev()),
+      el("div",{class:"toc-body"},
+        prose(r.body||"",q),
+        linkButtons(r.links),
+        state.canEdit?el("div",{},el("button",{class:"edit",type:"button",text:"Edit this section",onclick:()=>openInfo(r)})):null));
+    d.addEventListener("toggle",()=>{ if(q) return; d.open?openSet.add(r.id):openSet.delete(r.id); syncToggleAll(); });
+    toc.append(d);
+  }
+  box.append(toc); syncToggleAll();
+}
+function renderWelcome(){
+  const w=state.info.find(r=>r.tab==="welcome");
+  const box=$("letter"); box.replaceChildren();
+  if(w){
+    box.append(el("h3",{class:"sec-h",text:w.title||"Welcome"}), el("div",{class:"body"},prose(w.body||"")));
+    if(w.signoff||w.signature) box.append(el("div",{class:"sign"},el("div",{text:w.signoff||"Best"}),el("div",{class:"name",text:w.signature||""}),w.signatureRole?el("div",{class:"meta",text:w.signatureRole}):null));
+    if(state.canEdit) box.append(el("div",{style:"margin-top:14px"},el("button",{class:"edit",type:"button",text:"Edit this letter",onclick:()=>openInfo(w)})));
+  } else box.append(el("div",{class:"empty",text: state.loaded.info?"No welcome letter yet.":"Loading\u2026"}));
+  const map=$("folderMap"); map.replaceChildren(el("h3",{class:"sec-h",style:"margin-top:8px",text:"Inside this folder"}));
+  for(const t of TABS.slice(1)) map.append(el("a",{href:"#"+t.id},el("span",{},el("div",{class:"t",text:t.label}),el("div",{class:"d",text:t.desc})),chev()));
+}
+function syncToggleAll(){
+  const ds=[...document.querySelectorAll("#infoList details")];
+  $("toggleAll").textContent = ds.length && ds.every(d=>d.open) ? "Collapse all" : "Expand all";
+}
+$("toggleAll").onclick=()=>{
+  const ds=[...document.querySelectorAll("#infoList details")];
+  const openAll=!ds.every(d=>d.open);
+  if(openAll) state.info.forEach(r=>openSet.add(r.id)); else openSet.clear();
+  renderInfo();
+};
+
+function renderFilters(){
+  const box=$("roomFilters"); box.replaceChildren();
+  const used=new Set(state.appliances.map(a=>a.room).filter(Boolean));
+  const rooms=["All",...ROOMS.filter(r=>used.has(r)),...[...used].filter(r=>!ROOMS.includes(r))];
+  if(!rooms.includes(state.room)) state.room="All";
+  for(const r of rooms){
+    box.append(el("button",{type:"button","aria-pressed":String(state.room===r),text:r,onclick:()=>{state.room=r;renderFilters();renderManuals();}}));
+  }
+}
+function renderManuals(){
+  const q=norm($("qMan").value), box=$("manList"); box.replaceChildren();
+  const all=state.appliances;
+  const withManual=all.filter(a=>fileKey(a.file)||a.link).length;
+  $("manSummary").textContent = all.length ? `${withManual} of ${all.length} saved · ${all.length-withManual} still to find` : "";
+  const rows=all.filter(a=>(state.room==="All"||a.room===state.room) && (!q||norm([a.name,a.brand,a.model,a.room,a.notes].join(" ")).includes(q)))
+    .sort((a,b)=>ROOMS.indexOf(a.room)-ROOMS.indexOf(b.room)||norm(a.name).localeCompare(norm(b.name)));
+  if(!rows.length){ box.append(el("div",{class:"empty",text: state.loaded.appliances ? (all.length?"Nothing matches.":"No appliances yet."+(state.canEdit?" Tap Add appliance.":"")) : "Loading…"})); return; }
+  let group=null, toc=null;
+  for(const a of rows){
+    const g=a.room||"Other";
+    if(g!==group){ group=g; box.append(el("h3",{class:"group-h",text:g})); toc=el("div",{class:"toc"}); box.append(toc); }
+    const w=warranty(a.warrantyUntil);
+    const has=fileKey(a.file)||a.link;
+    const sub=[a.brand,a.model].filter(Boolean).join(" · ");
+    const quick = fileKey(a.file) ? el("span",{class:"quick"},actBtn("Read",fileKey(a.file),true,[a.name,[a.brand,a.model].filter(Boolean).join(" ")].filter(Boolean).join(" · "))) : null;
+    const d=el("details",{"data-id":a.id,open: openMan.has(a.id)},
+      el("summary",{},
+        el("span",{class:"ttl"},a.name||"Appliance", el("span",{class:"sub",text: sub || (has?"":"Manual still to add")})),
+        quick, chev()),
+      el("div",{class:"toc-body",style:"padding-left:2px"},
+        el("div",{class:"chips"},
+          el("span",{class:"chip "+(has?"good":"warn"),text:has?"Manual saved":"No manual yet"}),
+          w?el("span",{class:"chip "+w.cls,text:w.text}):null),
+        a.notes?prose(a.notes):null,
+        (has||a.links?.length)?el("div",{class:"acts"},
+          ...fileButtons(a),
+          a.link?actBtn("Manufacturer page",a.link):null,
+          ...((a.links||[]).map(l=>actBtn(l.label,l.url,l.primary)))):null,
+        state.canEdit?el("div",{},el("button",{class:"edit",type:"button",text:"Edit",onclick:()=>openAppliance(a)})):null));
+    d.addEventListener("toggle",()=>{ d.open?openMan.add(a.id):openMan.delete(a.id); });
+    toc.append(d);
+  }
+}
+const openMan=new Set(), openCon=new Set();
+function safeUrl(u){ try{ const x=new URL(u); return /^https?:$/.test(x.protocol)?x.href:"#"; }catch{ return "#"; } }
+
+function renderContacts(){
+  const q=norm($("qCon").value), box=$("conList"); box.replaceChildren();
+  const rows=state.contacts.filter(c=>!q||norm([c.role,c.name,c.phone,c.phone2,c.email,c.website,c.address,plainText(c.notes)].join(" ")).includes(q)).sort(byOrder);
+  if(!rows.length){ box.append(el("div",{class:"empty",text: state.loaded.contacts ? (q?"Nothing matches.":"No contacts yet.") : "Loading…"})); return; }
+  const GROUPS=["Emergency","Developer","Strata Manager","Builder","Trades","Police","Local Authority","Utilities & services"];
+  const groupOf=c=>c.group||((c.order??999)<10?"Emergency":(c.order??999)<20?"Utilities & services":"Trades");
+  rows.sort((a,b)=>{ const ga=GROUPS.indexOf(groupOf(a)), gb=GROUPS.indexOf(groupOf(b)); return (ga<0?99:ga)-(gb<0?99:gb) || byOrder(a,b); });
+  let group=null, toc=null;
+  for(const c of rows){
+    const g=groupOf(c);
+    if(g!==group){ group=g; box.append(el("h3",{class:"group-h",text:g})); toc=el("div",{class:"toc"}); box.append(toc); }
+    const site=c.website?cleanHref(c.website):null;
+    const dl=(k,...v)=>el("div",{class:"dl"},el("span",{class:"dk",text:k}),el("span",{class:"dv"},...v));
+    const cp=(t)=>el("button",{type:"button",class:"act",text:"Copy",onclick:e=>copy(t,e.target)});
+    const details=el("div",{class:"details"},
+      c.phone?dl("Phone",el("span",{class:"phone",text:c.phone}),actBtn("Call",telHref(c.phone),true),cp(c.phone)):null,
+      c.phone2?dl(c.phone2Label||"Phone 2",el("span",{class:"phone",text:c.phone2}),actBtn("Call",telHref(c.phone2),true)):null,
+      c.email?dl("Email",el("span",{text:c.email}),actBtn("Send email",mailHref(c.email,c.emailSubject))):null,
+      c.email2?dl("Email 2",el("span",{text:c.email2}),actBtn("Send email",mailHref(c.email2))):null,
+      site?dl("Website",el("a",{class:"plain",href:site,target:"_blank",rel:"noopener",text:siteLabel(site)})):null,
+      c.address?dl("Address",el("span",{text:c.address}),actBtn("Map",mapHref(c.address))):null,
+      c.hours?dl("Hours",el("span",{text:c.hours})):null,
+      (c.ios||c.android)?dl("App",c.ios?actBtn("App Store",c.ios):null,c.android?actBtn("Google Play",c.android):null):null,
+      c.links?.length?dl("Forms",...c.links.map(l=>actBtn(l.label,l.url))):null);
+    const quick=c.phone?el("span",{class:"quick"},(()=>{ const b=actBtn("",telHref(c.phone),true); b.classList.add("icon-only"); b.setAttribute("aria-label","Call "+(c.name||c.role)); return b; })())
+      : c.email?el("span",{class:"quick"},(()=>{ const b=actBtn("",mailHref(c.email,c.emailSubject)); b.classList.add("icon-only"); b.setAttribute("aria-label","Email "+(c.name||c.role)); return b; })()):null;
+    const d=el("details",{"data-id":c.id,open: q ? rows.length<=3 : openCon.has(c.id)},
+      el("summary",{},
+        el("span",{class:"ttl"},highlight(c.role||"Contact",q), c.name?el("span",{class:"sub"},highlight(c.name,q)):null),
+        quick, chev()),
+      el("div",{class:"toc-body",style:"padding-left:2px"},
+        details.childNodes.length?details:null,
+        c.notes?prose(c.notes):null,
+        state.canEdit?el("div",{},el("button",{class:"edit",type:"button",text:"Edit",onclick:()=>openContact(c)})):null));
+    d.addEventListener("toggle",()=>{ if(q) return; d.open?openCon.add(c.id):openCon.delete(c.id); });
+    toc.append(d);
+  }
+}
+async function copy(t,btn){ try{ await navigator.clipboard.writeText(t); btn.textContent="Copied"; setTimeout(()=>btn.textContent="Copy",1500);}catch{ btn.textContent="Copy failed"; } }
+
+function renderAll(){ renderMeta(); renderWelcome(); renderInfo(); renderFilters(); renderManuals(); renderContacts();
+  ["addInfo","addMan","addCon"].forEach(id=>$(id).hidden=!state.canEdit);
+  if($("drawer").classList.contains("open") && drawerView==="menu") renderMenu(); }
+
+["qInfo","qMan","qCon"].forEach(id=>$(id).addEventListener("input",()=>{renderInfo();renderManuals();renderContacts();}));
+
+/* ---------- Editor sheet ---------- */
+let sheetSave=null, sheetDelete=null;
+function field(id,label,value,type="text",extra={}){
+  const input = type==="textarea" ? el("textarea",{id,...extra}) : type==="select" ? el("select",{id}) : el("input",{id,type,...extra});
+  if(type==="select"){ for(const o of extra.options){ input.append(el("option",{value:o,text:o||"Choose a room"})); } }
+  input.value = value ?? "";
+  return el("div",{class:"field"}, el("label",{for:id,text:label}), input);
+}
+function openSheet(title, fields, onSave, onDelete){
+  $("sheetTitle").textContent=title; $("sheetFields").replaceChildren(...fields);
+  $("sheetErr").hidden=true; $("delBtn").hidden=!onDelete; $("saveBtn").disabled=false; $("saveBtn").textContent="Save";
+  sheetSave=onSave; sheetDelete=onDelete; $("scrim").classList.add("open");
+  setTimeout(()=>$("sheetFields").querySelector("input,textarea")?.focus(),50);
+}
+function closeSheet(){ $("scrim").classList.remove("open"); sheetSave=sheetDelete=null; }
+$("cancelBtn").onclick=closeSheet;
+$("scrim").addEventListener("click",e=>{ if(e.target===$("scrim")) closeSheet(); });
+addEventListener("keydown",e=>{
+  if((e.key==="/"||(e.key.toLowerCase()==="k"&&(e.metaKey||e.ctrlKey))) && $("gs").hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); openSearch(); return; }
+  if(e.key!=="Escape") return; if(!$("gs").hidden) closeSearch(); else if($("scrim").classList.contains("open")) closeSheet(); else closeDrawer(); });
+let confirmDel=false;
+$("delBtn").onclick=async()=>{
+  if(!confirmDel){ confirmDel=true; $("delBtn").textContent="Tap again to delete"; setTimeout(()=>{confirmDel=false;$("delBtn").textContent="Delete";},3000); return; }
+  confirmDel=false; $("delBtn").textContent="Delete";
+  try{ await sheetDelete(); closeSheet(); }catch(e){ sheetError(e); }
+};
+$("sheet").addEventListener("submit",async e=>{
+  e.preventDefault(); if(!sheetSave) return;
+  $("saveBtn").disabled=true; $("saveBtn").textContent="Saving…";
+  try{ await sheetSave(); closeSheet(); }catch(err){ sheetError(err); $("saveBtn").disabled=false; $("saveBtn").textContent="Save"; }
+});
+function sheetError(err){
+  const m = err?.code==="quota_exceeded"||err?.code==="quota_or_state" ? "Storage is full. Remove an old manual and try again."
+    : err?.code==="too_large" ? "That file is over 20 MB. Try a smaller PDF."
+    : err?.code==="unsupported_type" ? "Use a PDF or a photo (JPG, PNG) for the manual."
+    : err?.code==="invalid_argument" ? "You don't have permission to change this handbook."
+    : (err?.message || "Couldn't save. Check your connection and try again.");
+  $("sheetErr").textContent=m; $("sheetErr").hidden=false;
+}
+const v = id => $(id).value.trim();
+
+function openBuilding(){
+  openSheet("Building details",[field("fName","Building name",state.meta.name),field("fAddr","Address",state.meta.address)],
+    async()=>{ await db.doc("meta/building").set({name:v("fName"),address:v("fAddr")}); });
+}
+
+function openInfo(r){
+  const isNew=!r; r=r||{};
+  openSheet(isNew?"New section":"Edit section",[
+    field("fTitle","Heading",r.title,"text",{placeholder:"e.g. Bins & recycling"}),
+    field("fBody","Details",r.body,"textarea",{placeholder:"What residents need to know",style:"min-height:220px"}),
+    el("div",{class:"hint",text:"To put a button inside the text, type [[Button label|link]] where you want it, e.g. [[Call Strata Manager|tel:0863555225]]. Start the label with ! to make it a highlighted button."}),
+    field("fLinks","Buttons (one per line: Label | link)",linksToText(r.links),"textarea",{placeholder:"Apply for mail redirection | https://auspost.com.au/…\nCall Strata Manager | tel:0863555225",style:"min-height:90px"}),
+    field("fTab","Folder section",r.tab||(isNew&&INFO_TABS.includes(state.tab)?state.tab:"residence"),"select",{options:["welcome",...INFO_TABS]}),
+    field("fOrder","Position in list (1 = top)",r.order??"","number",{min:"1"})
+  ], async()=>{
+    if(!v("fTitle")) throw {message:"Add a heading."};
+    const data={...r,title:v("fTitle"),body:$("fBody").value,links:textToLinks($("fLinks").value),tab:$("fTab").value,order:Number(v("fOrder"))||999}; delete data.id;
+    await (isNew?db.collection("info").doc():db.doc("info/"+r.id)).set(data);
+  }, isNew?null:async()=>{ await db.doc("info/"+r.id).delete(); });
+}
+$("addInfo").onclick=()=>openInfo();
+
+function openAppliance(a){
+  const isNew=!a; a=a||{};
+  const fileBox=field("fFile","Manual file (a PDF in the site's files folder)",fileKey(a.file),"text",{placeholder:"files/oven-manual.pdf"});
+  openSheet(isNew?"New appliance":"Edit appliance",[
+    field("fName","What is it?",a.name,"text",{placeholder:"e.g. Dishwasher"}),
+    el("div",{class:"two"}, field("fBrand","Brand",a.brand,"text",{placeholder:"e.g. Bosch"}), field("fModel","Model number",a.model,"text",{placeholder:"On the sticker or plate"})),
+    el("div",{class:"two"}, field("fRoom","Room",a.room,"select",{options:["",...ROOMS]}), field("fWarr","Warranty ends",a.warrantyUntil,"date")),
+    fileBox,
+    field("fLink","Manufacturer or manual link",a.link,"url",{placeholder:"https://"}),
+    field("fALinks","More buttons (one per line: Label | link)",linksToText(a.links),"textarea",{placeholder:"Register | https://…",style:"min-height:80px"}),
+    field("fNotes","Notes",a.notes,"textarea",{placeholder:"Filter cleaning, reset steps, error codes, installer details…"})
+  ], async()=>{
+    if(!v("fName")) throw {message:"Add what the appliance is."};
+    const fp=v("fFile");
+    if(fp && !/^files\/[A-Za-z0-9._%()+\- ]+\.pdf$/i.test(fp)) throw {message:"The manual file should look like files/name.pdf (a PDF inside the site's files folder)."};
+    const file = fp ? {path:fp,name:fp.split("/").pop()} : null;
+    const link=v("fLink");
+    if(link && safeUrl(link)==="#") throw {message:"The link needs to start with https://"};
+    const data={name:v("fName"),brand:v("fBrand"),model:v("fModel"),room:$("fRoom").value,warrantyUntil:$("fWarr").value,link,links:textToLinks($("fALinks").value),notes:$("fNotes").value,file};
+    await (isNew?db.collection("appliances").doc():db.doc("appliances/"+a.id)).set(data);
+  }, isNew?null:async()=>{
+    await db.doc("appliances/"+a.id).delete();
+  });
+}
+$("addMan").onclick=()=>openAppliance();
+
+function openContact(c){
+  const isNew=!c; c=c||{};
+  openSheet(isNew?"New contact":"Edit contact",[
+    field("fRole","Who are they?",c.role,"text",{placeholder:"e.g. Strata manager"}),
+    field("fCName","Name or company",c.name),
+    el("div",{class:"two"}, field("fPhone","Phone",c.phone,"tel"), field("fEmail","Email",c.email,"email")),
+    el("div",{class:"two"}, field("fPhone2","Second phone",c.phone2,"tel"), field("fPhone2L","Second phone label",c.phone2Label,"text",{placeholder:"e.g. After hours"})),
+    field("fWeb","Website",c.website,"url",{placeholder:"https://"}),
+    field("fAddr","Address",c.address),
+    field("fHours","Hours",c.hours,"text",{placeholder:"e.g. Mon–Fri 8.30am–5pm"}),
+    el("div",{class:"two"}, field("fIos","App Store link",c.ios,"url",{placeholder:"https://apps.apple.com/…"}), field("fAnd","Google Play link",c.android,"url",{placeholder:"https://play.google.com/…"})),
+    field("fCLinks","More buttons (one per line: Label | link)",linksToText(c.links),"textarea",{style:"min-height:80px"}),
+    field("fCNotes","Notes",c.notes,"textarea",{placeholder:"What to contact them for…"}),
+    field("fCOrder","Position in list (1 = top)",c.order??"","number",{min:"1"})
+  ], async()=>{
+    if(!v("fRole")) throw {message:"Add who this contact is."};
+    for(const id of ["fWeb","fIos","fAnd"]) if(v(id) && safeUrl(v(id))==="#") throw {message:"Links need to start with https://"};
+    const data={...c, role:v("fRole"),name:v("fCName"),phone:v("fPhone"),email:v("fEmail"),phone2:v("fPhone2"),phone2Label:v("fPhone2L"),website:v("fWeb"),address:v("fAddr"),hours:v("fHours"),ios:v("fIos"),android:v("fAnd"),links:textToLinks($("fCLinks").value),notes:$("fCNotes").value,order:Number(v("fCOrder"))||999};
+    delete data.id;
+    await (isNew?db.collection("contacts").doc():db.doc("contacts/"+c.id)).set(data);
+  }, isNew?null:async()=>{ await db.doc("contacts/"+c.id).delete(); });
+}
+$("addCon").onclick=()=>openContact();
+
+
+/* ---------- Whole-app search ---------- */
+const SUGGEST=["car stacker","bins","pets","lift","parcel","strata manager","defects","plumber"];
+const QUESTIONS=["Can I have a BBQ on my balcony?","How do I book the lift to move in or out?","Who do I call about a water leak?","How many pets can I have?","How long is the appliance warranty?","Where can my visitors park?"];
+const STOP=new Set("a an the i im i'm me my we our you your is are am be can could would should do does did to of in on at for with and or it its this that there what whats when where who whom how why which if any anything allowed ok okay please tell know about get have has having need want put use using will just".split(" "));
+const SYN={bbq:["barbecue","bbq"],barbecue:["bbq"],grill:["bbq"],dog:["pet","dog"],cat:["pet","cat"],pets:["pet"],puppy:["pet","dog"],move:["moving","removalist"],moving:["move"],rubbish:["bins","waste","rubbish"],garbage:["bins","waste"],trash:["bins","waste"],recycling:["bins","recycling"],leak:["leak","water","plumb"],plumber:["plumb","routy"],power:["electricity","power","fuse"],electricity:["bright connect","power"],internet:["nbn"],wifi:["nbn"],car:["parking","car","stacker","bay"],park:["parking","bay"],parcel:["parcel","locker"],package:["parcel","locker"],mail:["mail","letterbox"],key:["key","fob","remote"],fob:["key","fob"],noise:["noise","quiet"],loud:["noise","quiet"],party:["noise","guest","orangerie"],guests:["guest","visitor"],visitor:["visitor","guest"],smoking:["smok","vap"],smoke:["smok"],vape:["vap","smok"],laundry:["laundry","washing","dryer"],washing:["washing","washer","laundry"],clothes:["washing","laundry"],aircon:["air con","air conditioner"],ac:["air con","air conditioner"],heating:["underfloor","heating"],warranty:["warranty"],broken:["defect","broken","faulty"],repair:["defect","maintenance","trade"],rent:["lease","letting"],airbnb:["short-stay","letting"],bike:["bike","bicycle"],lift:["lift","elevator"],elevator:["lift"],ev:["ev charger"],charger:["ev charger"],paint:["paint","dulux"],renovate:["renovation","works"],renovation:["renovation","works"]};
+function stem(w){ if(w.length<4) return w; const r=w.replace(/(ings|ing|ies|es|ed|s)$/,""); return r.length>=3 ? r : w; }
+function queryTerms(raw){
+  const words=norm(raw).replace(/[^\p{L}\p{N}\s'-]/gu," ").split(/\s+/).filter(Boolean);
+  const keep=words.filter(w=>!STOP.has(w));
+  return [...new Set(keep.length?keep:words)].map(w=>({w,alts:[...new Set([stem(w),...(SYN[w]||SYN[stem(w)]||[])])]}));
+}
+function looksLikeQuestion(raw){
+  const t=raw.trim().toLowerCase();
+  return /\?$/.test(t) || /^(can|could|how|what|whats|what's|when|where|who|why|which|is|are|am|do|does|did|should|may|will|if|my|i |i'm|im )/.test(t) || t.split(/\s+/).length>=5;
+}
+function gsItems(){
+  const out=[];
+  for(const r of state.info){ const tab=r.tab||"residence"; out.push({kind:"info",id:r.id,tab,title:r.title||"Untitled",text:plainText(r.body||""),raw:r.body||""}); }
+  for(const c of state.contacts) out.push({kind:"contact",id:c.id,tab:"contacts",title:c.role+(c.name?" – "+c.name:""),text:[c.name,c.phone,c.phone2,c.email,c.email2,c.website,c.address,c.hours,plainText(c.notes||""),c.group].filter(Boolean).join(" · ")});
+  for(const a of state.appliances) out.push({kind:"manual",id:a.id,tab:"manuals",title:a.name||"Appliance",text:[a.room,a.brand,a.model,plainText(a.notes||""),a.warrantyUntil?"Warranty ends "+a.warrantyUntil:""].filter(Boolean).join(" · ")});
+  return out;
+}
+function snippet(text,terms){
+  const low=text.toLowerCase(); let at=-1;
+  for(const t of terms){ const i=low.indexOf(t); if(i>=0&&(at<0||i<at)) at=i; }
+  if(at<0) return text.slice(0,110)+(text.length>110?"…":"");
+  const start=Math.max(0,at-45), end=Math.min(text.length,at+90);
+  return (start>0?"…":"")+text.slice(start,end).replace(/\s+/g," ")+(end<text.length?"…":"");
+}
+function markAll(text,terms){
+  const frag=document.createDocumentFragment(); const low=text.toLowerCase(); let i=0;
+  while(i<text.length){
+    let best=-1,len=0; for(const t of terms){ if(!t) continue; const j=low.indexOf(t,i); if(j>=0&&(best<0||j<best)){best=j;len=t.length;} }
+    if(best<0){ frag.append(text.slice(i)); break; }
+    frag.append(text.slice(i,best), el("mark",{text:text.slice(best,best+len)})); i=best+len;
+  }
+  return frag;
+}
+/* Ranked search: every meaningful word (or a synonym) scores; titles count most. */
+function scoreHits(raw){
+  const q=queryTerms(raw); if(!q.length) return {hits:[],marks:[]};
+  const marks=[...new Set(q.flatMap(t=>t.alts))].filter(x=>x.length>1);
+  const hits=[];
+  for(const it of gsItems()){
+    const tl=norm(it.title), hay=tl+" "+norm(it.text);
+    let score=0, matched=0;
+    for(const t of q){
+      let best=0;
+      for(const alt of t.alts){
+        if(!alt) continue;
+        if(tl.includes(alt)) best=Math.max(best,12);
+        const n=hay.split(alt).length-1;
+        if(n) best=Math.max(best,(alt===t.alts[0]?4:3)+Math.min(4,n));
+      }
+      if(best){ matched++; score+=best; }
+    }
+    if(!matched) continue;
+    if(matched===q.length) score+=15;
+    hits.push({...it,score,matched});
+  }
+  hits.sort((a,b)=>b.score-a.score);
+  const top=hits[0]?.score||0;
+  return {hits:hits.filter(h=>h.matched===q.length || h.score>=top*0.45).slice(0,25), marks};
+}
+
+/* ---------- Quick answers (ready-written, no sign-in, works offline) ---------- */
+const FAQ=[{"q": "Can I have a BBQ on my balcony?", "k": "barbecue grill gas bottle cooking balcony", "s": ["i8", "i10", "i11"], "a": "Yes. The house rules say normal BBQ cooking on your balcony is fine.\n• A BBQ gas bottle is allowed, but keep it hidden inside the BBQ stand\n• No storing bikes or anything else flammable on the balcony\n• Never drill into the tiled balcony floor, because there's a waterproof membrane underneath\nThere's also a communal BBQ in the Orangerie on Level 3. Clean it after you use it."}, {"q": "How many pets can I have?", "k": "dog cat fish bird animal pet register approval breed", "s": ["i9", "st7"], "a": "You can keep up to 2 pets without approval, once they're registered: fish, caged birds, cats, or small dogs up to 20 kg fully grown.\n• To register, send Oakfield a photo, vaccination details, council registration and microchip certificate\n• Excluded breeds include German Shepherd, Pit Bull, Rottweiler, Akita and Doberman\n• Any other animal, a dog over 20 kg, or more than 2 pets needs written approval from the Council of Owners\n• In common areas pets must be on a lead or carried. No pets in the Orangerie or BBQ area.\n[[!Pet application form|https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/pet-application-form]]"}, {"q": "How do I book the lift to move in or out?", "k": "move moving removalist furniture truck booking delivery", "s": ["i6", "st3"], "a": "Give the Strata Manager at least 2 days' notice, or you may not be allowed to use the lift.\n• They arrange the lift protection blankets and the lift door key\n• Removalists need public liability insurance and must sign an indemnity form from the Strata Manager\n• Move everything through the basement lift. Trucks over 2.1 m won't fit in the basement.\n• Moving furniture in the lift can only happen between 7am and 6pm\n[[!Email to book your move|mailto:strata@oakfield.com.au?subject=Move%20booking%20%E2%80%93%20West%20Residences]] [[Call Strata Manager|tel:0863555225]]"}, {"q": "What are the quiet hours?", "k": "noise loud music party neighbours gaming time hours night sleep", "s": ["i10", "st7"], "a": "Quiet hours are 10 pm to 8 am. Keep music and gaming down, especially near shared walls and balconies.\nNeighbour noise or another problem? Report it to the Strata Manager.\n[[Email Strata Manager|mailto:strata@oakfield.com.au?subject=Noise/conduct%20issue%20%E2%80%93%20West%20Residences]] [[Call Strata Manager|tel:0863555225]]"}, {"q": "Can I smoke or vape?", "k": "smoking vaping cigarette cigar balcony", "s": ["i10"], "a": "Not anywhere in the common areas. In your apartment or on your balcony, the smoke must not drift into common areas or other apartments."}, {"q": "Who do I call about a water leak?", "k": "plumber flood isolation valve pipe burst tap", "s": ["i13", "i5", "con:t2"], "a": "• Turn off the isolation valve first. It's in the Hydraulic Services cupboard in your level's corridor, above your entry door, through the ceiling hatch.\n• Then call the Strata Manager, who also takes emergency calls\n• Leak in the street or mains? Call Water Corporation\n• Need a plumber? Routy's Plumbing is the building's plumber\n[[!Call Strata Manager|tel:0863555225]] [[Call Water Corporation|tel:131375]] [[Call Routy's Plumbing|tel:0894461045]]"}, {"q": "The power is out. What should I do?", "k": "electricity blackout fuse box switch outage", "s": ["i13", "i5", "con:c5"], "a": "• Check your Bright Connect account is active\n• Check the fuse box and make sure the main switch and all the other switches are on\n• Still nothing? Call Western Power, who handle outages and emergencies\n[[!Call Western Power|tel:131351]] [[Call Bright Connect|tel:1300908760]]"}, {"q": "Where do the bins go and what about big items?", "k": "rubbish garbage trash recycling waste verge collection furniture cardboard", "s": ["i4", "con:c7"], "a": "Bins go in the ground floor bin store. General waste is collected weekly and recycling fortnightly, and the strata manager moves the bins out and back in for you.\n• Flatten cardboard so the recycling lid closes\n• Never leave rubbish in stairwells, foyers or other common areas\n• Furniture, appliances, paint, gas bottles and other big items go off-site or out for verge collection. City of Vincent residents can book 2 pickups a year.\n[[!Book a verge collection|https://www.vincent.wa.gov.au/your-home/waste-recycling/verge-collection.aspx]] [[Call City of Vincent|tel:0892736000]]"}, {"q": "How do parcel deliveries work?", "k": "package parcel locker mail post letterbox courier verification code", "s": ["i1", "app1", "man:a13"], "a": "Standard parcels go to the My Parcel Locker lockers. Register online before your first delivery.\n• Your verification code is on the sticker inside your letterbox\n• When a parcel arrives you get a text or email with an access code. Scan it at the locker kiosk.\n• Deliveries that need ID or a signature may still need collecting from the courier\n[[!Register|https://mplocker.com]] [[App Store|https://apps.apple.com/au/app/my-parcel-locker/id1437529500]] [[Google Play|https://play.google.com/store/apps/details?id=com.mplapp.app]]"}, {"q": "How do I redirect my mail?", "k": "auspost australia post change address forwarding redirection", "s": ["i1", "con:c12"], "a": "Apply for mail redirection with Australia Post, online or at a Post Office. You'll need ID.\n[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]"}, {"q": "What if I lose my keys or remotes?", "k": "fob key lost replacement remote swipe card", "s": ["i2"], "a": "Tell the Strata Manager straight away. Replacements cost extra.\n[[!Call Strata Manager|tel:0863555225]] [[Email about lost keys|mailto:strata@oakfield.com.au?subject=Lost%20key/remote%20%E2%80%93%20West%20Residences]]"}, {"q": "Where can my visitors park?", "k": "guest visitor parking bay tow", "s": ["i3", "st4"], "a": "There are 4 visitor bays, 2 off Aria Lane and 2 off West Parade. Residents can't use them.\nThe by-laws limit visitors to 8 hours in any 24 hours. (The house rules say 12 hours, but the by-laws are the binding rule.) The strata company can tow offending vehicles."}, {"q": "How do I use the car stacker?", "k": "parking induction remote bay phoenix platform", "s": ["app2", "i3", "man:a12"], "a": "Everyone must be inducted before using it.\n• Enter only from the front entry point, never the sides, rear or pit\n• Make sure the platform is fully lowered or raised and locked before driving on or off\n• Never stand on a raised platform, and check the area is clear of people, children and pets\n• Use the remote only while standing directly in front with a clear view\n• One vehicle per bay, in your own bay only\n[[!Open the operating manual|files/Phoenix-car-stacker.pdf]] [[Book an induction|mailto:strata@oakfield.com.au?subject=Car%20stacker%20induction%20%E2%80%93%20West%20Residences]]"}, {"q": "Can I rent my apartment on Airbnb?", "k": "short-stay holiday letting lease tenant rent tenancy", "s": ["i16"], "a": "No. The by-laws don't allow short-stay or holiday letting. Leases must be at least 3 months, or a periodic tenancy."}, {"q": "Can I renovate my apartment?", "k": "renovation works builder tradesperson drilling hammer reno", "s": ["st3", "i16"], "a": "Only with the strata company's approval, and at your cost.\n• No works between 5:30pm and 7:30am, or at any time on weekends\n• Tradespeople park in your own car bay\n• Keep dust contained inside your apartment, and don't leave security or fire doors open\n• You need public liability insurance of at least $10 million while the works happen\n• No changes, nails, screws or paint on common property without written consent\n[[Email Strata Manager|mailto:strata@oakfield.com.au?subject=Renovation%20approval%20%E2%80%93%20West%20Residences]]"}, {"q": "When is the defects deadline?", "k": "defect warranty builder fault report 12 months willing", "s": ["i15", "man:d8", "con:c8"], "a": "You have a 12-month defect liability period from Practical Completion on 10 July 2026, so report defects by about 10 July 2027.\nFill in the Defect Maintenance Request Form and email it to Willing Build. Phone reception, neighbour noise and blown globes don't count as defects.\n[[!Open defect form|files/Defect-maintenance-request-form.pdf]] [[Email Willing Build|mailto:hello@willingbuild.com?subject=Defect%20Maintenance%20Request%20%E2%80%93%20West%20Residences]]"}, {"q": "How long is the appliance warranty?", "k": "miele oven cooktop dishwasher rangehood service repair serial", "s": ["man:a16", "i15"], "a": "Miele appliances have a 2-year warranty from practical completion, so cover ends 10 July 2028. Quote project reference PRN 6P5511 and have the serial number ready when you book.\nFor other brands, contact the manufacturer directly. Every manual is in the Manuals tab.\n[[!Book Miele service|https://www.servicebooking.miele.com.au]] [[Call Miele|tel:1300731822]]"}, {"q": "Does the building insurance cover my belongings?", "k": "contents insurance claim excess flood damage landlord", "s": ["i15", "st5"], "a": "No. The strata insurance covers the building, not your belongings, removable fittings and appliances, curtains and blinds, carpet and timber floors, your car or your storage. It also doesn't cover damage your apartment causes to a neighbour's, like a flood. Contents insurance is up to you.\nTell the Strata Manager straight away about any possible claim.\n[[Lodge an insurance claim|https://oakfield.helpjuice.com/en_US/insurance-forms/insurance-claim-lodgement]] [[Call Strata Manager|tel:0863555225]]"}, {"q": "Can I install an EV charger?", "k": "electric vehicle charging car charge", "s": ["i16", "st2"], "a": "Only with the strata company's written consent first. Apply in writing with plans, the charger details, the electrical load and how it will be installed. You pay the costs, and you may need an induction.\n[[Ask about an EV charger|mailto:strata@oakfield.com.au?subject=EV%20charger%20request%20%E2%80%93%20West%20Residences]]"}, {"q": "How do I get internet?", "k": "nbn wifi broadband provider tv antenna foxtel", "s": ["i5"], "a": "The building is pre-wired for NBN. Choose a provider and they'll send a technician to finish the connection. The living room and bedroom have antenna points for free-to-air and Foxtel.\n[[Find an NBN provider|https://www.nbnco.com.au/rollout]]"}, {"q": "Does the building have gas?", "k": "cooktop stove cooking gas", "s": ["i5", "man:a2"], "a": "No. The building has no gas, and the cooktop is electric."}, {"q": "Can I hang washing on my balcony?", "k": "laundry clothes towels drying line dryer", "s": ["i8", "i14"], "a": "Not where it can be seen from outside the building. Don't hang washing, towels or bedding on the balcony.\nUse the dryer instead. It turns on the ceiling exhaust fan, so keep the glass doors open while it runs."}, {"q": "Who can use the Orangerie and BBQ area?", "k": "communal level 3 lounge dining guests hours booking", "s": ["i11", "st8"], "a": "Residents and their guests, with no more than 8 guests per apartment at a time.\n• Hours: the house rules say \"dusk to dawn\", which is probably a typo for dawn to dusk, so check with the Strata Manager\n• No pets, and children under 14 must be supervised by an adult\n• Take your rubbish with you, clean the BBQ and turn the lights off when you leave\n• Some facilities may need booking through the Council of Owners\n[[Ask about hours|mailto:strata@oakfield.com.au?subject=Orangerie%20hours%20%E2%80%93%20West%20Residences]]"}, {"q": "Where can I store my bike?", "k": "bicycle scooter storage basement", "s": ["i12"], "a": "Bike storage is in the basement and on levels 4 to 6. Store bikes only there, never in other common areas or on your balcony.\nYou're responsible for securing your own bike. The strata company isn't liable for loss or damage."}, {"q": "Can I put up a sign or a satellite dish?", "k": "antenna camera banner for sale lease cctv", "s": ["i16"], "a": "Not without approval. There are no signs, banners or For Sale / For Lease signs without approval, and no antennas, satellite dishes or outward-facing cameras without consent. A security camera can never look into another apartment.\n[[Email Strata Manager|mailto:strata@oakfield.com.au?subject=By-law%20question%20%E2%80%93%20West%20Residences]]"}, {"q": "What happens if I set off the fire alarm?", "k": "false alarm smoke toast cooking fire brigade dfes", "s": ["i7", "st6"], "a": "The building alarm rings through the whole building and DFES is alerted automatically. A false alarm costs over $2,500 per fire truck, and the person who set it off pays (for example, for smoke from a toaster or oven).\nIn a real emergency, call 000 and don't use the lifts unless emergency services tell you to.\n[[!Call 000|tel:000]]"}, {"q": "How do I connect my washing machine?", "k": "laundry washer plumbing hose spigot trough install broken faulty fault repair", "s": ["man:a5"], "a": "Connecting it is up to you: drill out the plastic seal in the spigot under the laundry trough, then fix the waste hose on with a hose clamp. Get a handyman or installer if you're not sure.\nThe manuals for the washer models are in the Manuals tab."}, {"q": "My air conditioner isn't working", "k": "aircon ac vent filter mitsubishi cooling heating broken faulty fault repair", "s": ["i13", "man:a7"], "a": "Check the manual's troubleshooting section first (find it under Air conditioner in the Manuals tab). Use the AC vent access key from your key set. Still not working? Call the installer, Morgan's Mechanical.\n[[!Call Morgan's Mechanical|tel:0892487478]] [[Email|mailto:admin@morair.com.au]]"}, {"q": "How do I contact the Strata Manager?", "k": "oakfield april taylor strata phone email emergency", "s": ["con:c2"], "a": "April Taylor at Oakfield, on (08) 6355 5225. They take emergency calls too.\nContact them about lost keys, move bookings, pets, common-area problems and insurance claims.\n[[!Call|tel:0863555225]] [[Email|mailto:strata@oakfield.com.au?subject=West%20Residences]]"}, {"q": "What if the lift breaks down or someone's stuck?", "k": "elevator emergency stuck schindler kone", "s": ["i2", "con:c3"], "a": "Press the emergency button in the lift, or call Schindler on 13 18 74 (24/7).\nThe contacts sheet lists Kone as the lift contractor, so ask the Strata Manager which one is right.\n[[!Call lift emergency|tel:131874]]"}, {"q": "How do visitors get in?", "k": "intercom entry guest visitor door buzzer lift building enter into let in", "s": ["i2", "man:a9"], "a": "The audio-visual intercom at the main entry rings the receiver in your apartment, and you let them in from there. They then have 1 minute to get in the lift and press your level, and they can only reach your level."}, {"q": "My oven or cooktop isn't working", "k": "stove hob rangehood dishwasher isolator switch fuse kitchen broken faulty fault repair", "s": ["i13", "man:a16"], "a": "• Oven: check the switch on the kitchen powerpoint, then make sure the oven switch in the fuse box is on\n• Cooktop: check the isolator switch on the kitchen powerpoint\n• Rangehood: check its plug in the cupboard next to the rangehood\n• Dishwasher: check the plug and the water tap in the cupboard next to it, and see the manual for error codes\nStill faulty? Miele appliances are under warranty until 10 July 2028.\n[[Book Miele service|https://www.servicebooking.miele.com.au]] [[Call Miele|tel:1300731822]]"}, {"q": "What should I do when I go away for a month?", "k": "holiday away travel hot water stopcock", "s": ["i5", "man:a8"], "a": "If you'll be away for more than a month, the by-laws say to turn off the hot water system's stopcock."}, {"q": "What are the car park height and speed limits?", "k": "basement garage driveway aria lane clearance speed", "s": ["i3", "st4"], "a": "Height limit is 2.0 m. (The moving-in guide says vehicles must be under 2.1 m, so go by the lower figure.)\nSpeed limit is 10 km/h on common property under the by-laws, and the house rules ask for 5 km/h. Watch for pedestrians at the driveway crossing."}, {"q": "How do I resolve a dispute with the strata company?", "k": "complaint mediation tribunal sat by-law breach notice", "s": ["st9"], "a": "• Give a written Dispute Notice saying what the issue is, your arguments and what should be done\n• The other side must reply in writing within 5 business days\n• If that doesn't settle it, you meet an independent mediator within 10 business days\n• You can also skip this and apply straight to the State Administrative Tribunal\n[[State Administrative Tribunal|https://www.sat.justice.wa.gov.au]]"}, {"q": "Where are the paint, tile and floor details?", "k": "finishes colour dulux benchtop carpet touch-up joinery", "s": ["man:d7"], "a": "The Finishes & fixtures schedule lists them: Dekton benchtops (Cosentino), Laminex joinery, Original Ceramics tiles, Wood Pecker oak floors, Godfrey Hirst Fyans wool carpet and Dulux paint (Snowy Mountain Quarter, Vivid White).\n[[!Open the schedule|files/Finishes-schedule.pdf]]"}, {"q": "Who is my electricity provider or power company?", "k": "power bill synergy bright connect account water bill", "s": ["i5", "con:c11"], "a": "Bright Connect, not Synergy. The building has an embedded network, so every resident needs a Bright Connect account. They also bill your water use.\n[[!Set up Bright Connect|https://www.brightconnect.com.au/move-in/]] [[Call Bright Connect|tel:1300908760]]"}];
+function itemById(spec){
+  let kind="info", id=spec;
+  if(spec.startsWith("con:")){ kind="contact"; id=spec.slice(4); }
+  else if(spec.startsWith("man:")){ kind="manual"; id=spec.slice(4); }
+  return gsItems().find(x=>x.kind===kind&&x.id===id);
+}
+function faqMatch(raw){
+  const q=queryTerms(raw); if(!q.length) return {faq:null,related:[]};
+  const clean=t=>" "+norm(t).replace(/[^\p{L}\p{N}\s]/gu," ").replace(/\s+/g," ")+" ";
+  const scored=FAQ.map(f=>{
+    const hq=clean(f.q), hk=clean(f.k);
+    let s=0,m=0;
+    for(const t of q){ let best=0; for(const alt of t.alts){ if(!alt) continue; if(hq.includes(" "+alt)) best=Math.max(best,3); else if(hk.includes(" "+alt)) best=Math.max(best,2); } if(best){ m++; s+=best; } }
+    return {f,s,m,cov:m/q.length};
+  }).filter(x=>x.m).sort((a,b)=>b.s-a.s||b.cov-a.cov);
+  const top=scored[0];
+  const ok=!!top && top.s>=3 && (top.cov>=0.6 || (q.length<=2 && top.cov>=0.5));
+  return {faq:ok?top.f:null, related:scored.filter(x=>!ok||x.f!==top.f).slice(0,3).map(x=>x.f)};
+}
+function faqCard(f){
+  const out=el("div",{class:"ask-out","aria-live":"polite"},prose(f.a));
+  const srcs=(f.s||[]).map(itemById).filter(Boolean).slice(0,4);
+  if(srcs.length) out.append(el("div",{class:"ask-src"},el("span",{text:"From"}),...srcs.map(h=>el("button",{type:"button",onclick:()=>goTo(h)},h.title))));
+  return el("div",{class:"ask on"},
+    el("div",{class:"ask-head"},
+      el("span",{class:"ask-ic","aria-hidden":"true"},"✦"),
+      el("div",{class:"ask-q"},el("div",{class:"ask-k",text:"Quick answer"}),el("div",{class:"ask-t",text:f.q}))),
+    out,
+    el("div",{class:"ask-foot",text:"Taken from this handbook. Open the section below for the full detail."}));
+}
+function noAnswerCard(raw){
+  return el("div",{class:"ask on"},
+    el("div",{class:"ask-head"},
+      el("span",{class:"ask-ic","aria-hidden":"true"},"✦"),
+      el("div",{class:"ask-q"},el("div",{class:"ask-k",text:"No ready answer"}),el("div",{class:"ask-t",text:raw}))),
+    el("div",{class:"ask-out"},el("p",{class:"ask-note",text:"The handbook doesn't seem to cover that. Try different words, or ask the Strata Manager."}),
+      el("div",{class:"acts"},actBtn("Call Strata Manager","tel:0863555225",true),actBtn("Email","mailto:strata@oakfield.com.au?subject=West%20Residences"))));
+}
+function runSearch(){
+  const raw=$("gsInput").value.trim(), box=$("gsResults"); box.replaceChildren();
+  if(!raw){
+    box.append(el("div",{class:"gs-empty"},"Search the whole handbook, or type a question in your own words.",
+      el("div",{class:"gs-group",text:"Try asking"}),
+      el("div",{class:"gs-tips"},...QUESTIONS.map(w=>el("button",{type:"button",text:w,onclick:()=>{ $("gsInput").value=w; runSearch(); }}))),
+      el("div",{class:"gs-group",text:"Or search for"}),
+      el("div",{class:"gs-tips"},...SUGGEST.map(w=>el("button",{type:"button",text:w,onclick:()=>{ $("gsInput").value=w; runSearch(); }})))));
+    return;
+  }
+  const isQ=looksLikeQuestion(raw);
+  const {faq,related}=faqMatch(raw);
+  if(faq) box.append(faqCard(faq)); else if(isQ) box.append(noAnswerCard(raw));
+  if(related.length) box.append(el("div",{class:"gs-group",text:"Related questions"}),
+    el("div",{class:"gs-tips"},...related.map(f=>el("button",{type:"button",text:f.q,onclick:()=>{ $("gsInput").value=f.q; runSearch(); }}))));
+  const {hits,marks}=scoreHits(raw);
+  if(!hits.length){
+    if(!faq && !isQ) box.append(el("div",{class:"gs-empty",text:`No matches for “${raw}”. Try a different word, or ask it as a question.`}));
+    return;
+  }
+  const shown=(faq||isQ)?hits.slice(0,8):hits;
+  box.append(el("div",{class:"gs-group",style:"margin-top:14px",text:(faq||isQ)?"Related sections":`${hits.length} result${hits.length===1?"":"s"}`}));
+  for(const t of TABS){
+    const group=shown.filter(h=>h.tab===t.id);
+    if(!group.length) continue;
+    if(!(faq||isQ)) box.append(el("div",{class:"gs-group",text:t.label}));
+    for(const h of group){
+      box.append(el("button",{type:"button",class:"gs-hit",onclick:()=>goTo(h)},
+        el("div",{class:"gs-t"},markAll(h.title,marks)),
+        el("div",{class:"gs-s"},markAll(snippet(h.text,marks),marks))));
+    }
+  }
+}
+let gsTimer=null;
+function openSearch(){ $("gs").hidden=false; document.body.style.overflow="hidden"; runSearch(); setTimeout(()=>{ $("gsInput").focus(); $("gsInput").select(); },30); }
+function closeSearch(){ if($("gs").hidden) return; $("gs").hidden=true; document.body.style.overflow=""; $("searchBtn").focus(); }
+$("searchBtn").onclick=openSearch;
+$("gsClose").onclick=closeSearch;
+$("gsInput").addEventListener("input",()=>{ clearTimeout(gsTimer); gsTimer=setTimeout(runSearch,120); });
+$("gsInput").addEventListener("keydown",e=>{ if(e.key!=="Enter") return; e.preventDefault(); clearTimeout(gsTimer);
+  const raw=$("gsInput").value.trim(); if(!raw) return;
+  if(looksLikeQuestion(raw)){ runSearch(true); return; }
+  const f=$("gsResults").querySelector(".gs-hit"); if(f) f.click(); });
+function goTo(h){
+  closeSearch();
+  ["qInfo","qMan","qCon"].forEach(id=>{ $(id).value=""; });
+  if(h.kind==="info") openSet.add(h.id);
+  if(h.kind==="contact") openCon.add(h.id);
+  if(h.kind==="manual"){ openMan.add(h.id); state.room="All"; }
+  if(location.hash!=="#"+h.tab) history.replaceState(null,"","#"+h.tab);
+  route(); renderAll();
+  requestAnimationFrame(()=>{
+    let target = h.kind==="info" && h.tab==="welcome" ? $("letter") : document.querySelector(`#view-${h.kind==="info"?"info":h.kind==="contact"?"contacts":"manuals"} [data-id="${CSS.escape(h.id)}"]`);
+    if(!target) return;
+    if(target.tagName==="DETAILS") target.open=true;
+    const y=target.getBoundingClientRect().top+window.scrollY-$("tabs").offsetHeight-12;
+    window.scrollTo({top:Math.max(0,y),behavior:settings.motion?"auto":"smooth"});
+    target.classList.remove("flash"); void target.offsetWidth; target.classList.add("flash");
+  });
+}
+
+/* ---------- Data: built-in copy first, then live from Firebase ---------- */
+const DATA={"meta": {"name": "West Residences", "address": "141 West Parade, Mount Lawley WA 6050"}, "info": [{"tab": "welcome", "order": 0, "title": "Welcome to West Residences", "body": "Hi and welcome to your new home at West Residences.\n\nWe're excited to have you as part of the community and hope you're looking forward to making yourself at home.\n\nWest Residences is unlike any other apartment building in the area, with a distinctive design inspired by New York's famous Flatiron Building. Its unique shape and character make it a true local landmark and a place you'll be proud to call home.\n\nYou'll also enjoy the convenience of excellent transport connections, making it easy to get into the city and beyond, whether you're commuting, meeting friends, or exploring everything the area has to offer.\n\nAnd there's even more to look forward to. In the coming weeks, the ground floor will be home to our flagship Willing Coffee shop, a place to grab your morning coffee, catch up with neighbours, or simply enjoy a great spot right downstairs.\n\nWe hope you love living here as much as we've loved bringing West Residences to life. Welcome to the neighbourhood, we're glad you're here.", "signoff": "Best", "signature": "Tim Willing", "signatureRole": "Willing", "id": "welcome"}, {"tab": "important", "order": 1, "title": "Introduction", "body": "Congratulations on your new home and welcome to West Residences.\n\nWhether this is your first property or the latest addition to your homeownership journey, moving into a new home is an exciting milestone. We're delighted to welcome you to the community and hope you'll enjoy everything that life at West Residences has to offer.\n\nThis Handover Manual has been put together to help make your transition as smooth and straightforward as possible. Inside, you'll find useful information about your apartment, the building, and practical guidance to help you get settled in and make the most of your new home.\n\nA home is much more than four walls and a roof. It's where everyday moments become lasting memories, where you unwind after a busy day, and where you'll create a space that reflects your lifestyle and personality. Understanding how your apartment and building operate will help you protect your investment and enjoy your home for years to come.\n\nWe know that moving into a new property can sometimes feel overwhelming, particularly if you're navigating apartment living or homeownership for the first time. That's why we've designed this manual to be an easy-to-use reference, providing clear information and helpful advice whenever you need it.\n\nWe encourage you to keep this guide handy and refer to it whenever questions arise. From caring for your apartment to understanding the facilities and services available at West Residences, it has been created to support you throughout your ownership journey.\n\nOnce again, congratulations and welcome to West Residences. We wish you many happy years in your new home and look forward to seeing this community thrive.", "id": "imp1"}, {"tab": "important", "order": 2, "title": "Contact numbers", "body": "Keep these close at hand. Tap a button to call.\n\n• Fire, police, ambulance: 000 [[!Call 000|tel:000]]\n• Strata Manager: April Taylor, Oakfield, (08) 6355 5225 (incl. emergencies) [[Call|tel:0863555225]] [[Email|mailto:strata@oakfield.com.au?subject=West%20Residences]]\n• Residential lift: Schindler, 13 18 74 (24/7 customer service and emergencies), or press the emergency call button in the lift [[Call|tel:131874]]\n• Local council: City of Vincent, (08) 9273 6000 [[Call|tel:0892736000]]\n• Electricity: Western Power, emergencies and outages, 13 13 51 [[Call|tel:131351]]\n• Water: Water Corporation, faults, leaks or outages, 13 13 75 [[Call|tel:131375]]\n\nEvery contact from the folder, with emails and websites: [[Open Contacts|#contacts]]", "id": "imp2"}, {"tab": "residence", "order": 15, "title": "Appendix 1 – Parcel lockers", "body": "All standard parcel deliveries go to the My Parcel Locker lockers. Deliveries that need ID or a signature may still need collecting from the courier.\n\nHow to register:\n• Go to mplocker.com or download the My Parcel Locker app [[!Register at mplocker.com|https://mplocker.com]] [[App Store|https://apps.apple.com/au/app/my-parcel-locker/id1437529500]] [[Google Play|https://play.google.com/store/apps/details?id=com.mplapp.app]]\n• Choose Register for Deliveries and create a User account\n• Enter your building's postcode (6050) and your verification code, which is on the sticker inside your letterbox\n• Confirm your email, then enter the code sent to you by SMS. Stay on that screen until it's done.\n• Everyone in your apartment uses the same code to make their own account\n\nWhen a parcel arrives you'll get a text or email with an access code. Scan it at the locker kiosk and your door opens.\n\nCan't find your code? Email support with proof of residency, like a lease, utility bill or rent receipt. [[Email support|mailto:support@myparcellocker.com]] [[Call (07) 3123 2862|tel:0731232862]]", "id": "app1"}, {"tab": "residence", "order": 16, "title": "Appendix 2 – Car stacker", "body": "The building uses Phoenix-DP-1+2 2.1 car stackers, arranged as Stackers A, B, C and D across the basement, ground and level 1. Each bay is 12 m². Your bay number is shown on the car stacker plan in the Strata section. [[!Open the car stacker plan|files/Car-stacker-plan.pdf]]\n\nBefore using it:\n• Everyone must be inducted first [[Book an induction|mailto:strata@oakfield.com.au?subject=Car%20stacker%20induction%20%E2%80%93%20West%20Residences]]\n• Read the operating instructions in Your New Residence [[Open instructions|files/Your-New-Residence-handover-manual.pdf]]\n\nEvery time:\n• Enter only from the front entry point. Side, rear and pit access is not allowed.\n• Make sure the platform is fully lowered or raised and locked before driving on or off\n• Never climb or stand on a raised platform\n• Check the area is clear of people, children, pets and obstructions before operating it or closing the gate\n• Only use the remote while standing directly in front of the stacker with a clear view\n• Park one vehicle per bay, in your own bay only\n\nAnything wrong with it? Report damage or faults to the Strata Manager straight away. [[Call Strata Manager|tel:0863555225]]", "id": "app2"}, {"tab": "strata", "order": 1, "title": "About this section", "body": "This section contains:\n• Final Strata Plan SP87928 [[!Open strata plan|files/Strata-plan-SP87928.pdf]]\n• Final Strata By-laws SP87928 (Annexure A) [[!Open by-laws|files/Scheme-by-laws.pdf]]\n• Special Use Plan Annexure A, the car stacker plan [[Open car stacker plan|files/Car-stacker-plan.pdf]]\n\nThe by-laws have two parts. Schedule 1 covers how the strata company is run (governance). Schedule 2 covers day-to-day conduct for owners and residents. The topics below summarise the parts you're most likely to need.\n\nThe strata company is run by a council of 3 to 7 owners, and must use a professional strata manager. Currently that's Oakfield. [[Call Oakfield|tel:0863555225]]\n\nLot 1 is the commercial lot on the ground floor. Everything else is a residential lot.", "id": "st1"}, {"tab": "strata", "order": 3, "title": "Exclusive use: air con, car stackers & EV chargers", "body": "Annexure 1 (the Exclusive Use Schedule) gives owners exclusive use of some common property:\n• Air conditioning (all lots, by-laws 98–99): the space taken up by your air con system, ducting and cabling. The strata company maintains each system at the owners' cost.\n• Car stacker bays (car stacker lots, by-laws 100–106): your bay, as shown on the car stacker plan. [[Open car stacker plan|files/Car-stacker-plan.pdf]]\n• EV chargers (all lots, by-law 111.1): the space an approved charger takes up beside your bay\n\nCar stacker rules:\n• Only car stacker lot owners and their occupiers may use the stackers, and only their own bay\n• Maintenance costs are shared equally between car stacker owners, per bay\n• If you or your occupier cause damage, you pay for the repair\n• One vehicle per bay, of a type the manufacturer recommends\n• Keep your keys and remotes safe, and report any damage or fault straight away\n• Don't hang or fix anything in the stacker area, or let anyone else use your bay\n\nEV chargers need the strata company's written consent first (by-laws 107–114). Apply in writing with plans, the charger details, electrical load and how it will be installed. You pay the costs, and you may need an induction. [[Ask about an EV charger|mailto:strata@oakfield.com.au?subject=EV%20charger%20application%20%E2%80%93%20West%20Residences]]", "id": "st2"}, {"tab": "strata", "order": 4, "title": "Lifts, moving furniture & renovations", "body": "Lifts (by-law 49):\n• Stay within the lift's loading limit\n• Moving furniture or equipment in the lift needs the strata company's written consent, and can only happen between 7am and 6pm\n• Use the protective curtains and padding\n• No eating in the lifts or foyer. Carry food and drink sealed, and clean up any spills.\n\nMoving (by-laws 82–84): tell the Strata Manager before you move in or out, don't leave furniture on common property, and make sure your removalists follow their directions. You pay for any damage. [[Email to book|mailto:strata@oakfield.com.au?subject=Move%20booking%20%E2%80%93%20West%20Residences]]\n\nRenovations and other works in your apartment (by-laws 92–98):\n• Only with the strata company's approval, and at your cost\n• No works between 5:30pm and 7:30am, or at any time on weekends\n• Tradespeople park in your own car bay\n• Don't leave security or fire doors open, store materials on common property, or put up scaffolding without approval\n• Keep dust contained inside your apartment\n• Have public liability insurance of at least $10 million while the works happen", "id": "st3"}, {"tab": "strata", "order": 5, "title": "Vehicles & car bays", "body": "On common property (by-law 50):\n• Park only where the plan or the strata company allows\n• No vehicles over 2 tonnes (except for construction or moving)\n• No boats, trailers, caravans, campervans or mobile homes\n• Maximum speed 10 km/h by the by-laws (the house rules ask for 5 km/h)\n• No repairs or restorations\n\nYour car bay (by-laws 106–109):\n• Keep only a registered, roadworthy vehicle in it. Don't store other things or build anything there.\n• No repairs, campervans or trailers, and no unregistered or broken-down vehicles\n• Only owners, occupiers or their guests may park in it, and guests not long-term\n• You can't sublease your bay to anyone\n\nVisitor bays (by-laws 110–112): residents can't use them. Visitors can stay up to 8 hours in any 24, and the strata company can tow offending vehicles.", "id": "st4"}, {"tab": "strata", "order": 6, "title": "Insurance & excess", "body": "The strata company insures the building (by-law 121). Don't do anything that could cancel the policy or raise the premium.\n\nYou pay the excess when (by-laws 126–130):\n• damage, including water damage, comes from your breach of the by-laws or your negligence\n• you make a claim on the strata insurance, whether the damage is inside your lot, to the common property around it, or to your fixtures\n\nThat includes accidental breakage of glass (windows, doors, shower screens and mirrors) and porcelain or vitreous china (like vanity basins).\n\nTell the Strata Manager straight away about any possible claim. [[!Lodge an insurance claim|https://oakfield.helpjuice.com/en_US/insurance-forms/insurance-claim-lodgement]]", "id": "st5"}, {"tab": "strata", "order": 7, "title": "Fire safety in your apartment", "body": "You must not (by-law 69):\n• interfere with fire safety equipment, or use it except in an emergency\n• block fire escapes or exit paths\n• leave fire-rated doors open\n• let your smoke alarm stop working, or delay an inspection\n• alter your front door without consent\n\nAt your cost you must (by-law 70):\n• keep compliant smoke alarms, and replace them every 10 years\n• keep the sprinklers in your apartment and on your balcony maintained\n• get written approval before any work that needs the sprinklers isolated\n• use the strata company's appointed fire contractor for servicing\n\nIf you or your equipment set off a false alarm and the fire brigade attends, you pay the call-out charges and any fines (by-law 71).", "id": "st6"}, {"tab": "strata", "order": 8, "title": "Noise, floors & pets", "body": "Noise and floors (by-laws 2–3 and 120–124):\n• Don't use your apartment in a noisy way that disturbs others\n• Keep your floors covered with approved materials so noise doesn't travel\n• Wear soft footwear inside where you can, and fit furniture with floor pads\n• Don't overload floors\n\nPets (by-laws 27–36): register each pet with a photo, vaccination details, council registration and microchip certificate. You can keep up to 2 fish, caged birds, cats or small dogs without approval. A small dog is under 20 kg fully grown and not an excluded breed, such as a German Shepherd, Pit Bull, Rottweiler, Akita or Doberman. Anything else needs the council's written consent. [[Pet application form|https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/pet-application-form]]", "id": "st7"}, {"tab": "strata", "order": 9, "title": "Communal recreational area", "body": "The communal recreational area on Level 3 (the Orangerie, BBQ, lounge and dining area) is for owners, residents and their guests (by-laws 149–161).\n• No more than 8 guests per owner at a time\n• Children under 14 must be supervised by an adult\n• No pets\n• Follow any instructions for its use, and turn the lights off when you leave\n• No business, profit-making or coaching use without the council's approval\n• The Strata Manager can close it, give directions or ask anyone to leave\n\nSome facilities may need booking through the council, which can ask for a cleaning or damage bond and limit numbers or times. [[Ask about bookings|mailto:strata@oakfield.com.au?subject=Communal%20area%20booking%20%E2%80%93%20West%20Residences]]", "id": "st8"}, {"tab": "strata", "order": 10, "title": "Disputes", "body": "If you have a dispute with the strata company about the by-laws (by-laws 130–138):\n• Give a written Dispute Notice saying what the issue is, your arguments and what should be done\n• The other side must reply in writing within 5 business days\n• If that doesn't settle it, you meet with an independent mediator within 10 business days\n• You can also skip this and apply straight to the State Administrative Tribunal\n\n[[State Administrative Tribunal|https://www.sat.justice.wa.gov.au]]", "id": "st9"}, {"id": "i1", "tab": "residence", "order": 1, "title": "Address, mail & parcels", "body": "Postal address: Apartment number / 141 West Parade, Mount Lawley WA 6050\n\nMailboxes are in the ground floor lobby. You were given 2 mailbox keys.\n\nParcels go to the My Parcel Locker lockers. Register online before your first delivery.\n[[!Register for parcel lockers|https://mplocker.com]]\nOr use the app: [[App Store|https://apps.apple.com/au/app/my-parcel-locker/id1437529500]] [[Google Play|https://play.google.com/store/apps/details?id=com.mplapp.app]]\n\nYour apartment's verification code is on a sticker inside your letterbox, and everyone in the apartment can use it to make their own account. If you can't find the code, email support with proof of residency (a lease, utility bill or rent receipt).\n[[Email locker support|mailto:support@myparcellocker.com]] [[Locker help centre|https://myparcellocker.com/help-centre/]]\n\nDeliveries that need ID or a signature may still have to be collected from the courier.\n\nMoving from somewhere else? Apply for mail redirection with Australia Post. You'll need ID.\n[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]"}, {"id": "i2", "tab": "residence", "order": 4, "title": "Keys, access & security", "body": "Each apartment was given:\n• 2 apartment entry keys\n• 2 mailbox keys\n• 2 remote controls per car bay\n• Window / sliding door keys\n• AC vent access key\n\nLift: your fob takes you to your own level and the ground floor. If someone is stuck in the lift, press the lift's emergency button or call Schindler. [[Call lift emergency|tel:131874]]\n\nVisitors: the audio-visual intercom at the main entry rings the receiver in your apartment, and you let them in from there. They then have 1 minute to get in the lift and press your level, and can only reach your level.\n\nLost keys or remotes: tell the Strata Manager straight away. Replacements cost extra.\n[[!Call Strata Manager|tel:0863555225]] [[Email about lost keys|mailto:strata@oakfield.com.au?subject=Lost%20key/remote%20%E2%80%93%20West%20Residences]]\n\nCCTV covers common areas. Don't prop secured doors open, don't let unknown people in, and report tailgaters to the Strata Manager. [[Report an incident|https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/incident-report]]"}, {"id": "i3", "tab": "residence", "order": 2, "title": "Parking & car stacker", "body": "The basement car park is entered from Aria Lane.\n• Height limit 2.0 m (the moving-in guide says vehicles must be under 2.1 m, so go by the lower 2.0 m)\n• Speed limit 5 km/h\n• Watch for pedestrians at the driveway crossing\n• Park only in your own bay(s). No washing or repairing cars.\n\nCar stacker: everyone must be inducted before using it. [[Book an induction|mailto:strata@oakfield.com.au?subject=Car%20stacker%20induction%20%E2%80%93%20West%20Residences]]\nEnter only from the front entry point, never the sides, rear or pit. Make sure the platform is fully lowered or raised and locked before driving on or off. Never stand on a raised platform. Check the area is clear of people, kids and pets, and use the remote only while standing directly in front with a clear view.\nFull instructions are in Appendix 2 of Your New Residence. [[!Open car stacker instructions|files/Your-New-Residence-handover-manual.pdf]]\n\nVisitor parking: 4 bays, 2 off Aria Lane and 2 off West Parade. Residents can't use them. The by-laws limit visitors to 8 hours in any 24 hours. (The house rules say 12 hours, but the by-laws are the binding rule.)"}, {"id": "i4", "tab": "residence", "order": 5, "title": "Bins & recycling", "body": "Bins go in the ground floor bin store.\n\nThe City of Vincent collects general waste weekly and recycling fortnightly from Memorial Lane. The strata manager moves the bins out and back in on collection day, so you don't have to.\n\n• Seal food and rubbish in bags\n• Flatten cardboard so the recycling lid closes\n• Never leave rubbish in stairwells, foyers or other common areas\n• Furniture, appliances, paint, fuel, gas bottles, tools and other big items have to go off-site or out for verge collection. City of Vincent residents can book Verge Valet bulk or green waste pickups, 2 a year.\n[[!Book a verge collection|https://www.vincent.wa.gov.au/your-home/waste-recycling/verge-collection.aspx]] [[Call City of Vincent|tel:0892736000]]"}, {"id": "i5", "tab": "residence", "order": 3, "title": "Electricity, water & internet", "body": "Electricity: the building has an embedded network managed by Bright Connect, not Synergy. Every resident needs a Bright Connect account.\n[[!Set up Bright Connect|https://www.brightconnect.com.au/move-in/]] [[Call Bright Connect|tel:1300908760]]\n\nPower out? Check your fuse box first, then report it to Western Power. [[Call Western Power|tel:131351]]\n\nWater: each apartment has its own sub-meter. Bright Connect bills your water use. Water Corporation service charges are split by unit entitlement and come through the Strata Manager.\n\nYour water isolation valve and meter are in the Hydraulic Services cupboard in your level's corridor, above your entry door, reached through the ceiling hatch. For mains water faults: [[Call Water Corporation|tel:131375]]\n\nGas: the building has no gas.\n\nInternet: the building is pre-wired for NBN. Choose a provider and they'll send a technician to finish the connection. [[Find an NBN provider|https://www.nbnco.com.au/rollout]]\n\nTV: the living room and bedroom have antenna points for free-to-air and Foxtel.\n\nAway for more than a month? The by-laws say to turn off the hot water system's stopcock."}, {"id": "i6", "tab": "important", "order": 3, "title": "Moving in or out procedure", "body": "• Give the Strata Manager at least 2 days' notice, or you may not be allowed to use the lift.\n[[!Email to book your move|mailto:strata@oakfield.com.au?subject=Move%20booking%20%E2%80%93%20West%20Residences]] [[Call Strata Manager|tel:0863555225]]\n• The Strata Manager arranges lift protection blankets and a lift door isolation key. Don't move furniture without the blankets up.\n• Use the Hold button. Never force or prop the lift doors open.\n• Move everything through the basement lift, not the main lobby (unless the Strata Manager approves)\n• Removalists need public liability insurance and must sign an indemnity form, which you get from the Strata Manager. [[Ask for the indemnity form|mailto:strata@oakfield.com.au?subject=Removalist%20indemnity%20form%20%E2%80%93%20West%20Residences]]\n• Trucks over 2.1 m won't fit in the basement\n• Don't drag heavy items. Use trolleys and protective covers.\n• Damage to lifts, walls or floors is charged to you\n• Afterwards, flatten your boxes into the ground floor bin store and take any excess off-site\n\nLift size\nDoor opening: 900 mm wide × 2100 mm high\nInside: 1400 mm wide × 2300 mm high × 1940 mm deep\nMax load: 1000 kg\n\nFull moving procedure: [[Open moving procedure|files/Important-Information.pdf]]"}, {"id": "i7", "tab": "residence", "order": 6, "title": "Fire & emergency", "body": "In a fire or any emergency, call 000. [[!Call 000|tel:000]]\n\n• Fire hose reels and extinguishers are in the common areas. Use them only in an emergency, never for washing cars.\n• Common-area smoke detectors and the hose reels are monitored by DFES. A false alarm costs over $2,500 per fire truck, and the person who set it off pays (for example, smoke from a toaster or oven).\n• The smoke alarms inside apartments are standalone and not connected to the building system.\n• When the building alarm goes off, a bell rings through the whole building and DFES is alerted automatically. The Fire Indicator Panel is on the ground floor.\n• Don't use the lifts in a fire unless emergency services tell you to.\n• In heavy smoke, stay low and breathe through a wet towel.\n• Never store anything in stairwells or services cupboards.\n\nBuilding issue after the emergency? [[Call Strata Manager|tel:0863555225]]"}, {"id": "i8", "tab": "residence", "order": 11, "title": "Balconies", "body": "• Don't hang washing, towels or bedding where they can be seen from outside\n• No screens, shade cloth, foil or fencing on the balustrade\n• No hanging furniture, lights or decorations (holiday lights are OK for a short time if they're secured)\n• Furniture and plants are fine but need to look tidy. Every pot needs a saucer that catches water.\n• No storing bikes or anything flammable (a BBQ gas bottle is fine, but keep it hidden inside the BBQ stand)\n• Never drill into the tiled floor. There's a waterproof membrane underneath.\n• Don't throw anything off the balcony, and secure loose items because it gets windy up high\n• Don't put furniture or boxes against the balustrade, since kids could climb on them\n• Close the balcony door when no one's home\n• Clean the inside and outside of your glass where it's safe to reach. Strata cleans the external windows once a year.\n\nThe balcony rules are by-laws 72 to 75. [[Read the by-laws|files/Scheme-by-laws.pdf]]"}, {"id": "i9", "tab": "residence", "order": 14, "title": "Pets & dog wash", "body": "Under the by-laws you can keep up to 2 pets (fish, caged birds, cats, or small dogs up to 20 kg fully grown) without needing approval, once they're registered.\n\nTo register a pet, give Oakfield (the strata manager):\n• a photo\n• vaccination details\n• council registration certificate\n• microchip certificate\n[[!Pet application form|https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/pet-application-form]] [[Email pet details|mailto:strata@oakfield.com.au?subject=Pet%20registration%20%E2%80%93%20West%20Residences]]\n\nYou need written approval from the Council of Owners for any other animal, a dog over 20 kg, or more than 2 pets. Oakfield passes your application on to them.\n\nIn common areas, pets must be on a lead or carried, and you clean up any mess straight away. No pets in the Orangerie or BBQ area.\n\nDog wash: stay with your dog, make sure its vaccinations are up to date, clean up hair and mess, and keep it quick so others get a turn."}, {"id": "i10", "tab": "residence", "order": 10, "title": "Noise, smoking & conduct", "body": "• Quiet hours are 10 pm to 8 am\n• Think about shared walls and balconies, and keep music and gaming down\n• No smoking or vaping anywhere in the common areas. If someone smokes in their apartment or on their balcony, the smoke must not drift into common areas or other apartments.\n• No cycling, rollerblading or ball games in common areas\n• Supervise children at all times\n• Don't leave personal items, bikes or scooters in common areas\n• Use the rangehood so cooking smells don't bother neighbours. Normal BBQ cooking on your balcony is fine.\n• No drones over common property\n\nNeighbour noise or another problem? Report it to the Strata Manager. [[Email Strata Manager|mailto:strata@oakfield.com.au?subject=Noise/conduct%20issue%20%E2%80%93%20West%20Residences]]"}, {"id": "i11", "tab": "residence", "order": 12, "title": "Orangerie, BBQ & shared spaces", "body": "• Open to residents and their guests, with no more than 8 guests per apartment at a time\n• Hours: the house rules say \"dusk to dawn\". That's probably a typo for dawn to dusk, so check with the Strata Manager. [[Ask about hours|mailto:strata@oakfield.com.au?subject=Orangerie%20hours%20%E2%80%93%20West%20Residences]]\n• Keep music and noise low\n• Take all rubbish, food scraps and bottles to the bins\n• Clean the BBQ after you use it\n• No pets\n• Children under 14 must be supervised by an adult\n• Turn the lights off when you leave\n• Some facilities may need booking through the Council of Owners [[Ask about bookings|mailto:strata@oakfield.com.au?subject=Orangerie%20booking%20%E2%80%93%20West%20Residences]]"}, {"id": "i12", "tab": "residence", "order": 13, "title": "Bikes & storage", "body": "Bike storage is in the basement and on levels 4 to 6. Store bikes only in those areas, never in other common areas or on your balcony.\n\nYou're responsible for securing your own bike and anything in your storage area. The strata company isn't liable for loss or damage."}, {"id": "i13", "tab": "residence", "order": 9, "title": "Common maintenance issues", "body": "No power: check your Bright Connect account is active, then check the fuse box and make sure the main switch and all the other switches are on. Still nothing? [[Call Western Power|tel:131351]]\n\nRangehood not working: check its plug in the cupboard next to the rangehood.\n\nCooktop not working: check the isolator switch on the kitchen powerpoint.\n\nDishwasher not working: check the plug and the water tap in the cupboard next to it. For error codes, see the manual. [[Manuals|#manuals]]\n\nToilet not filling: turn on the tap underneath and behind the toilet.\n\nOven not working: check the switch on the kitchen powerpoint, then make sure the oven switch in the fuse box is on.\n\nAir con: see the manual for troubleshooting, or call the installer. [[Call Morgan's Mechanical|tel:0892487478]]\n\nWater leak: the isolation valve is in the Hydraulic Services cupboard in your level's corridor. Then call the Strata Manager, who also takes emergency calls. [[!Call Strata Manager|tel:0863555225]]\nLeak in the street or mains? [[Call Water Corporation|tel:131375]]\n\nNeed a tradesperson? [[See trade contacts|#contacts]]"}, {"id": "i14", "tab": "residence", "order": 7, "title": "Looking after the apartment", "body": "Caulking (around benchtops, showers, windows, toilets and tiles): check it every 3 months and redo it every 12 months. This is the owner's job, and worn caulking isn't counted as a defect.\n\nDoor closers: tighten the screws every 12 months.\n\nStone benchtops: wipe with warm water and a pH-neutral detergent. No oven cleaner or strong chemicals, and don't cut on the bench or put hot pans straight on it. [[Call Austrend (stone)|tel:0892488248]]\n\nTapware, basins and toilets: use a mild cleaner without ammonia, nothing abrasive.\n\nCabinets (Laminex): wipe up spills straight away and keep them away from steam.\n\nTiles and grout: clean regularly with a soft brush, no heavy abrasives.\n\nWalls (low-sheen acrylic): wash with warm water and a little mild detergent on a soft cloth.\n\nWool carpet: vacuum at least once a week. Put protectors under furniture legs, and use curtains or blinds to stop it fading. [[Call Manchester Flooring|tel:0892424243]]\n\nGlass and shower screen: use mild soap and a grit-free cloth. Guide the shower door shut gently.\n\nBathroom fan: it comes on with the light. Dust the grille and listen for unusual noise every month.\n\nLaundry: an exhaust fan starts when the dryer runs. Keep the glass doors open while doing laundry.\n\nLight globes: never go above the wattage printed inside the fitting.\n\nWindow coverings that can be seen from outside need white backing, or strata approval.\n\nFull care guide: [[Open handover manual|files/Your-New-Residence-handover-manual.pdf]]"}, {"id": "i16", "tab": "strata", "order": 2, "title": "By-law highlights", "body": "The full by-laws are in Building documents. [[!Read the by-laws|files/Scheme-by-laws.pdf]]\n\nSome of the main points:\n• No short-stay or holiday letting. Leases must be at least 3 months, or a periodic tenancy.\n• Any business run from home is limited by the by-laws (see by-law 118)\n• No signs, banners or For Sale / For Lease signs without approval\n• No antennas, satellite dishes or outward-facing cameras without consent, and no security camera that looks into another apartment\n• Installing an EV charger needs strata consent [[Ask about an EV charger|mailto:strata@oakfield.com.au?subject=EV%20charger%20request%20%E2%80%93%20West%20Residences]]\n• No changes, nails, screws or paint on common property without written consent\n• Fix leaking taps promptly\n• Breaking the by-laws can lead to a SAT penalty, and you pay any costs the strata company incurs because of the breach\n\nQuestions about a by-law? [[Email Strata Manager|mailto:strata@oakfield.com.au?subject=By-law%20question%20%E2%80%93%20West%20Residences]]"}, {"id": "i15", "tab": "residence", "order": 8, "title": "Defects, warranties & insurance", "body": "Defects: you have a 12-month defect liability period from Practical Completion on 10 July 2026, so report defects by about 10 July 2027. Fill in the Defect Maintenance Request Form and email it to Willing Build.\n[[!Open defect form|files/Defect-maintenance-request-form.pdf]] [[Email Willing Build|mailto:hello@willingbuild.com?subject=Defect%20Maintenance%20Request%20%E2%80%93%20West%20Residences]]\nPhone reception, neighbour noise and blown globes don't count as defects. Report anything wrong in common areas to the Strata Manager in writing. [[Email Strata Manager|mailto:strata@oakfield.com.au?subject=Common%20area%20defect%20%E2%80%93%20West%20Residences]]\n\nAppliance warranties: if an appliance has a fault, contact the manufacturer directly and have the serial number ready. Miele appliances are covered for 2 years from practical completion, to 10 July 2028. Quote project reference PRN 6P5511.\n[[!Book Miele service|https://www.servicebooking.miele.com.au]] [[Call Miele|tel:1300731822]] [[Manuals|#manuals]]\n\nInsurance: the strata company insures the building. Its policy doesn't cover your belongings, removable fittings and appliances, curtains and blinds, the carpet and timber floors, your car, or your storage. It also doesn't cover damage your apartment causes to a neighbour's (for example, a flood). Contents insurance is up to you, and landlord insurance is worth considering if you rent the place out. Tell the Strata Manager straight away about any possible claim.\n[[Lodge an insurance claim|https://oakfield.helpjuice.com/en_US/insurance-forms/insurance-claim-lodgement]] [[Call Strata Manager|tel:0863555225]]"}], "contacts": [{"id": "c1", "group": "Emergency", "order": 1, "phone": "000", "role": "Emergency (fire, police, ambulance)"}, {"id": "c10", "android": "https://play.google.com/store/apps/details?id=com.mplapp.app", "email": "support@myparcellocker.com", "group": "Utilities & services", "hours": "7-day helpline", "ios": "https://apps.apple.com/au/app/my-parcel-locker/id1437529500", "links": [{"label": "Register", "url": "https://mplocker.com"}, {"label": "Help centre", "url": "https://myparcellocker.com/help-centre/"}], "name": "My Parcel Locker", "notes": "Register before your first delivery. Your verification code is on the sticker inside your letterbox.", "order": 53, "phone": "(07) 3123 2862", "role": "Parcel lockers (support)", "website": "https://myparcellocker.com"}, {"id": "c11", "group": "Utilities & services", "links": [{"label": "Set up your account", "url": "https://www.brightconnect.com.au/move-in/"}], "name": "Bright Connect", "notes": "Runs the building's embedded electricity network and bills your power and water. The phone number comes from business listings, so check it on their website.", "order": 52, "phone": "1300 908 760", "role": "Electricity & water billing", "website": "https://www.brightconnect.com.au"}, {"id": "c12", "android": "https://play.google.com/store/search?q=AusPost&c=apps", "group": "Utilities & services", "ios": "https://apps.apple.com/au/app/australia-post/id380897313", "name": "Australia Post", "notes": "Apply for redirection online or at a Post Office. You'll need ID.", "order": 54, "phone": "13 76 78", "role": "Mail redirection", "website": "https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail"}, {"id": "c2", "address": "3/1060 Hay Street, West Perth WA 6005", "android": "https://play.google.com/store/search?q=Stratafy&c=apps", "email": "strata@oakfield.com.au", "emailSubject": "West Residences", "group": "Strata Manager", "ios": "https://apps.apple.com/au/app/stratafy/id1273075214", "links": [{"label": "Pet application form", "url": "https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/pet-application-form"}, {"label": "Incident report", "url": "https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/incident-report"}, {"label": "Insurance claim", "url": "https://oakfield.helpjuice.com/en_US/insurance-forms/insurance-claim-lodgement"}, {"label": "Update my contact details", "url": "https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/lot-communication-update"}, {"label": "Stratafy sign-up guide", "url": "https://oakfield.helpjuice.com/en_US/stratafy-app/stratafy-signup-guide"}], "name": "April Taylor – Oakfield", "notes": "Call for emergencies too. Contact them about lost keys, move bookings, pets, common-area problems and insurance claims.\nOakfield uses the Stratafy app for building documents, maintenance requests and messages. Ask Oakfield for the West Residences building ID before you sign up.\n(Oakfield's own site gives the address as 1050 Hay Street.)", "order": 4, "phone": "(08) 6355 5225", "role": "Strata Manager", "website": "https://www.oakfield.com.au"}, {"id": "c3", "group": "Emergency", "links": [{"label": "Call Kone", "url": "tel:1300362022"}, {"label": "Email Kone", "url": "mailto:au@kone.com"}, {"label": "Kone website", "url": "https://www.kone.com.au"}], "name": "Schindler (24/7)", "notes": "Or press the emergency call button in the lift. The contacts sheet lists Kone as the lift contractor instead, so ask the Strata Manager which one is right.", "order": 2, "phone": "13 18 74", "role": "Lift breakdown or emergency", "website": "https://www.schindler.com"}, {"id": "c4", "group": "Police", "order": 40, "phone": "131 444", "role": "Police assistance (non-urgent)", "website": "https://www.police.wa.gov.au"}, {"id": "c5", "group": "Utilities & services", "name": "Western Power", "notes": "For bills and account setup, use Bright Connect (brightconnect.com.au).", "order": 50, "phone": "13 13 51", "role": "Power outages & emergencies", "website": "https://www.westernpower.com.au"}, {"id": "c6", "group": "Utilities & services", "name": "Water Corporation", "order": 51, "phone": "13 13 75", "role": "Water faults, leaks or outages", "website": "https://www.watercorporation.com.au"}, {"id": "c7", "address": "244 Vincent Street, Leederville WA 6007", "group": "Local Authority", "hours": "Mon–Fri 8.30am–5pm (phone 7 days)", "links": [{"label": "Book a verge collection", "url": "https://www.vincent.wa.gov.au/your-home/waste-recycling/verge-collection.aspx"}], "name": "City of Vincent", "notes": "Bins and Verge Valet bulk or green waste collections (you can book 2 a year).", "order": 41, "phone": "(08) 9273 6000", "role": "Local council (bins, verge collection)", "website": "https://www.vincent.wa.gov.au"}, {"id": "c8", "address": "1/678 Beaufort Street, Mount Lawley WA 6050", "email": "hello@willingbuild.com", "emailSubject": "Defect Maintenance Request – West Residences", "group": "Builder", "name": "Willing Build", "notes": "Send the Defect Maintenance Request Form before your 12-month defect period ends.", "order": 5, "role": "Builder (defect claims)", "website": "https://www.willingbuild.com.au"}, {"id": "c9", "address": "1/678 Beaufort Street, Mount Lawley WA 6050", "email": "info@willingproperty.com", "group": "Developer", "name": "Willing Property", "notes": "", "order": 3, "phone": "(08) 6255 8817", "role": "Developer", "website": "https://www.willingproperty.com.au"}, {"id": "floorheat", "email": "sales@floorheatingwa.com.au", "group": "Trades", "name": "Radiant Floor Heating WA", "order": 91, "phone": "(08) 6300 0404", "role": "Underfloor heating", "website": "https://www.floorheatingwa.com.au"}, {"id": "miele", "group": "Trades", "name": "Miele Australia", "notes": "2-year warranty to 10 July 2028. Quote project reference PRN 6P5511.", "order": 90, "phone": "1300 731 822", "role": "Appliance service & warranty (kitchen and laundry)", "website": "https://www.servicebooking.miele.com.au"}, {"id": "t1", "email": "info@baylissgroup.com.au", "group": "Trades", "name": "Bayliss Electrical", "order": 20, "phone": "1300 877 403", "role": "Electrician", "website": "https://www.baylissgroup.com.au"}, {"id": "t10", "email": "info@manchesterflooring.com.au", "group": "Trades", "name": "Manchester Flooring", "order": 34, "phone": "(08) 9242 4243", "role": "Carpet", "website": "https://www.manchesterflooring.com.au"}, {"id": "t11", "address": "1/22 Distinction Road, Wangara WA 6065", "email": "info@perfmet.com.au", "group": "Trades", "name": "Perfmet", "notes": "I've corrected the phone and email from Perfmet's listings. The contacts sheet had \"(08) 209 1011\" and \"sales@permet.com.au\", which both look like typos.", "order": 27, "phone": "(08) 9209 1011", "role": "Balustrades", "website": "https://www.perfmet.com.au"}, {"id": "t12", "email": "reception@metrex.net.au", "group": "Trades", "name": "Metrex", "order": 31, "phone": "(08) 9434 2631", "role": "Wall & ceiling linings", "website": "https://www.metrex.net.au"}, {"id": "t13", "group": "Trades", "name": "Co Plastering", "order": 29, "phone": "(08) 9524 5442", "role": "Plastering"}, {"id": "t14", "email": "ashley@decor8painting.com.au", "group": "Trades", "name": "Decor8 Painting", "order": 23, "role": "Painting", "website": "https://www.decor8painting.com.au"}, {"id": "t15", "email": "au@kone.com", "group": "Trades", "name": "Kone", "notes": "Listed as the lift contractor on the folder's contacts page. The Important Information page lists Schindler for lift emergencies, so check with the Strata Manager.", "order": 33, "phone": "1300 362 022", "role": "Lift", "website": "https://www.kone.com.au"}, {"id": "t2", "email": "admin@routysplumbing.com.au", "group": "Trades", "name": "Routy's Plumbing & Gas", "order": 21, "phone": "(08) 9446 1045", "role": "Plumber", "website": "https://www.routysplumbing.com.au"}, {"id": "t3", "email": "admin@morair.com.au", "group": "Trades", "name": "Morgan's Mechanical", "order": 22, "phone": "(08) 9248 7478", "role": "Air conditioning (mechanical)", "website": "https://www.morair.com.au"}, {"id": "t4", "email": "admin@asawindows.com.au", "group": "Trades", "name": "ASA Windows", "order": 28, "phone": "(08) 9408 9400", "role": "Windows, glazing & frames", "website": "https://www.asawindows.com.au"}, {"id": "t5", "email": "admin@commercialdoor.com.au", "group": "Trades", "name": "Commercial Doors & Hardware", "order": 24, "phone": "(08) 9248 7662", "role": "Doors & hardware", "website": "https://www.commercialdoor.com.au"}, {"id": "t6", "email": "team@fds.net.au", "group": "Trades", "name": "Furniture Design Studio", "order": 30, "phone": "(08) 9302 6016", "role": "Kitchen joinery", "website": "https://www.fds.net.au"}, {"id": "t7", "address": "8 Trade Road, Malaga WA 6090", "email": "austrend@hotmail.com", "group": "Trades", "name": "Austrend Marble & Granite", "notes": "I've corrected the phone number from business listings (the contacts sheet left out a digit).", "order": 26, "phone": "(08) 9248 8248", "role": "Stone & marble benchtops"}, {"id": "t8", "email": "frank@originalceramics.com.au", "email2": "admin@vasarigroup.com.au", "group": "Trades", "links": [{"label": "Vasari website", "url": "https://www.vasarigroup.com.au"}], "name": "Original Ceramics / Vasari Group", "notes": "Vasari Group website: vasarigroup.com.au", "order": 25, "phone": "(08) 9444 8087", "role": "Tiles (supply & install)", "website": "https://www.originalceramics.com.au"}, {"id": "t9", "email": "commercial@planetbosch.com.au", "group": "Trades", "name": "Planet Bosch", "order": 32, "phone": "(08) 9445 7877", "role": "Timber flooring", "website": "https://www.planetbosch.com.au"}], "appliances": [{"id": "d1", "name": "Your New Residence (handover manual)", "notes": "Services, home care, defects, house rules, parcel lockers and car stacker.", "room": "Building documents", "file": {"path": "files/Your-New-Residence-handover-manual.pdf", "name": "Your_New_Residence.pdf"}}, {"id": "d2", "name": "Important Information", "notes": "Contact numbers and the moving in/out procedure.", "room": "Building documents", "file": {"path": "files/Important-Information.pdf", "name": "Important_Information.pdf"}}, {"id": "d3", "name": "Contacts list", "notes": "Developer, strata manager, builder and every trade contractor.", "room": "Building documents", "file": {"path": "files/Contacts-list.pdf", "name": "Contacts.pdf"}}, {"id": "d4", "name": "Scheme by-laws", "notes": "Full governance and conduct by-laws (34 pages).", "room": "Building documents", "file": {"path": "files/Scheme-by-laws.pdf", "name": "Scheme_By-laws.pdf"}}, {"id": "d5", "name": "Final Strata Plan SP87928", "notes": "All 11 sheets, from your photos of the folder.", "room": "Building documents", "file": {"path": "files/Strata-plan-SP87928.pdf", "name": "Strata_Plan_SP87928.pdf"}}, {"id": "d6", "name": "Car stacker plan (Special Use Plan Annexure A)", "notes": "Annexure 1 exclusive use schedule and all 5 car stacker sheets, from your photos of the folder.", "room": "Building documents", "file": {"path": "files/Car-stacker-plan.pdf", "name": "Car_Stacker_Plan.pdf"}}, {"id": "d7", "name": "Finishes & fixtures schedule", "room": "Building documents", "notes": "Benchtops (Dekton by Cosentino), joinery (Laminex), tiles (Original Ceramics), oak floors (Wood Pecker), carpet (Godfrey Hirst Fyans wool) and Dulux paint colours (Snowy Mountain Quarter, Vivid White). Useful for repairs and touch-ups.", "file": {"path": "files/Finishes-schedule.pdf", "name": "Finishes schedule.pdf"}}, {"id": "d8", "name": "Defect maintenance request form", "room": "Building documents", "notes": "Fill this in for any defect during the 12-month defects period, which ends around 10 July 2027.", "file": {"path": "files/Defect-maintenance-request-form.pdf", "name": "Defect maintenance request form.pdf"}}, {"id": "a1", "name": "Oven", "room": "Kitchen", "brand": "Miele", "model": "H 2851", "warrantyUntil": "2028-07-10", "notes": "No power? Check the switch on the kitchen powerpoint, then the oven switch in the fuse box. Serial number needed for warranty claims.", "file": {"path": "files/Miele-oven-H2851.pdf", "name": "Miele oven H 2851.pdf"}, "links": [{"label": "Book Miele service", "url": "https://www.servicebooking.miele.com.au"}, {"label": "Call Miele", "url": "tel:1300731822"}, {"label": "Warranty", "url": "files/Miele-warranty.pdf"}]}, {"id": "a2", "name": "Cooktop", "room": "Kitchen", "brand": "Miele", "model": "KM 7361 FL", "warrantyUntil": "2028-07-10", "notes": "Electric (the building has no gas). Not working? Check the isolator switch on the kitchen powerpoint.", "file": {"path": "files/Miele-cooktop-KM7361FL.pdf", "name": "Miele cooktop KM 7361 FL.pdf"}, "links": [{"label": "Book Miele service", "url": "https://www.servicebooking.miele.com.au"}, {"label": "Call Miele", "url": "tel:1300731822"}, {"label": "Warranty", "url": "files/Miele-warranty.pdf"}]}, {"id": "a3", "name": "Rangehood", "room": "Kitchen", "brand": "Miele", "model": "DA 2450-1", "warrantyUntil": "2028-07-10", "notes": "Vents outside through ducts in the ceiling. Its plug is in the cupboard next to the rangehood.", "file": {"path": "files/Miele-rangehood-DA2450-1.pdf", "name": "Miele rangehood DA 2450-1.pdf"}, "links": [{"label": "Book Miele service", "url": "https://www.servicebooking.miele.com.au"}, {"label": "Call Miele", "url": "tel:1300731822"}, {"label": "Warranty", "url": "files/Miele-warranty.pdf"}]}, {"id": "a4", "name": "Dishwasher", "room": "Kitchen", "brand": "Miele", "model": "G 5053 SCVi BK", "warrantyUntil": "2028-07-10", "notes": "Came fully installed. The power point and water tap are in the cupboard next to it. Check the manual for error codes.", "file": {"path": "files/Miele-dishwasher-G5053SCVi.pdf", "name": "Miele dishwasher G 5053 SCVi.pdf"}, "links": [{"label": "Book Miele service", "url": "https://www.servicebooking.miele.com.au"}, {"label": "Call Miele", "url": "tel:1300731822"}, {"label": "Warranty", "url": "files/Miele-warranty.pdf"}]}, {"id": "a14", "name": "Microwave", "room": "Kitchen", "brand": "Miele", "model": "M 7244 TC (46 L)", "warrantyUntil": "2028-07-10", "notes": "Built-in microwave.", "file": {"path": "files/Miele-microwave-M7244TC.pdf", "name": "Miele microwave M 7244 TC.pdf"}, "links": [{"label": "Book Miele service", "url": "https://www.servicebooking.miele.com.au"}, {"label": "Call Miele", "url": "tel:1300731822"}, {"label": "Warranty", "url": "files/Miele-warranty.pdf"}]}, {"id": "a15", "name": "Speed oven", "room": "Kitchen", "brand": "Miele", "model": "H 7240 BM", "warrantyUntil": "2028-07-10", "notes": "Combination oven and microwave. Some apartments have this instead of the separate microwave.", "file": {"path": "files/Miele-speed-oven-H7240BM.pdf", "name": "Miele speed oven H 7240 BM.pdf"}, "links": [{"label": "Book Miele service", "url": "https://www.servicebooking.miele.com.au"}, {"label": "Call Miele", "url": "tel:1300731822"}, {"label": "Warranty", "url": "files/Miele-warranty.pdf"}]}, {"id": "a16", "name": "Miele warranty & welcome letter", "room": "Kitchen", "brand": "Miele", "warrantyUntil": "2028-07-10", "notes": "All Miele appliances have a 2-year warranty from practical completion (10 July 2026), so cover ends 10 July 2028. Quote the building's project reference PRN 6P5511 when you book.\nService line 1300 731 822. [[!Book a service|https://www.servicebooking.miele.com.au]] [[Call Miele|tel:1300731822]]\n[[Welcome letter|files/Miele-welcome-letter.pdf]]", "file": {"path": "files/Miele-warranty.pdf", "name": "Miele warranty.pdf"}}, {"id": "a17", "name": "Fridge", "room": "Kitchen", "brand": "Fisher & Paykel", "model": "ActiveSmart (RS80A / RS90A / RS9120W)", "notes": "The user guide covers all three integrated models.", "file": {"path": "files/Fisher-Paykel-fridge.pdf", "name": "Fisher & Paykel ActiveSmart fridge.pdf"}}, {"id": "a5", "name": "Washing machine", "room": "Laundry", "brand": "Miele", "model": "WCA 020 / WEA 125 WCS / WWB 360 WCS", "notes": "Connecting it is up to you: drill out the plastic seal in the spigot under the laundry trough, then fix the waste hose on with a hose clamp. Get a handyman or installer if you're not sure.\nThe USB has manuals for three Miele models. Check the model plate inside the door to see which one is yours.\n[[WCA 020|files/Miele-washer-WCA020.pdf]] [[WEA 125 WCS|files/Miele-washer-WEA125WCS.pdf]] [[WWB 360 WCS|files/Miele-washer-WWB360WCS.pdf]]\nMiele models have the 2-year warranty to 10 July 2028. [[Book Miele service|https://www.servicebooking.miele.com.au]]"}, {"id": "a6", "name": "Dryer", "room": "Laundry", "brand": "Miele / Bosch", "model": "TCB 140 WP / TEA 325 WP / Bosch WTH83002AU", "notes": "Running the dryer turns on the ceiling exhaust fan. Keep the glass doors open while it's going.\nThe USB has manuals for three models. Check the model plate inside the door to see which one is yours.\n[[Miele TCB 140 WP|files/Miele-dryer-TCB140WP.pdf]] [[Miele TEA 325 WP|files/Miele-dryer-TEA325WP.pdf]] [[Bosch WTH83002AU|files/Bosch-dryer-WTH83002AU.pdf]]\nMiele models have the 2-year warranty to 10 July 2028. [[Book Miele service|https://www.servicebooking.miele.com.au]]"}, {"id": "a11", "name": "Bathroom exhaust fan", "room": "Bathroom", "notes": "Comes on with the main light or its own switch. Dust the grille and check for noise every month."}, {"id": "a19", "name": "Underfloor heating", "room": "Bathroom", "brand": "Floor Heating WA", "model": "TS8100-TH-V thermostat", "notes": "Supplied by Radiant Floor Heating WA. [[Call|tel:0863000404]] [[Email|mailto:sales@floorheatingwa.com.au]]\n[[Dual-zone instructions|files/Underfloor-heating-dual-instructions.pdf]] [[Usage tips|files/Underfloor-heating-tips.pdf]]", "file": {"path": "files/Underfloor-heating-thermostat.pdf", "name": "Underfloor heating thermostat.pdf"}}, {"id": "a7", "name": "Air conditioner", "room": "Living", "brand": "Mitsubishi Electric", "model": "PEAD ducted, PAR-33MAA controller", "notes": "Use the AC vent access key from your key set.\nIt was installed by Morgan's Mechanical. [[Call|tel:0892487478]] [[Email|mailto:admin@morair.com.au]]", "file": {"path": "files/Air-conditioning-manual.pdf", "name": "Apartment mechanical manual (air conditioning).pdf"}}, {"id": "a18", "name": "Ceiling fans", "room": "Bedroom", "brand": "Whitehaven", "model": "122 cm DC", "file": {"path": "files/Whitehaven-ceiling-fan.pdf", "name": "Whitehaven ceiling fan.pdf"}}, {"id": "a8", "name": "Hot water system", "room": "Whole apartment", "brand": "Stiebel Eltron", "model": "DEL 27 Plus (instantaneous electric)", "notes": "If you'll be away more than a month, the by-laws say to turn off its stopcock.\nProblems? Call the building's plumber. [[Call Routy's Plumbing|tel:0894461045]]", "file": {"path": "files/Stiebel-Eltron-hot-water.pdf", "name": "Stiebel Eltron DEL Plus.pdf"}}, {"id": "a9", "name": "Intercom (audio-visual)", "room": "Whole apartment", "brand": "Akuvox", "model": "S562 7\" indoor monitor", "notes": "Lets visitors in at the main entry. They then have 1 minute to take the lift to your level.", "file": {"path": "files/Akuvox-intercom-monitor.pdf", "name": "Akuvox S562 indoor monitor.pdf"}, "links": [{"label": "Door station guide (online)", "url": "https://knowledge.akuvox.com/docs/akuvox-x912-series-door-phone-administrator-guide-v2"}]}, {"id": "a10", "name": "Smoke alarm", "room": "Whole apartment", "brand": "BESMOKEY", "model": "Photoelectric", "notes": "Standalone, so it isn't linked to the building's fire system. Specs are in the Manual & Certificates.", "file": {"path": "files/Smoke-alarm.pdf", "name": "BESMOKEY smoke alarm.pdf"}}, {"id": "a21", "name": "Electricity (Bright Connect)", "room": "Whole apartment", "brand": "Bright Connect", "notes": "Embedded network supplying the building. Power is on when you move in. Rates in the pack: 31.599c/kWh plus 119.2419c/day, about 5% below Synergy.\n[[Call|tel:1300908760]] [[Email|mailto:connect@brightconnect.com.au]]", "file": {"path": "files/Bright-Connect-welcome-pack.pdf", "name": "Bright Connect welcome pack.pdf"}}, {"id": "a12", "name": "Car stacker", "room": "Common areas", "brand": "Phoenix", "model": "DP-1+2", "notes": "You must be inducted first. [[Book an induction|mailto:strata@oakfield.com.au?subject=Car%20stacker%20induction%20%E2%80%93%20West%20Residences]]\nYou were given 2 remotes per bay. There's also a short version in Appendix 2 of Your New Residence. [[Open Appendix 2|files/Your-New-Residence-handover-manual.pdf]]", "file": {"path": "files/Phoenix-car-stacker.pdf", "name": "Phoenix DP-1+2 operating instructions.pdf"}}, {"id": "a13", "name": "Parcel lockers (My Parcel Locker)", "room": "Common areas", "notes": "Register online before your first delivery. [[!Register|https://mplocker.com]]\nThe verification code is on the sticker inside your letterbox.\nGet the app: [[App Store|https://apps.apple.com/au/app/my-parcel-locker/id1437529500]] [[Google Play|https://play.google.com/store/apps/details?id=com.mplapp.app]]\nInstructions are in Appendix 1 of Your New Residence. [[Open instructions|files/Your-New-Residence-handover-manual.pdf]] [[Help centre|https://myparcellocker.com/help-centre/]]", "file": {"path": "files/Parcel-locker-instructions.pdf", "name": "Parcel locker instructions.pdf"}}, {"id": "a20", "name": "Swipe card reader", "room": "Common areas", "brand": "Inner Range", "model": "SIFER", "notes": "Readers at the building entries and lift.", "file": {"path": "files/SIFER-card-reader.pdf", "name": "Inner Range SIFER reader.pdf"}}, {"id": "c1", "name": "Practical completion certificate", "room": "Certificates", "notes": "Practical completion: 10 July 2026. Warranties and the defects period run from this date.", "file": {"path": "files/Certificate-practical-completion.pdf", "name": "Practical completion certificate.pdf"}}, {"id": "c2", "name": "Electrical certificate", "room": "Certificates", "file": {"path": "files/Certificate-electrical.pdf", "name": "Electrical certificate.pdf"}}, {"id": "c3", "name": "Fire sprinkler certificate", "room": "Certificates", "file": {"path": "files/Certificate-sprinklers.pdf", "name": "Sprinkler certificate.pdf"}}, {"id": "c4", "name": "Fire doors certificate", "room": "Certificates", "file": {"path": "files/Certificate-fire-doors.pdf", "name": "Fire doors certificate.pdf"}}, {"id": "c5", "name": "Fire-rated walls certificate", "room": "Certificates", "file": {"path": "files/Certificate-fire-walls.pdf", "name": "Fire walls certificate.pdf"}}, {"id": "c6", "name": "Hydraulic (plumbing) certificate", "room": "Certificates", "file": {"path": "files/Certificate-hydraulic.pdf", "name": "Hydraulic certificate.pdf"}}, {"id": "c7", "name": "Mechanical certificate", "room": "Certificates", "file": {"path": "files/Certificate-mechanical.pdf", "name": "Mechanical certificate.pdf"}}]};
+state.meta=DATA.meta; state.info=DATA.info; state.contacts=DATA.contacts; state.appliances=DATA.appliances;
+Object.keys(state.loaded).forEach(k=>state.loaded[k]=true);
+route(); renderAll();
+
+const live={ready:false,on:false,snaps:{},user:null,owner:null,ownerLoaded:false};
+function ownerMenuItems(){
+  if(!live.ready) return [];
+  const b=(ic,label,fn)=>el("button",{type:"button",onclick:fn},el("span",{class:"mi",text:ic,"aria-hidden":"true"}),label);
+  const out=[];
+  if(!live.user) out.push(b("→","Owner sign in",ownerSignIn));
+  else{
+    if(live.ownerLoaded && !live.owner) out.push(b("★","Claim this handbook",claimOwner));
+    if(state.canEdit && !live.on) out.push(b("↑","Load the handbook content",seedContent));
+    out.push(b("←","Sign out",()=>live.au.signOut(live.auth)));
+  }
+  return out;
+}
+async function ownerSignIn(){
+  const au=live.au, p=new au.GoogleAuthProvider();
+  try{ await au.signInWithPopup(live.auth,p); }
+  catch(e){ if(e&&(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment")) await au.signInWithRedirect(live.auth,p); else if(e&&e.code!=="auth/popup-closed-by-user"&&e.code!=="auth/cancelled-popup-request") alert("Couldn't sign in: "+(e.message||e)); }
+}
+async function claimOwner(){
+  if(!confirm("Make this Google account the owner of the handbook? Only the owner can change it.")) return;
+  try{ await live.fsm.setDoc(live.fsm.doc(live.fs,"meta/owner"),{uid:live.user.uid,t:Date.now()}); }
+  catch(e){ alert("Couldn't claim it: "+(e.message||e)); }
+}
+async function seedContent(){
+  if(!confirm("Load the starter content into the live handbook? Do this once, the first time.")) return;
+  try{
+    const f=live.fsm, batch=f.writeBatch(live.fs);
+    batch.set(f.doc(live.fs,"meta/building"),DATA.meta);
+    for(const [col,key] of [["info","info"],["appliances","appliances"],["contacts","contacts"]])
+      for(const r of DATA[key]){ const {id,...rest}=r; batch.set(f.doc(live.fs,col,id),rest); }
+    await batch.commit(); closeDrawer();
+  }catch(e){ alert("Couldn't load the content: "+(e.message||e)); }
+}
+function refreshOwner(){ state.canEdit=!!(live.user&&live.owner&&live.owner===live.user.uid); renderAll(); }
+async function startLive(){
+  const cfg=window.WR_FIREBASE||{};
+  if(!cfg.apiKey||/^PASTE/.test(cfg.apiKey)) return;          // not connected yet: the built-in copy is shown
+  try{
+    const base="https://www.gstatic.com/firebasejs/10.14.1/";
+    const [appM,fsm,au]=await Promise.all([import(base+"firebase-app.js"),import(base+"firebase-firestore.js"),import(base+"firebase-auth.js")]);
+    const app=appM.initializeApp(cfg);
+    let fs; try{ fs=fsm.initializeFirestore(app,{ignoreUndefinedProperties:true,localCache:fsm.persistentLocalCache({tabManager:fsm.persistentMultipleTabManager()})}); }
+    catch{ fs=fsm.getFirestore(app); }
+    const auth=au.getAuth(app);
+    Object.assign(live,{fsm,fs,au,auth,ready:true});
+    const wrap=r=>({ set:d=>fsm.setDoc(r,d), delete:()=>fsm.deleteDoc(r) });
+    db={ doc:p=>wrap(fsm.doc(fs,p)), collection:n=>({doc:id=>wrap(id?fsm.doc(fs,n,id):fsm.doc(fsm.collection(fs,n)))}) };
+    const apply=()=>{ if(!live.on) return; Object.assign(state,live.snaps); renderAll(); };
+    fsm.onSnapshot(fsm.doc(fs,"meta/building"),s=>{ live.on=s.exists(); if(live.on) state.meta=s.data(); apply(); renderAll(); },()=>{});
+    for(const n of ["info","appliances","contacts"])
+      fsm.onSnapshot(fsm.collection(fs,n),s=>{ live.snaps[n]=s.docs.map(d=>({id:d.id,...d.data()})); apply(); },()=>{});
+    fsm.onSnapshot(fsm.doc(fs,"meta/owner"),s=>{ live.owner=s.exists()?s.data().uid:null; live.ownerLoaded=true; refreshOwner(); },()=>{ live.ownerLoaded=true; });
+    au.onAuthStateChanged(auth,u=>{ live.user=u; refreshOwner(); });
+    renderAll();
+  }catch(e){ console.warn("Live data unavailable, showing the built-in copy.",e); }
+}
+startLive();
+</script>
+<script src="reader.js" defer></script>
+</body>
+</html>
