@@ -1,0 +1,8 @@
+wrangler.jsonc
+.assetsignore
+netlify.toml
+README.md
+firestore.rules
+.git
+.github
+node_modules
