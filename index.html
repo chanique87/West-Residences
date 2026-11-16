@@ -130,7 +130,7 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 .fseg{padding:5px 6px}
 .fseg-b.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .fin-hero{margin:0 0 14px}
-.fin-hero img{display:block;width:100%;border-radius:var(--r);aspect-ratio:3/2;object-fit:cover}
+.fin-hero img{display:block;width:100%;height:130px;border-radius:var(--r);object-fit:cover;cursor:zoom-in}
 .fin-hero figcaption{font-size:13px;color:var(--muted);margin-top:6px}
 .fin-g{border-bottom:1px solid var(--line)}
 .fin-g>summary{display:flex;align-items:center;gap:10px;padding:15px 2px;cursor:pointer;list-style:none;font-size:17px;font-weight:500}
@@ -1426,7 +1426,7 @@ function renderFinishes(){
   const allItems=withFix?g.items.concat(FIX.items.map(r=>({...r,_fix:true}))):g.items;
   let hero=$("finHero"); if(!hero){ hero=el("figure",{id:"finHero",class:"fin-hero"}); $("finNote").before(hero); }
   hero.replaceChildren(); hero.hidden=!g.hero||!!q;
-  if(g.hero&&!q) hero.append(el("img",{src:g.hero,alt:g.name+" kitchen"}),el("figcaption",{text:g.name.replace("·","–")+" ("+g.sub+")"}));
+  if(g.hero&&!q) hero.append(el("img",{src:g.hero,alt:g.name+" kitchen",title:"Tap to enlarge",onclick:()=>zoomImg(g.hero,g.name+" kitchen")}),el("figcaption",{text:g.name.replace("·","–")+" ("+g.sub+")"}));
   $("finNote").textContent=q?`Searching ${g.name.toLowerCase()}`:((FIN_NOTES[g.id]||"")+(withFix?" Taps & fixtures are included below.":""));
   box.replaceChildren();
   const rows=allItems.filter(r=>!q||norm(Object.values(r).join(" ")).includes(q));
@@ -1448,7 +1448,7 @@ function renderFinishes(){
       const title=isFix?r.mat:(r.col||r.mat||r.loc);
       const kv=(k,v)=>v?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:k}),el("span",{class:"fin-v",text:v})):null;
       body.append(el("div",{class:"fin-card"},
-        r.img?el("img",{class:isFix?"fin-tap":"fin-img",src:r.img,alt:(isFix?"Photo: ":"Swatch: ")+title,loading:"lazy",referrerpolicy:"no-referrer",title:isFix?"Tap to enlarge":null,onclick:isFix?()=>zoomImg(r.img,title):null,onerror:e=>e.target.remove()}):null,
+        r.img?el("img",{class:"fin-tap",src:r.img,alt:(isFix?"Photo: ":"Swatch: ")+title,loading:"lazy",referrerpolicy:"no-referrer",title:"Tap to enlarge",onclick:()=>zoomImg(r.img,title),onerror:e=>e.target.remove()}):null,
         el("div",{class:"fin-h"},el("div",{class:"fin-t"},highlight(title,q)),el("span",{class:"fin-c",text:r.code})),
         r.loc?el("div",{class:"fin-s",text:r.loc}):null,
         r.link?el("div",{class:"acts"},actBtn("See it on the "+(/austworld/.test(r.link)?"Austworld":/astrawalker/.test(r.link)?"Astra Walker":/radiant/.test(r.link)?"Radiant":"Caroma")+" site",r.link)):null,
