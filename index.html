@@ -141,6 +141,9 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 .fin-g[open]>summary .chev{transform:rotate(90deg)}
 .fin-body{padding:2px 0 8px}
 .fin-card{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:14px 16px;margin:0 0 10px}
+.pcode{display:inline-flex;align-items:center;gap:7px;font:600 13px/1 ui-monospace,Menlo,Consolas,monospace;color:var(--ink,#222);background:#f1efea;border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pcode svg{width:14px;height:14px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pcode.ok{background:#e3f1e5;border-color:#9ccaa3}
 .fin-tap{display:block;width:100%;height:130px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:10px;margin:0 0 12px;padding:6px;box-sizing:border-box;cursor:zoom-in}
 #zoomBox{position:fixed;inset:0;z-index:300;background:rgba(15,20,18,.94);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;cursor:zoom-out}
 #zoomBox img{max-width:100%;max-height:100%;object-fit:contain;background:#fff;border-radius:8px}
@@ -573,6 +576,21 @@ const ROOMS = ["Building documents","Kitchen","Laundry","Bathroom","Living","Bed
 const state = { tab:"welcome", meta:{}, info:[], appliances:[], contacts:[], room:"All", canEdit:false, loaded:{info:false,appliances:false,contacts:false} };
 let db = null, assets = null;
 const $ = id => document.getElementById(id);
+const COPY_SVG='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+const OK_SVG='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function codePill(code){
+  const b=el("button",{class:"pcode",type:"button",title:"Tap to copy","aria-label":"Copy product code "+code});
+  const t=el("span",{text:code}); const ic=el("span",{});ic.innerHTML=COPY_SVG;ic.style.display="inline-flex";
+  b.append(t,ic);
+  b.onclick=async(e)=>{
+    e.stopPropagation();
+    try{ await navigator.clipboard.writeText(code); }
+    catch(_){ const ta=document.createElement("textarea"); ta.value=code; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(__){} ta.remove(); }
+    b.classList.add("ok"); t.textContent="Copied"; ic.innerHTML=OK_SVG;
+    setTimeout(()=>{b.classList.remove("ok"); t.textContent=code; ic.innerHTML=COPY_SVG;},1400);
+  };
+  return b;
+}
 const el = (tag, attrs={}, ...kids) => {
   const n = document.createElement(tag);
   for (const [k,v] of Object.entries(attrs)) {
@@ -1434,7 +1452,7 @@ function renderFinishes(){
         el("div",{class:"fin-h"},el("div",{class:"fin-t"},highlight(title,q)),el("span",{class:"fin-c",text:r.code})),
         r.loc?el("div",{class:"fin-s",text:r.loc}):null,
         r.link?el("div",{class:"acts"},actBtn("See it on the "+(/austworld/.test(r.link)?"Austworld":/astrawalker/.test(r.link)?"Astra Walker":/radiant/.test(r.link)?"Radiant":"Caroma")+" site",r.link)):null,
-        ...(isFix?[kv("Product code",r.pcode)]:[kv("Material",r.col?r.mat:""),kv("Size",r.desc),kv("Finish",r.fin),kv("Reference",r.ref),kv("Supplier",r.sup),kv("Notes",r.notes)])));
+        ...(isFix?[r.pcode?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Product code"}),codePill(r.pcode)):null]:[kv("Material",r.col?r.mat:""),kv("Size",r.desc),kv("Finish",r.fin),kv("Reference",r.ref),kv("Supplier",r.sup),kv("Notes",r.notes)])));
     }
     box.append(d);
   }
