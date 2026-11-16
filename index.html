@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>West Residences Handbook</title>
 <link rel="stylesheet" href="reader.css">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#2b4a3e">
+<meta name="theme-color" content="#6b8c80">
 <link rel="apple-touch-icon" href="icon-180.png">
 <script src="firebase-config.js"></script>
 <meta name="robots" content="noindex,nofollow">
@@ -289,23 +290,23 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 
 /* ===== Folder look: green cloth binder, olive tabs with blush lettering, blush dividers, white pages, salmon headings ===== */
 :root{
-  --binder:#2b4a3e; --binder-ink:#e9dfcf; --gold:#c9a66b; --olive:#5c6259; --olive-ink:#efc3b5;
-  --blush:#edc0b2; --blush-ink:#4b4c46; --salmon:#cf7656;
+  --binder:#6b8c80; --binder-ink:#f3efe4; --gold:#e3c98f; --olive:#4a6a5e; --olive-ink:#ead8a8;
+  --blush:#dfe8e3; --blush-ink:#33453e; --salmon:#4b7566;
   --ink:#1e201f; --muted:#6c6f6b; --paper:#ffffff; --panel:#ffffff; --line:#e9e4dc; --line-2:#d9d3c9;
-  --accent:var(--acc-l,#2a463b); --accent-ink:#ffffff; --brass:#cf7656; --brass-soft:#f8e4dc;
+  --accent:var(--acc-l,#3f6a5b); --accent-ink:#ffffff; --brass:#a8873f; --brass-soft:#f3ead3;
   --display:"Jost","Futura",system-ui,sans-serif; --body:"Libre Franklin","Franklin Gothic Book","Helvetica Neue",Arial,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]):not([data-mode="light"]){
-  --binder:#111b17; --binder-ink:#e6dccb; --gold:#d6b67f; --olive:#383d36; --olive-ink:#eab8a9;
-  --blush:#3a2925; --blush-ink:#f0cabd; --salmon:#e99b7f;
+  --binder:#2f433b; --binder-ink:#ece6d8; --gold:#dcc088; --olive:#25342e; --olive-ink:#e3cf9f;
+  --blush:#26332e; --blush-ink:#d9e4de; --salmon:#8fc2ad;
   --ink:#ece7de; --muted:#a2a59f; --paper:#181e1b; --panel:#181e1b; --line:#29312d; --line-2:#36403b;
-  --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#e99b7f; --brass-soft:#33241f; color-scheme:dark; } }
+  --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#d4b27a; --brass-soft:#2c2619; color-scheme:dark; } }
 :root[data-theme="dark"]:not([data-mode="light"]), :root[data-mode="dark"]{
-  --binder:#111b17; --binder-ink:#e6dccb; --gold:#d6b67f; --olive:#383d36; --olive-ink:#eab8a9;
-  --blush:#3a2925; --blush-ink:#f0cabd; --salmon:#e99b7f;
+  --binder:#2f433b; --binder-ink:#ece6d8; --gold:#dcc088; --olive:#25342e; --olive-ink:#e3cf9f;
+  --blush:#26332e; --blush-ink:#d9e4de; --salmon:#8fc2ad;
   --ink:#ece7de; --muted:#a2a59f; --paper:#181e1b; --panel:#181e1b; --line:#29312d; --line-2:#36403b;
-  --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#e99b7f; --brass-soft:#33241f; color-scheme:dark; }
+  --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#d4b27a; --brass-soft:#2c2619; color-scheme:dark; }
 
 body{background:var(--binder);background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 1px,transparent 1px 3px);font:400 16px/1.6 var(--body);letter-spacing:0}
 h1,h2,h3{font-family:var(--body)}
@@ -315,12 +316,12 @@ h1,h2,h3{font-family:var(--body)}
 .cover .wrap{padding-top:16px;padding-bottom:30px;text-align:center}
 .cover .top{display:flex;justify-content:space-between;align-items:center;text-align:left}
 .cover .eyebrow{font:400 11px/1 var(--display);letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.9}
-.cover h1{margin-top:38px;font:300 clamp(36px,10.5vw,58px)/1 var(--display);letter-spacing:.06em;
-  background:linear-gradient(100deg,#a7834a 0%,#e8cf98 28%,#b8925a 52%,#f0dcae 74%,#a8844b 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.cover .sub{margin-top:14px;font:400 11.5px/1.4 var(--display);letter-spacing:.34em;text-transform:uppercase;color:var(--gold)}
+.cover h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cover .logo{display:block;width:min(52vw,230px);height:auto;margin:34px auto 0;filter:drop-shadow(0 1px 0 rgba(0,0,0,.18))}
+.cover .sub{margin-top:16px;font:400 11.5px/1.4 var(--display);letter-spacing:.4em;text-transform:uppercase;color:var(--gold)}
 .cover .addr{margin-top:8px;font-size:13px;letter-spacing:.06em;color:color-mix(in srgb,var(--binder-ink) 70%,transparent)}
 .burger{color:var(--binder-ink)}
-:root[data-header="minimal"] .cover h1{font-size:clamp(28px,8vw,40px);margin-top:20px}
+:root[data-header="minimal"] .cover .logo{width:110px;margin-top:14px}
 :root[data-header="minimal"] .cover .sub{display:none}
 
 /* Divider tabs */
@@ -436,6 +437,7 @@ main.wrap{max-width:760px;padding:0 0 56px}
       </button>
       </span>
     </div>
+    <svg class="logo" viewBox="0 0 150 80" role="img" aria-label="West Residences logo" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="foil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b8924f"/><stop offset=".3" stop-color="#f3e0aa"/><stop offset=".55" stop-color="#c9a360"/><stop offset=".8" stop-color="#f0dca6"/><stop offset="1" stop-color="#b48d4a"/></linearGradient></defs><path d="M12 12 L32 64 L54 24 L76 64 L96 12" fill="none" stroke="url(#foil)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/><circle cx="124" cy="56" r="13" fill="url(#foil)"/></svg>
     <h1 id="bName">West Residences</h1>
     <div class="sub">Mt Lawley Residences</div>
     <div class="addr" id="bAddr">141 West Parade, Mount Lawley WA 6050</div>
