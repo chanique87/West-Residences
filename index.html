@@ -1706,7 +1706,7 @@ function supplierContacts(){
     notes:[...o.rows.values()].map(r=>(r.code&&r.code!=="-"?r.code+" \u00B7 ":"")+(r.loc||"")+": "+r.prod+" ("+r.sch.join(", ")+")").join("\n")}));
 }
 function withExtras(){ const have=new Set((state.appliances||[]).map(a=>a.id)); state.appliances=[...(state.appliances||[]),...EXTRA_DOCS.filter(d=>!have.has(d.id))];
-  state.contacts=(state.contacts||[]).map(c=>{ if(c.group==="Strata Manager"&&c.email!=="claire@oakfield.com.au") c={...c,email:"claire@oakfield.com.au",email2:"strata@oakfield.com.au"}; if(c.group==="Strata Manager"&&!(c.links||[]).some(l=>/Stratafy-app-guide/.test(l.url||""))) return {...c,links:[...(c.links||[]),{label:"Stratafy app guide",url:"files/Stratafy-app-guide.pdf"},{label:"Oakfield FAQs",url:"files/Oakfield-FAQs.pdf"}]}; return c; }); }
+  state.contacts=(state.contacts||[]).map(c=>{ if(c.links&&c.links.length){ const FORMLBL=/^(Pet application form|Incident report|Insurance claim|Update my contact details|Register|Set up your account)$/i; c={...c,links:c.links.filter(l=>!FORMLBL.test((l.label||"").trim()))}; } if(c.group==="Strata Manager"&&c.email!=="claire@oakfield.com.au") c={...c,email:"claire@oakfield.com.au",email2:"strata@oakfield.com.au"}; if(c.group==="Strata Manager"&&!(c.links||[]).some(l=>/Stratafy-app-guide/.test(l.url||""))) return {...c,links:[...(c.links||[]),{label:"Stratafy app guide",url:"files/Stratafy-app-guide.pdf"},{label:"Oakfield FAQs",url:"files/Oakfield-FAQs.pdf"}]}; return c; }); }
 state.meta=DATA.meta; state.info=DATA.info; state.contacts=DATA.contacts; state.appliances=DATA.appliances; withExtras();
 Object.keys(state.loaded).forEach(k=>state.loaded[k]=true);
 route(); renderAll();
