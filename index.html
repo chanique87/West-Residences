@@ -448,7 +448,6 @@ main.wrap{max-width:760px;padding:0 0 56px}
 <div class="tabs-bar">
   <nav class="tabs" aria-label="Sections" id="tabs">
     <a href="#welcome" data-tab="welcome">Welcome</a>
-    <a href="#residence" data-tab="residence">Your New Residence</a>
     <a href="#strata" data-tab="strata">Strata</a>
     <a href="#contacts" data-tab="contacts">Contacts</a>
     <a href="#forms" data-tab="forms">Forms</a>
@@ -569,13 +568,12 @@ main.wrap{max-width:760px;padding:0 0 56px}
 <script>
 const TABS=[
   {id:"welcome",label:"Welcome",desc:"A note from the developer and how this folder is laid out"},
-  {id:"residence",label:"Your New Residence",desc:"Services, home care, defects, house rules, parcel lockers and the car stacker",intro:"How your apartment and the building work, how to look after them, and the house rules."},
   {id:"strata",label:"Strata",desc:"Strata plan SP87928, the scheme by-laws and the car stacker plan",intro:"The strata plan and scheme by-laws for SP87928. These are the binding rules for owners and residents."},
   {id:"contacts",label:"Contacts",desc:"Developer, strata manager, builder, trades and the council"},
   {id:"forms",label:"Forms",desc:"Application forms, request forms and where to lodge them",intro:"Forms and applications for the building, with a button to open or lodge each one."},
   {id:"finishes",label:"Finishes & Fixtures",desc:"Benchtops, joinery, tiles, floors, carpet and paint colours",intro:"What your apartment is made of, for repairs and touch-ups."},
   {id:"manuals",label:"Manuals & Certificates",desc:"Appliance manuals, warranties and every document from the folder"}];
-const INFO_TABS=["residence","strata","forms"];   // "important" sections now live on the Welcome tab
+const INFO_TABS=["strata","forms"];   // "important" sections now live on the Welcome tab
 const ROOMS = ["Building documents","Kitchen","Laundry","Bathroom","Living","Bedroom","Balcony","Whole apartment","Common areas","Certificates"];
 const state = { tab:"welcome", meta:{}, info:[], appliances:[], contacts:[], room:"All", canEdit:false, loaded:{info:false,appliances:false,contacts:false} };
 let db = null, assets = null;
@@ -690,12 +688,11 @@ function renderMenu(){
   const nav=(hash,icon,label,count)=>el("a",{href:"#"+hash,onclick:()=>closeDrawer()},el("span",{class:"mi",text:icon,"aria-hidden":"true"}),label,count!=null?el("span",{class:"count",text:String(count)}):null);
   const m=el("nav",{class:"menu","aria-label":"Menu"},
     nav("welcome","·","Welcome",null),
-    nav("residence","1","Your New Residence",state.info.filter(r=>(r.tab||'residence')==='residence').length),
-    nav("strata","2","Strata",state.info.filter(r=>r.tab==='strata').length),
-    nav("contacts","3","Contacts",state.contacts.length),
-    nav("forms","4","Forms",state.info.filter(r=>r.tab==='forms').length),
-    nav("finishes","5","Finishes & Fixtures",null),
-    nav("manuals","6","Manuals & Certificates",state.appliances.length),
+    nav("strata","1","Strata",state.info.filter(r=>r.tab==='strata').length),
+    nav("contacts","2","Contacts",state.contacts.length),
+    nav("forms","3","Forms",state.info.filter(r=>r.tab==='forms').length),
+    nav("finishes","4","Finishes & Fixtures",null),
+    nav("manuals","5","Manuals & Certificates",state.appliances.length),
     el("hr"),
     el("button",{type:"button",onclick:()=>showDrawer("settings")},el("span",{class:"mi",text:"⚙","aria-hidden":"true"}),"Settings"),
     state.canEdit?el("button",{type:"button",onclick:()=>{closeDrawer();openBuilding();}},el("span",{class:"mi",text:"✎","aria-hidden":"true"}),"Edit building details"):null,
@@ -758,7 +755,7 @@ function renderSettings(){
 /* ---------- Routing ---------- */
 function route(){
   const ids=TABS.map(t=>t.id), h=location.hash.slice(1)==="important"?"welcome":location.hash.slice(1);
-  let t = ids.includes(h) ? h : (h==="info" ? "residence" : (settings.start==="last" ? lsGet("wr-last-tab") : settings.start));
+  let t = ids.includes(h) ? h : (h==="info" ? "welcome" : (settings.start==="last" ? lsGet("wr-last-tab") : settings.start));
   if(!ids.includes(t)) t="welcome";
   lsSet("wr-last-tab", t);
   const changed = state.tab!==t; state.tab=t;
@@ -994,7 +991,7 @@ function renderWelcome(){
   if(w){
     box.append(el("h3",{class:"sec-h",text:w.title||"Welcome"}), el("div",{class:"body"},prose(WELCOME_BODY)));
   } else box.append(el("div",{class:"empty",text: state.loaded.info?"No welcome letter yet.":"Loading\u2026"}));
-  const imp=state.info.filter(r=>r.tab==="important").sort(byOrder), ib=$("welcomeInfo"); ib.replaceChildren();
+  const imp0=state.info.filter(r=>r.tab==="important").sort(byOrder), resRows=state.info.filter(r=>(r.tab||"residence")==="residence").sort(byOrder), imp=imp0.slice(0,2).concat(resRows,imp0.slice(2)), ib=$("welcomeInfo"); ib.replaceChildren();
   if(imp.length||state.canEdit){
     ib.append(el("h3",{class:"sec-h",text:"Important information"}));
     const toc=el("div",{class:"toc"});
@@ -1282,7 +1279,7 @@ function looksLikeQuestion(raw){
 }
 function gsItems(){
   const out=[];
-  for(const r of state.info){ const tab=r.tab||"residence"; out.push({kind:"info",id:r.id,tab:tab==="important"?"welcome":tab,title:r.title||"Untitled",text:plainText(r.body||""),raw:r.body||""}); }
+  for(const r of state.info){ const tab=r.tab||"residence"; out.push({kind:"info",id:r.id,tab:(tab==="important"||tab==="residence")?"welcome":tab,title:r.title||"Untitled",text:plainText(r.body||""),raw:r.body||""}); }
   for(const c of state.contacts) out.push({kind:"contact",id:c.id,tab:"contacts",title:c.role+(c.name?" – "+c.name:""),text:[c.name,c.phone,c.phone2,c.email,c.email2,c.website,c.address,c.hours,plainText(c.notes||""),c.group].filter(Boolean).join(" · ")});
   for(const a of state.appliances) out.push({kind:"manual",id:a.id,tab:"manuals",title:a.name||"Appliance",text:[a.room,a.brand,a.model,plainText(a.notes||""),a.warrantyUntil?"Warranty ends "+a.warrantyUntil:""].filter(Boolean).join(" · ")});
   for(const b of BYLAWS) out.push({kind:"bylaw",id:b.s+"."+b.n,tab:"strata",s:b.s,n:b.n,title:"By-law "+b.n+(b.h?" \u2013 "+b.h:"")+" ("+BL_NAMES[b.s].split(" \u00b7 ")[0]+")",text:b.h+" "+b.t.map(t=>t[1]).join(" ")});
