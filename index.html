@@ -993,8 +993,6 @@ function renderWelcome(){
   const box=$("letter"); box.replaceChildren();
   if(w){
     box.append(el("h3",{class:"sec-h",text:w.title||"Welcome"}), el("div",{class:"body"},prose(WELCOME_BODY)));
-    if(w.signoff||w.signature) box.append(el("div",{class:"sign"},el("div",{text:w.signoff||"Best"}),el("div",{class:"name",text:w.signature||""}),w.signatureRole?el("div",{class:"meta",text:w.signatureRole}):null));
-    if(state.canEdit) box.append(el("div",{style:"margin-top:14px"},el("button",{class:"edit",type:"button",text:"Edit this letter",onclick:()=>openInfo(w)})));
   } else box.append(el("div",{class:"empty",text: state.loaded.info?"No welcome letter yet.":"Loading\u2026"}));
   const imp=state.info.filter(r=>r.tab==="important").sort(byOrder), ib=$("welcomeInfo"); ib.replaceChildren();
   if(imp.length||state.canEdit){
