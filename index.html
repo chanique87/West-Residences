@@ -1201,7 +1201,7 @@ function renderContacts(){
   const q=norm($("qCon").value), box=$("conList"); box.replaceChildren();
   const rows=state.contacts.filter(c=>!q||norm([c.role,c.name,c.phone,c.phone2,c.email,c.website,c.address,plainText(c.notes)].join(" ")).includes(q)).sort(byOrder);
   if(!rows.length){ box.append(el("div",{class:"empty",text: state.loaded.contacts ? (q?"Nothing matches.":"No contacts yet.") : "Loading…"})); return; }
-  const GROUPS=["Emergency","Developer","Strata Manager","Builder","Trades","Police","Local Authority","Utilities & services"];
+  const GROUPS=["Emergency","Developer","Strata Manager","Builder","Trades","Suppliers","Police","Local Authority","Utilities & services"];
   const groupOf=c=>c.group||((c.order??999)<10?"Emergency":(c.order??999)<20?"Utilities & services":"Trades");
   rows.sort((a,b)=>{ const ga=GROUPS.indexOf(groupOf(a)), gb=GROUPS.indexOf(groupOf(b)); return (ga<0?99:ga)-(gb<0?99:gb) || byOrder(a,b); });
   let group=null, toc=null;
@@ -1670,8 +1670,17 @@ const EXTRA_DOCS=[
  {id:"d10",name:"Stratafy app guide",room:"Building documents",notes:"How to sign up to the Stratafy owner portal and app.",file:{path:"files/Stratafy-app-guide.pdf",name:"Stratafy app guide.pdf"}},
  {id:"d11",name:"Oakfield strata FAQs",room:"Building documents",notes:"What a strata company and strata manager do, and answers to common questions.",file:{path:"files/Oakfield-FAQs.pdf",name:"Oakfield FAQs.pdf"}},
  {id:"d12",name:"Car stacker induction policy",room:"Building documents",notes:"Why an induction is required and when you need one.",file:{path:"files/Car-stacker-induction-policy.pdf",name:"Car stacker induction policy.pdf"}}];
-function withExtras(){ const have=new Set((state.appliances||[]).map(a=>a.id)); state.appliances=[...(state.appliances||[]),...EXTRA_DOCS.filter(d=>!have.has(d.id))];
-  state.contacts=(state.contacts||[]).map(c=>{ if(c.id==="t9"||/planet bosch/i.test(c.name||"")){ const {email,...r}=c; c={...r,name:"Wood Pecker Flooring",phone:"(08) 6142 1511",address:"25 Sundercombe Street, Osborne Park WA 6017",website:"https://www.woodpeckerflooring.com.au"}; } if(c.group==="Strata Manager"&&c.email!=="claire@oakfield.com.au") c={...c,email:"claire@oakfield.com.au",email2:"strata@oakfield.com.au"}; if(c.group==="Strata Manager"&&!(c.links||[]).some(l=>/Stratafy-app-guide/.test(l.url||""))) return {...c,links:[...(c.links||[]),{label:"Stratafy app guide",url:"files/Stratafy-app-guide.pdf"},{label:"Oakfield FAQs",url:"files/Oakfield-FAQs.pdf"}]}; return c; }); }
+function supplierContacts(){
+  const out=new Map(), SN={s1:"Steam",s2:"Patina",common:"Common areas"}, canon=n=>/^osborne ceramics$/i.test(n)?"Osborne Ceramics":/^glass australia/i.test(n)?"Glass Australia (or equal approved)":n;
+  for(const g of FIN_SCHED){ if(g.id==="fix") continue; for(const it of g.items){ let n=(it.sup||"").trim(); if(!n||/^by cabinet maker$/i.test(n)) continue; n=canon(n);
+    const o=out.get(n)||{cats:new Set(),rows:new Map()}; out.set(n,o); o.cats.add(it.cat);
+    const prod=[it.col||it.mat,it.desc].filter(Boolean).join(", "), key=[it.code,it.loc,prod].join("|"); const r=o.rows.get(key)||{code:it.code,loc:it.loc,prod,sch:[]}; if(!r.sch.includes(SN[g.id])) r.sch.push(SN[g.id]); o.rows.set(key,r); } }
+  const WP={phone:"(08) 6142 1511",address:"25 Sundercombe Street, Osborne Park WA 6017"};
+  return [...out.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([n,o],k)=>({id:"sup-"+n.toLowerCase().replace(/[^a-z0-9]+/g,"-"),group:"Suppliers",name:[...o.cats].join(", "),role:n,order:300+k,website:SUP_LINKS[n==="Osborne Ceramics"?n:n]||SUP_LINKS[n.replace(/ceramics/i,"ceramics")]||"",...(n==="Wood Pecker Flooring"?WP:{}),
+    notes:[...o.rows.values()].map(r=>(r.code&&r.code!=="-"?r.code+" \u00B7 ":"")+(r.loc||"")+": "+r.prod+" ("+r.sch.join(", ")+")").join("\n")}));
+}
+function withExtras(){ const hs=new Set((state.contacts||[]).map(c=>c.id)); state.contacts=[...(state.contacts||[]),...supplierContacts().filter(c=>!hs.has(c.id))]; const have=new Set((state.appliances||[]).map(a=>a.id)); state.appliances=[...(state.appliances||[]),...EXTRA_DOCS.filter(d=>!have.has(d.id))];
+  state.contacts=(state.contacts||[]).map(c=>{ if(c.group==="Strata Manager"&&c.email!=="claire@oakfield.com.au") c={...c,email:"claire@oakfield.com.au",email2:"strata@oakfield.com.au"}; if(c.group==="Strata Manager"&&!(c.links||[]).some(l=>/Stratafy-app-guide/.test(l.url||""))) return {...c,links:[...(c.links||[]),{label:"Stratafy app guide",url:"files/Stratafy-app-guide.pdf"},{label:"Oakfield FAQs",url:"files/Oakfield-FAQs.pdf"}]}; return c; }); }
 state.meta=DATA.meta; state.info=DATA.info; state.contacts=DATA.contacts; state.appliances=DATA.appliances; withExtras();
 Object.keys(state.loaded).forEach(k=>state.loaded[k]=true);
 route(); renderAll();
