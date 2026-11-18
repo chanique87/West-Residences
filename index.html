@@ -987,11 +987,12 @@ function renderInfo(){
   box.append(toc); syncToggleAll();
 }
 const _renderInfo=renderInfo; renderInfo=function(){ _renderInfo(); renderBylaws(); };
+const WELCOME_BODY="Congratulations on your new home, and welcome to West Residences.\n\nWe're delighted to have you in the community. This Handover Manual will help you settle in, with clear information about your apartment, the building and how to look after them.\n\nKeep it handy for whenever questions come up. We wish you many happy years in your new home.";
 function renderWelcome(){
   const w=state.info.find(r=>r.tab==="welcome");
   const box=$("letter"); box.replaceChildren();
   if(w){
-    box.append(el("h3",{class:"sec-h",text:w.title||"Welcome"}), el("div",{class:"body"},prose(w.body||"")));
+    box.append(el("h3",{class:"sec-h",text:w.title||"Welcome"}), el("div",{class:"body"},prose(WELCOME_BODY)));
     if(w.signoff||w.signature) box.append(el("div",{class:"sign"},el("div",{text:w.signoff||"Best"}),el("div",{class:"name",text:w.signature||""}),w.signatureRole?el("div",{class:"meta",text:w.signatureRole}):null));
     if(state.canEdit) box.append(el("div",{style:"margin-top:14px"},el("button",{class:"edit",type:"button",text:"Edit this letter",onclick:()=>openInfo(w)})));
   } else box.append(el("div",{class:"empty",text: state.loaded.info?"No welcome letter yet.":"Loading\u2026"}));
