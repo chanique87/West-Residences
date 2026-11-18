@@ -888,6 +888,7 @@ function withLead(line,q){
   f.append(el("span",{class:"lead"},blLinkFrag(m[1]+":",q))," ",rich(m[2],q)); return f;
 }
 function prose(text,q){
+  text=(text||"").split("[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]").join("[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]\n[[Download the who-to-notify checklist|files/Who-to-notify-checklist.pdf]]");
   text=(text||"").split("[[!Open car stacker instructions|files/Your-New-Residence-handover-manual.pdf]]").join("[[!Open car stacker instructions|files/Phoenix-car-stacker.pdf]]");
   const root=el("div",{class:"prose"});
   for(const block of (text||"").split(/\n\s*\n/)){
