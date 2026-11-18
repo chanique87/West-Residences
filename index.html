@@ -917,6 +917,8 @@ function prose(text,q){
   text=(text||"").split("https://www.nbnco.com.au/rollout").join("https://www.nbnco.com.au/");
   text=(text||"").split("[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]").join("[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]\n[[Download the who-to-notify checklist|files/Who-to-notify-checklist.pdf]]");
   text=(text||"").split("[[!Open car stacker instructions|files/Your-New-Residence-handover-manual.pdf]]").join("[[!Open car stacker instructions|files/Phoenix-car-stacker.pdf]]");
+  text=(text||"").split("Fill in the form and email it to Willing Build.").join("Fill in the form on your device (tap the boxes and type), save it, then tap Attach filled form and email to send it.");
+  text=(text||"").split("[[Email Willing Build|mailto:hello@willingbuild.com?subject=Defect%20Maintenance%20Request%20%E2%80%93%20West%20Residences]]").join("[[Attach filled form and email|#senddefect]]");
   const root=el("div",{class:"prose"});
   for(const block of (text||"").split(/\n\s*\n/)){
     const lines=block.split("\n").map(l=>l.trim()).filter(Boolean);
@@ -1724,6 +1726,22 @@ async function startLive(){
 }
 startLive();
 </script>
-<script src="reader.js" defer></script>
+<script src="reader.js" defer>
+/* Defect form: pick the filled PDF, then share it to the mail app so it is attached */
+(function(){
+  const inp=document.createElement("input"); inp.type="file"; inp.accept="application/pdf,.pdf"; inp.hidden=true; document.body.append(inp);
+  const TO="hello@willingbuild.com", SUBJ="Defect Maintenance Request \u2013 West Residences", BODY="Hi Willing Build,\n\nPlease find my completed defect maintenance request form attached.\n\nThank you";
+  document.addEventListener("click",e=>{ const a=e.target.closest&&e.target.closest('a[href="#senddefect"]'); if(!a) return; e.preventDefault(); inp.value=""; inp.click(); });
+  inp.addEventListener("change",async()=>{
+    const f=inp.files&&inp.files[0]; if(!f) return;
+    const file=new File([f],"Defect-maintenance-request-"+new Date().toISOString().slice(0,10)+".pdf",{type:"application/pdf"});
+    try{
+      if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:SUBJ,text:"To: "+TO+"\n\n"+BODY}); return; }
+    }catch(err){ if(err&&err.name==="AbortError") return; }
+    const u=URL.createObjectURL(file), d=document.createElement("a"); d.href=u; d.download=file.name; document.body.append(d); d.click(); d.remove();
+    setTimeout(()=>{ location.href="mailto:"+TO+"?subject="+encodeURIComponent(SUBJ)+"&body="+encodeURIComponent(BODY+"\n\n(Attach the downloaded form: "+file.name+")"); },400);
+  });
+})();
+</script>
 </body>
 </html>
