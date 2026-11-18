@@ -1726,7 +1726,7 @@ async function startLive(){
 }
 startLive();
 </script>
-<script src="reader.js" defer>
+<script>
 /* Defect form: pick the filled PDF, then share it to the mail app so it is attached */
 (function(){
   const inp=document.createElement("input"); inp.type="file"; inp.accept="application/pdf,.pdf"; inp.hidden=true; document.body.append(inp);
@@ -1742,6 +1742,8 @@ startLive();
     setTimeout(()=>{ location.href="mailto:"+TO+"?subject="+encodeURIComponent(SUBJ)+"&body="+encodeURIComponent(BODY+"\n\n(Attach the downloaded form: "+file.name+")"); },400);
   });
 })();
+</script>
+<script src="reader.js" defer>
 </script>
 </body>
 </html>
