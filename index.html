@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="reader.css">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#6b8c80">
+<meta name="theme-color" content="#3c5243">
 <link rel="apple-touch-icon" href="icon-180.png">
 <script src="firebase-config.js"></script>
 <meta name="robots" content="noindex,nofollow">
@@ -291,7 +291,7 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 
 /* ===== Folder look: green cloth binder, olive tabs with blush lettering, blush dividers, white pages, salmon headings ===== */
 :root{
-  --binder:#6b8c80; --binder-ink:#f3efe4; --gold:#e3c98f; --olive:#4a6a5e; --olive-ink:#ead8a8;
+  --binder:#3c5243; --binder-ink:#f3efe4; --gold:#e8bba4; --olive:#2e4237; --olive-ink:#ead8a8;
   --blush:#edc0b2; --blush-ink:#4b4c46; --salmon:#4b7566;
   --ink:#1e201f; --muted:#6c6f6b; --paper:#ffffff; --panel:#ffffff; --line:#e9e4dc; --line-2:#d9d3c9;
   --accent:var(--acc-l,#3f6a5b); --accent-ink:#ffffff; --brass:#a8873f; --brass-soft:#f3ead3;
@@ -299,12 +299,12 @@ main.wrap{padding-top:34px;padding-bottom:72px}
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]):not([data-mode="light"]){
-  --binder:#2f433b; --binder-ink:#ece6d8; --gold:#dcc088; --olive:#25342e; --olive-ink:#e3cf9f;
+  --binder:#26362d; --binder-ink:#ece6d8; --gold:#e1b49d; --olive:#1d2a23; --olive-ink:#e3cf9f;
   --blush:#3a2925; --blush-ink:#f0cabd; --salmon:#8fc2ad;
   --ink:#ece7de; --muted:#a2a59f; --paper:#181e1b; --panel:#181e1b; --line:#29312d; --line-2:#36403b;
   --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#d4b27a; --brass-soft:#2c2619; color-scheme:dark; } }
 :root[data-theme="dark"]:not([data-mode="light"]), :root[data-mode="dark"]{
-  --binder:#2f433b; --binder-ink:#ece6d8; --gold:#dcc088; --olive:#25342e; --olive-ink:#e3cf9f;
+  --binder:#26362d; --binder-ink:#ece6d8; --gold:#e1b49d; --olive:#1d2a23; --olive-ink:#e3cf9f;
   --blush:#3a2925; --blush-ink:#f0cabd; --salmon:#8fc2ad;
   --ink:#ece7de; --muted:#a2a59f; --paper:#181e1b; --panel:#181e1b; --line:#29312d; --line-2:#36403b;
   --accent:var(--acc-d,#9cc7b1); --accent-ink:#0f1a15; --brass:#d4b27a; --brass-soft:#2c2619; color-scheme:dark; }
@@ -318,11 +318,11 @@ h1,h2,h3{font-family:var(--body)}
 .cover .top{display:flex;justify-content:space-between;align-items:center;text-align:left}
 .cover .eyebrow{font:400 11px/1 var(--display);letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.9}
 .cover h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.cover .logo{display:block;width:min(52vw,230px);height:auto;margin:34px auto 0;filter:drop-shadow(0 1px 0 rgba(0,0,0,.18))}
-.cover .sub{width:min(58vw,260px);margin:14px auto 0;font:400 12px/1.3 var(--display);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);text-align:justify;text-align-last:justify;white-space:nowrap}
+.cover .logo{display:block;width:min(78vw,340px);height:auto;margin:22px auto 0}
+.cover .sub{display:none;width:min(58vw,260px);margin:14px auto 0;font:400 12px/1.3 var(--display);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);text-align:justify;text-align-last:justify;white-space:nowrap}
 .cover .addr{margin-top:8px;font-size:13px;letter-spacing:.06em;color:color-mix(in srgb,var(--binder-ink) 70%,transparent)}
 .burger{color:var(--binder-ink)}
-:root[data-header="minimal"] .cover .logo{width:110px;margin-top:14px}
+:root[data-header="minimal"] .cover .logo{width:150px;margin-top:8px}
 :root[data-header="minimal"] .cover .sub{display:none}
 
 /* Divider tabs */
@@ -438,7 +438,7 @@ main.wrap{max-width:760px;padding:0 0 56px}
       </button>
       </span>
     </div>
-    <svg class="logo" viewBox="0 0 122.6 92.8" role="img" aria-label="West Residences logo" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="foil" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b8924f"/><stop offset=".3" stop-color="#f3e0aa"/><stop offset=".55" stop-color="#c9a360"/><stop offset=".8" stop-color="#f0dca6"/><stop offset="1" stop-color="#b48d4a"/></linearGradient></defs><path d="M0.2 0.0 L5.2 78.1 L6.0 82.1 L8.2 86.0 L11.0 88.8 L14.6 90.2 L18.5 91.2 L23.6 91.2 L31.0 88.6 L33.8 86.1 L35.6 83.2 L36.5 78.9 L40.5 3.6 L41.1 2.2 L42.5 2.0 L43.6 3.1 L46.1 78.0 L47.1 83.5 L48.6 86.4 L51.0 88.6 L58.5 92.2 L66.9 92.5 L74.2 87.9 L76.0 85.8 L77.2 82.6 L79.1 69.2 L79.4 59.4 L80.9 49.0 L80.8 44.6 L84.2 9.8 L84.5 1.2 L79.1 1.1 L72.5 4.1 L70.2 6.8 L68.0 11.4 L66.4 34.1 L65.6 56.4 L64.2 68.4 L64.4 75.1 L63.4 86.9 L62.8 88.6 L61.8 89.5 L60.2 88.9 L59.5 86.5 L59.5 72.2 L56.9 14.5 L55.9 8.8 L54.0 5.6 L51.0 2.9 L44.9 0.6 L39.0 0.8 L35.1 2.0 L30.4 5.9 L28.0 11.1 L22.9 86.2 L22.2 88.6 L20.6 89.5 L19.2 88.4 L18.6 85.9 L17.5 34.4 L16.4 10.5 L14.4 5.8 L10.0 1.9 L6.0 0.4Z" fill="url(#foil)" stroke="url(#foil)" stroke-width=".6" stroke-linejoin="round"/><circle cx="103.6" cy="75.8" r="18.0" fill="url(#foil)"/></svg>
+    <img class="logo" src="img/west-logo.webp" alt="West Residences, Mt Lawley Residences" width="599" height="331">
     <h1 id="bName">West Residences</h1>
     <div class="sub">Mt Lawley Residences</div>
     <div class="addr" id="bAddr">141 West Parade, Mount Lawley WA 6050</div>
