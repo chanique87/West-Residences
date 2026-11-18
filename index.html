@@ -448,7 +448,7 @@ main.wrap{max-width:760px;padding:0 0 56px}
 #finSeg[data-sel=s2]{--thumb:#525e53}#finSeg[data-sel=common]{--thumb:var(--blush,#edc0b2)}#finSeg[data-sel=s1]{--thumb:#e8d8b2}
 #finSeg .fseg-b,#finSeg .fseg-b.on,#finSeg .fseg-b.fseg-s1.on,#finSeg .fseg-b.fseg-s2.on,#finSeg .fseg-s1,#finSeg .fseg-s2{position:relative;z-index:1;background:transparent;border:0;box-shadow:none;border-radius:999px;color:var(--ink);padding:9px 4px;min-width:0;white-space:normal;text-align:center;transition:color .3s}
 #finSeg[data-sel=s1] .fseg-b.on{color:#4a3f26}#finSeg[data-sel=s2] .fseg-b.on{color:#f6f4e8}#finSeg[data-sel=common] .fseg-b.on{color:#4b4c46}
-</style>
+.fin-sup{margin-top:18px}.fin-sup-note{margin:0 0 8px;font-size:13px;opacity:.75}.fin-sub{border-top:1px solid var(--line-2,#ddd)}.fin-sub>summary{display:flex;align-items:center;gap:8px;list-style:none;cursor:pointer;padding:12px 0}.fin-sub>summary::-webkit-details-marker{display:none}.fin-sub>summary .ttl{flex:1;font-weight:600}.fin-sub>summary .fin-n{font-size:12px;opacity:.7;text-align:right}.fin-sub>summary svg{width:16px;height:16px;flex:none;transition:transform .2s}.fin-sub[open]>summary svg{transform:rotate(90deg)}.fin-sub>summary .fin-n{flex:none;max-width:45%}.fin-sup-b{padding:0 0 12px}.fin-sup-i{margin:6px 0 0;font-size:13px;line-height:1.45}</style>
 </head>
 <body>
 <header class="cover">
@@ -542,6 +542,7 @@ main.wrap{max-width:760px;padding:0 0 56px}
       <div class="toolbar"><input class="search grow" id="qFin" type="search" placeholder="Search tiles, paint, taps…" aria-label="Search the finishes schedule"></div>
       <div class="note" id="finNote"></div>
       <div id="finList"></div>
+      <div id="finSup"></div>
       <div class="acts" id="finPdf"></div>
     </div>
   </section>
@@ -1201,7 +1202,7 @@ function renderContacts(){
   const q=norm($("qCon").value), box=$("conList"); box.replaceChildren();
   const rows=state.contacts.filter(c=>!q||norm([c.role,c.name,c.phone,c.phone2,c.email,c.website,c.address,plainText(c.notes)].join(" ")).includes(q)).sort(byOrder);
   if(!rows.length){ box.append(el("div",{class:"empty",text: state.loaded.contacts ? (q?"Nothing matches.":"No contacts yet.") : "Loading…"})); return; }
-  const GROUPS=["Emergency","Developer","Strata Manager","Builder","Trades","Suppliers","Police","Local Authority","Utilities & services"];
+  const GROUPS=["Emergency","Developer","Strata Manager","Builder","Trades","Police","Local Authority","Utilities & services"];
   const groupOf=c=>c.group||((c.order??999)<10?"Emergency":(c.order??999)<20?"Utilities & services":"Trades");
   rows.sort((a,b)=>{ const ga=GROUPS.indexOf(groupOf(a)), gb=GROUPS.indexOf(groupOf(b)); return (ga<0?99:ga)-(gb<0?99:gb) || byOrder(a,b); });
   let group=null, toc=null;
@@ -1512,6 +1513,30 @@ function zoomImg(src,alt){
   document.addEventListener("keydown",esc); document.body.append(box);
 }
 let finSel=lsGet("wr-fin")||"s1"; const finOpen=new Set();
+
+function renderSuppliers(){
+  const box=document.getElementById("finSup"); if(!box) return; box.replaceChildren();
+  const sups=supplierContacts(); if(!sups.length) return;
+  const key="sup|all";
+  const d=el("details",{class:"fin-g fin-sup",open:finOpen.has(key)},
+    el("summary",{},el("span",{class:"ttl",text:"Suppliers"}),el("span",{class:"fin-n",text:String(sups.length)}),chev()),
+    el("div",{class:"fin-body"}));
+  d.addEventListener("toggle",()=>{ d.open?finOpen.add(key):finOpen.delete(key); });
+  const body=d.querySelector(".fin-body");
+  body.append(el("p",{class:"fin-sup-note",text:"Who supplied each finish, for repairs, touch-ups and replacements."}));
+  sups.forEach(c=>{
+    const k2="sup|"+c.id;
+    const it=el("details",{class:"fin-sub",open:finOpen.has(k2)},el("summary",{},el("span",{class:"ttl",text:c.role}),el("span",{class:"fin-n",text:c.name}),chev()));
+    it.addEventListener("toggle",()=>{ it.open?finOpen.add(k2):finOpen.delete(k2); });
+    const b=el("div",{class:"fin-sup-b"});
+    if(c.phone) b.append(el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Phone"}),el("a",{class:"fin-v sup-link",href:"tel:"+c.phone.replace(/[^\d+]/g,""),text:c.phone})));
+    if(c.address) b.append(el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Address"}),el("span",{class:"fin-v",text:c.address})));
+    if(c.website) b.append(el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Website"}),el("a",{class:"fin-v sup-link",href:c.website,target:"_blank",rel:"noopener noreferrer",text:c.website.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,"")})));
+    c.notes.split("\n").forEach(l=>b.append(el("p",{class:"fin-sup-i",text:l})));
+    it.append(b); body.append(it);
+  });
+  box.append(d);
+}
 function renderFinishes(){
   const FIX=FIN_SCHED.find(x=>x.id==="fix"), TABS_FIN=FIN_SCHED.filter(x=>x.id!=="fix");
   if(!TABS_FIN.some(g=>g.id===finSel)) finSel="s1";
@@ -1553,6 +1578,7 @@ function renderFinishes(){
     }
     box.append(d);
   }
+  renderSuppliers();
   const pdf=$("finPdf"); if(!pdf.childNodes.length){ const b=actBtn("Open the original schedule (PDF)","files/Finishes-schedule.pdf",true); if(b) pdf.append(b); }
 }
 $("qFin").addEventListener("input",renderFinishes);
@@ -1679,7 +1705,7 @@ function supplierContacts(){
   return [...out.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([n,o],k)=>({id:"sup-"+n.toLowerCase().replace(/[^a-z0-9]+/g,"-"),group:"Suppliers",name:[...o.cats].join(", "),role:n,order:300+k,website:SUP_LINKS[n==="Osborne Ceramics"?n:n]||SUP_LINKS[n.replace(/ceramics/i,"ceramics")]||"",...(n==="Wood Pecker Flooring"?WP:{}),
     notes:[...o.rows.values()].map(r=>(r.code&&r.code!=="-"?r.code+" \u00B7 ":"")+(r.loc||"")+": "+r.prod+" ("+r.sch.join(", ")+")").join("\n")}));
 }
-function withExtras(){ const hs=new Set((state.contacts||[]).map(c=>c.id)); state.contacts=[...(state.contacts||[]),...supplierContacts().filter(c=>!hs.has(c.id))]; const have=new Set((state.appliances||[]).map(a=>a.id)); state.appliances=[...(state.appliances||[]),...EXTRA_DOCS.filter(d=>!have.has(d.id))];
+function withExtras(){ const have=new Set((state.appliances||[]).map(a=>a.id)); state.appliances=[...(state.appliances||[]),...EXTRA_DOCS.filter(d=>!have.has(d.id))];
   state.contacts=(state.contacts||[]).map(c=>{ if(c.group==="Strata Manager"&&c.email!=="claire@oakfield.com.au") c={...c,email:"claire@oakfield.com.au",email2:"strata@oakfield.com.au"}; if(c.group==="Strata Manager"&&!(c.links||[]).some(l=>/Stratafy-app-guide/.test(l.url||""))) return {...c,links:[...(c.links||[]),{label:"Stratafy app guide",url:"files/Stratafy-app-guide.pdf"},{label:"Oakfield FAQs",url:"files/Oakfield-FAQs.pdf"}]}; return c; }); }
 state.meta=DATA.meta; state.info=DATA.info; state.contacts=DATA.contacts; state.appliances=DATA.appliances; withExtras();
 Object.keys(state.loaded).forEach(k=>state.loaded[k]=true);
