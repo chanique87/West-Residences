@@ -939,6 +939,7 @@ function prose(text,q){
   text=(text||"").split("[[Call Bright Connect|tel:1300908760]]").join("[[Call Bright Connect|tel:1300908760]] [[Utility information and sign-up guide|files/Utility-information-and-sign-up.pdf]]");
   text=(text||"").split("\u2022 Special Use Plan Annexure A, the car stacker plan [[Open car stacker plan|files/Car-stacker-plan.pdf]]").join("\u2022 Special Use Plan Annexure A, the car stacker plan [[Open car stacker plan|files/Car-stacker-plan.pdf]]\n\u2022 Stratafy app guide, to sign up to the owner portal and app [[Open Stratafy guide|files/Stratafy-app-guide.pdf]]\n\u2022 Oakfield strata FAQs [[Open FAQs|files/Oakfield-FAQs.pdf]]");
   text=(text||"").split("|#sendstacker]]").join("|#sendstacker]] [[Read the induction policy|files/Car-stacker-induction-policy.pdf]]");
+  text=(text||"").split("\n").map(l=>{ if(!/\|#send[a-z]+\]\]/.test(l)||!/^\s*(\[\[[^\]]+\]\]\s*)+$/.test(l)) return l; const tk=l.match(/\[\[[^\]]+\]\]/g); const sd=tk.filter(t=>/\|#send[a-z]+\]\]/.test(t)).map(t=>t.replace("[[!","[[")).map(t=>"[[!"+t.slice(2)), rest=tk.filter(t=>!/\|#send[a-z]+\]\]/.test(t)).map(t=>t.replace("[[!","[[")); return sd.concat(rest).join(" "); }).join("\n");
   const root=el("div",{class:"prose"});
   for(const block of (text||"").split(/\n\s*\n/)){
     const lines=block.split("\n").map(l=>l.trim()).filter(Boolean);
