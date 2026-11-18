@@ -544,8 +544,8 @@ main.wrap{max-width:760px;padding:0 0 56px}
   <section id="view-manuals" hidden>
     <div class="divider"><div class="dtxt"><h2>Manuals &amp;<br>Certificates</h2></div><img class="sketch" src="img/sketch-street.webp" alt="" aria-hidden="true"></div>
     <div class="page-in">
-    <div class="intro"><p>The USB in your folder holds the detailed operation manuals (including warranty information) for the equipment, appliances and hardware in your apartment, plus the completion and compliance certificates and the finishes and fixtures schedules.</p><p>Everything from the folder is kept here, and you can add the USB manuals to each appliance below.</p></div>
-    <div class="view-head"><h2>Manuals &amp; documents</h2><p>Your welcome folder and the guide for every appliance, kept in one place.</p></div>
+    <div class="intro"><p>Find all appliance manuals, building documents and certificates here.</p></div>
+    <div class="view-head"><h2>Manuals &amp; documents</h2></div>
     <div class="toolbar">
       <input class="search grow" id="qMan" type="search" placeholder="Search by appliance, brand or model" aria-label="Search manuals">
       <button class="btn" id="addMan" hidden>Add appliance</button>
@@ -592,7 +592,7 @@ const TABS=[
   {id:"forms",label:"Forms",desc:"Application forms, request forms and where to lodge them",intro:"Forms and applications for the building, with a button to open or lodge each one."},
   {id:"strata",label:"Strata",desc:"Strata plan SP87928, the scheme by-laws and the car stacker plan",intro:"The strata plan and scheme by-laws for SP87928. These are the binding rules for owners and residents."},
   {id:"finishes",label:"Finishes & Fixtures",desc:"Benchtops, joinery, tiles, floors, carpet and paint colours",intro:"What your apartment is made of, for repairs and touch-ups."},
-  {id:"manuals",label:"Manuals & Certificates",desc:"Appliance manuals, warranties and every document from the folder"}];
+  {id:"manuals",label:"Manuals & Certificates",desc:"Appliance manuals, building documents and certificates"}];
 const INFO_TABS=["strata","forms"];   // "important" sections now live on the Welcome tab
 const ROOMS = ["Building documents","Kitchen","Laundry","Bathroom","Living","Bedroom","Balcony","Whole apartment","Common areas","Certificates"];
 const state = { tab:"welcome", meta:{}, info:[], appliances:[], contacts:[], room:"All", canEdit:false, loaded:{info:false,appliances:false,contacts:false} };
