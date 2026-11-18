@@ -917,8 +917,8 @@ function prose(text,q){
   text=(text||"").split("https://www.nbnco.com.au/rollout").join("https://www.nbnco.com.au/");
   text=(text||"").split("[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]").join("[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]\n[[Download the who-to-notify checklist|files/Who-to-notify-checklist.pdf]]");
   text=(text||"").split("[[!Open car stacker instructions|files/Your-New-Residence-handover-manual.pdf]]").join("[[!Open car stacker instructions|files/Phoenix-car-stacker.pdf]]");
-  text=(text||"").split("Fill in the form and email it to Willing Build.").join("Fill in the form on your device (tap the boxes and type), save it, then tap Attach filled form and email to send it.");
-  text=(text||"").split("[[Email Willing Build|mailto:hello@willingbuild.com?subject=Defect%20Maintenance%20Request%20%E2%80%93%20West%20Residences]]").join("[[Attach filled form and email|#senddefect]]");
+  text=(text||"").split("Fill in the form and email it to Willing Build.").join("Tap Fill in and email below to complete the form here and send it, or open the PDF to print it.");
+  text=(text||"").split("[[Email Willing Build|mailto:hello@willingbuild.com?subject=Defect%20Maintenance%20Request%20%E2%80%93%20West%20Residences]]").join("[[Fill in and email the form|#senddefect]]");
   const root=el("div",{class:"prose"});
   for(const block of (text||"").split(/\n\s*\n/)){
     const lines=block.split("\n").map(l=>l.trim()).filter(Boolean);
@@ -1737,20 +1737,62 @@ async function startLive(){
 startLive();
 </script>
 <script>
-/* Defect form: pick the filled PDF, then share it to the mail app so it is attached */
+/* Defect form: fill in here, build a PDF in the browser, share it to the mail app so it is attached */
 (function(){
-  const inp=document.createElement("input"); inp.type="file"; inp.accept="application/pdf,.pdf"; inp.hidden=true; document.body.append(inp);
-  const TO="hello@willingbuild.com", SUBJ="Defect Maintenance Request \u2013 West Residences", BODY="Hi Willing Build,\n\nPlease find my completed defect maintenance request form attached.\n\nThank you";
-  document.addEventListener("click",e=>{ const a=e.target.closest&&e.target.closest('a[href="#senddefect"]'); if(!a) return; e.preventDefault(); inp.value=""; inp.click(); });
-  inp.addEventListener("change",async()=>{
-    const f=inp.files&&inp.files[0]; if(!f) return;
-    const file=new File([f],"Defect-maintenance-request-"+new Date().toISOString().slice(0,10)+".pdf",{type:"application/pdf"});
-    try{
-      if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:SUBJ,text:"To: "+TO+"\n\n"+BODY}); return; }
-    }catch(err){ if(err&&err.name==="AbortError") return; }
-    const u=URL.createObjectURL(file), d=document.createElement("a"); d.href=u; d.download=file.name; document.body.append(d); d.click(); d.remove();
-    setTimeout(()=>{ location.href="mailto:"+TO+"?subject="+encodeURIComponent(SUBJ)+"&body="+encodeURIComponent(BODY+"\n\n(Attach the downloaded form: "+file.name+")"); },400);
-  });
+  const TO="hello@willingbuild.com", SUBJ="Defect Maintenance Request – West Residences", BODY="Hi Willing Build,\n\nPlease find my completed defect maintenance request form attached.\n\nThank you";
+  const CP={"‘":145,"’":146,"“":147,"”":148,"–":150,"—":151,"•":149,"…":133};
+  const enc=t=>{ let o=""; for(const ch of t){ const c=ch.charCodeAt(0); o+= c<128||(c>=160&&c<256)? ch : (CP[ch]?String.fromCharCode(CP[ch]):"?"); } return o; };
+  const esc=t=>enc(t).replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
+  const cv=document.createElement("canvas").getContext("2d");
+  const tw=(t,sz,bold)=>{ cv.font=(bold?"bold ":"")+sz+"px Helvetica, Arial, sans-serif"; return cv.measureText(t).width; };
+  function wrap(t,sz,w){ const out=[]; for(const para of String(t||"").split(/\r?\n/)){ let line=""; for(const word of para.split(/\s+/).filter(Boolean)){ const tr=line?line+" "+word:word; if(tw(tr,sz)>w&&line){ out.push(line); line=word; } else line=tr; } out.push(line); } return out; }
+  function buildPdf(d){
+    const pages=[]; let ops, y; const H=842, L=43, R=552;
+    const newPage=()=>{ ops=[]; pages.push(ops); y=50; };
+    const text=(t,x,yy,sz,bold,rgb)=>ops.push((rgb?rgb.join(" ")+" rg ":"0 g ")+"BT /"+(bold?"F2":"F1")+" "+sz+" Tf "+x.toFixed(2)+" "+(H-yy).toFixed(2)+" Td ("+esc(t)+") Tj ET");
+    const line=(x1,y1,x2,y2)=>ops.push("0.5 w 0 G "+x1+" "+(H-y1)+" m "+x2+" "+(H-y2)+" l S");
+    const rect=(x,yy,w,h)=>ops.push("0.5 w 0 G "+x+" "+(H-yy-h)+" "+w+" "+h+" re S");
+    newPage();
+    const title="Defect Maintenance Request Form"; text(title,(595-tw(title,17,false))/2,y+12,17,false,[0.93,0.5,0.2]); y+=42;
+    [["Apartment number:",d.apt],["Owner’s name:",d.name],["Contact number:",d.phone]].forEach(([l,v])=>{ text(l,47,y,10.5,true); text(v||"",160,y-2,10.5); line(156,y+3,R,y+3); y+=22; });
+    y+=8; text("Please list any items requiring attention during this final maintenance period.",L,y,9.5); y+=12;
+    const items=d.items.filter(x=>x.trim()); if(!items.length) items.push("");
+    items.forEach((it,i)=>{ const ls=wrap(it,10,470), h=Math.max(23.65,ls.length*13+10); if(y+h>760){ newPage(); } rect(L,y,R-L,h); text(String(i+1),49,y+15,10,true); ls.forEach((l,k)=>text(l,66,y+15+k*13,10)); y+=h; });
+    y+=18; if(y>690) newPage();
+    wrap("This form is to be emailed to: "+TO+" and a representative from Willing Build will be in contact with you shortly to organise an inspection of the items listed above.",9.5,505).forEach(l=>{ text(l,L,y,9.5); y+=13; });
+    y+=10; text("Acknowledgement",L,y,10,true); y+=20; text("All maintenance work has been completed to my/our satisfaction.",L,y,9.5); y+=26;
+    [["Name:",d.n1,d.n2],["Signature:","",""],["Date:",d.d1,d.d2]].forEach(([l,a,b])=>{ text(l,43,y,9.5); text(a||"",100,y-2,9.5); line(100,y+2,285,y+2); text(l,290,y,9.5); text(b||"",350,y-2,9.5); line(350,y+2,547,y+2); y+=20; });
+    const objs=[]; const add=s=>{ objs.push(s); return objs.length; };
+    add("<< /Type /Catalog /Pages 2 0 R >>"); add(""); const f1=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"), f2=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+    const kids=[]; pages.forEach(p=>{ const c=p.join("\n"); const cid=add("<< /Length "+c.length+" >>\nstream\n"+c+"\nendstream"); kids.push(add("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 "+f1+" 0 R /F2 "+f2+" 0 R >> >> /Contents "+cid+" 0 R >>")); });
+    objs[1]="<< /Type /Pages /Count "+kids.length+" /Kids ["+kids.map(k=>k+" 0 R").join(" ")+"] >>";
+    let out="%PDF-1.4\n", off=[]; objs.forEach((o,i)=>{ off.push(out.length); out+=(i+1)+" 0 obj\n"+o+"\nendobj\n"; });
+    const xr=out.length; out+="xref\n0 "+(objs.length+1)+"\n0000000000 65535 f \n"+off.map(o=>String(o).padStart(10,"0")+" 00000 n \n").join("")+"trailer\n<< /Size "+(objs.length+1)+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF";
+    const u=new Uint8Array(out.length); for(let i=0;i<out.length;i++) u[i]=out.charCodeAt(i)&255; return u;
+  }
+  const css=document.createElement("style"); css.textContent=".dfm{position:fixed;inset:0;z-index:9999;background:rgba(30,40,34,.55);display:flex;align-items:flex-end;justify-content:center}.dfm>form{background:var(--paper,#fff);color:inherit;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 18px 24px;box-sizing:border-box}.dfm h3{margin:0 0 4px;font-size:18px}.dfm p.s{margin:0 0 12px;font-size:13px;opacity:.75}.dfm label{display:block;font-size:12px;font-weight:600;margin:10px 0 4px}.dfm input,.dfm textarea{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px;border:1px solid #bbb;border-radius:8px;background:#fff;color:#222}.dfm textarea{min-height:56px;resize:vertical}.dfm .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dfm .bar{display:flex;gap:10px;margin-top:16px}.dfm button{font:inherit;font-weight:600;padding:12px 16px;border-radius:999px;border:0;cursor:pointer}.dfm .go{flex:1;background:var(--olive,#6d7b6c);color:var(--olive-ink,#f8d8c2)}.dfm .no,.dfm .add{background:transparent;border:1px solid #999;color:inherit}.dfm .add{margin-top:8px}.dfm .st{font-size:13px;margin-top:10px}";
+  document.head.append(css);
+  function open(){
+    const ov=document.createElement("div"); ov.className="dfm";
+    const f=document.createElement("form"); ov.append(f);
+    f.innerHTML='<h3>Defect Maintenance Request</h3><p class="s">Fill this in, then tap Create and email. It builds the form as a PDF and attaches it to an email to Willing Build.</p><label>Apartment number</label><input name="apt" inputmode="numeric" autocomplete="off"><label>Owner’s name</label><input name="name" autocomplete="name"><label>Contact number</label><input name="phone" inputmode="tel" autocomplete="tel"><div id="its"></div><button type="button" class="add">Add another item</button><label style="margin-top:16px">Acknowledgement (optional, once all work is complete)</label><div class="row"><input name="n1" placeholder="Name"><input name="n2" placeholder="Name"><input name="d1" placeholder="Date"><input name="d2" placeholder="Date"></div><div class="st" aria-live="polite"></div><div class="bar"><button type="button" class="no">Cancel</button><button type="submit" class="go">Create and email</button></div>';
+    const its=f.querySelector("#its"); let n=0;
+    const addItem=()=>{ if(n>=16) return; n++; const l=document.createElement("label"); l.textContent="Item "+n; const t=document.createElement("textarea"); t.name="item"; t.placeholder=n===1?"Describe the problem and where it is":""; its.append(l,t); if(n>=16) f.querySelector(".add").hidden=true; };
+    addItem(); addItem(); addItem();
+    f.querySelector(".add").onclick=addItem; f.querySelector(".no").onclick=()=>ov.remove();
+    f.onsubmit=async e=>{ e.preventDefault(); const g=k=>(f.elements[k]&&f.elements[k].value)||""; const st=f.querySelector(".st");
+      const d={apt:g("apt"),name:g("name"),phone:g("phone"),n1:g("n1"),n2:g("n2"),d1:g("d1"),d2:g("d2"),items:[...f.querySelectorAll("textarea")].map(t=>t.value)};
+      if(!d.items.some(x=>x.trim())){ st.textContent="Please add at least one item."; return; }
+      const nm="Defect-request"+(d.apt?"-apt-"+d.apt.replace(/[^\w-]/g,""):"")+"-"+new Date().toISOString().slice(0,10)+".pdf";
+      const file=new File([buildPdf(d)],nm,{type:"application/pdf"});
+      try{ if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:SUBJ,text:"To: "+TO+"\n\n"+BODY}); ov.remove(); return; } }catch(err){ if(err&&err.name==="AbortError") return; }
+      const u=URL.createObjectURL(file), a=document.createElement("a"); a.href=u; a.download=nm; document.body.append(a); a.click(); a.remove();
+      st.textContent="Form saved to your downloads. Opening your email app. Attach the saved file."; setTimeout(()=>{ location.href="mailto:"+TO+"?subject="+encodeURIComponent(SUBJ)+"&body="+encodeURIComponent(BODY+"\n\n(Attach the saved form: "+nm+")"); },600);
+    };
+    document.body.append(ov); const first=f.querySelector("input"); if(first&&!/Mobi|Android|iPhone/.test(navigator.userAgent)) first.focus();
+  }
+  window.__dfBuild=buildPdf;
+  document.addEventListener("click",e=>{ const a=e.target.closest&&e.target.closest('a[href="#senddefect"]'); if(!a) return; e.preventDefault(); open(); });
 })();
 </script>
 <script src="reader.js" defer>
