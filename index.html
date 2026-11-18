@@ -935,6 +935,9 @@ function prose(text,q){
   text=(text||"").split("[[!Report an incident|https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/incident-report]]").join("[[!Submit an email application|#sendincident]] [[Oakfield online form|https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/incident-report]]");
   text=(text||"").replace(/\[\[(!?)[^\]|\[]*\|(#send[a-z]+)\]\]/g,"[[$1Submit an email application|$2]]");
   text=(text||"").split("[[!Update my contact details|https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/lot-communication-update]]").join("[[!Submit an email application|#sendcontact]] [[Oakfield online form|https://oakfield.helpjuice.com/en_US/ownerresident-update-forms/lot-communication-update]]");
+  text=(text||"").split("[[Call Bright Connect|tel:1300908760]]").join("[[Call Bright Connect|tel:1300908760]] [[Utility information and sign-up guide|files/Utility-information-and-sign-up.pdf]]");
+  text=(text||"").split("\u2022 Special Use Plan Annexure A, the car stacker plan [[Open car stacker plan|files/Car-stacker-plan.pdf]]").join("\u2022 Special Use Plan Annexure A, the car stacker plan [[Open car stacker plan|files/Car-stacker-plan.pdf]]\n\u2022 Stratafy app guide, to sign up to the owner portal and app [[Open Stratafy guide|files/Stratafy-app-guide.pdf]]\n\u2022 Oakfield strata FAQs [[Open FAQs|files/Oakfield-FAQs.pdf]]");
+  text=(text||"").split("|#sendstacker]]").join("|#sendstacker]] [[Read the induction policy|files/Car-stacker-induction-policy.pdf]]");
   const root=el("div",{class:"prose"});
   for(const block of (text||"").split(/\n\s*\n/)){
     const lines=block.split("\n").map(l=>l.trim()).filter(Boolean);
@@ -1662,7 +1665,14 @@ const FORMS_SEED=[{"id": "f1", "tab": "forms", "order": 1, "title": "Defect Main
 const REMOVED_APPLIANCES=["d7"];   // d7 moved to the Finishes & Fixtures tab
 DATA.appliances=DATA.appliances.filter(a=>!REMOVED_APPLIANCES.includes(a.id));
 DATA.info.push(...FORMS_SEED);
-state.meta=DATA.meta; state.info=DATA.info; state.contacts=DATA.contacts; state.appliances=DATA.appliances;
+const EXTRA_DOCS=[
+ {id:"d9",name:"Utility information and sign-up (Bright Connect)",room:"Building documents",notes:"Set up your electricity and water account. Power is already on when you move in.",file:{path:"files/Utility-information-and-sign-up.pdf",name:"Utility information and sign-up.pdf"}},
+ {id:"d10",name:"Stratafy app guide",room:"Building documents",notes:"How to sign up to the Stratafy owner portal and app.",file:{path:"files/Stratafy-app-guide.pdf",name:"Stratafy app guide.pdf"}},
+ {id:"d11",name:"Oakfield strata FAQs",room:"Building documents",notes:"What a strata company and strata manager do, and answers to common questions.",file:{path:"files/Oakfield-FAQs.pdf",name:"Oakfield FAQs.pdf"}},
+ {id:"d12",name:"Car stacker induction policy",room:"Building documents",notes:"Why an induction is required and when you need one.",file:{path:"files/Car-stacker-induction-policy.pdf",name:"Car stacker induction policy.pdf"}}];
+function withExtras(){ const have=new Set((state.appliances||[]).map(a=>a.id)); state.appliances=[...(state.appliances||[]),...EXTRA_DOCS.filter(d=>!have.has(d.id))];
+  state.contacts=(state.contacts||[]).map(c=>{ if(c.group==="Strata Manager"&&!(c.links||[]).some(l=>/Stratafy-app-guide/.test(l.url||""))) return {...c,links:[...(c.links||[]),{label:"Stratafy app guide",url:"files/Stratafy-app-guide.pdf"},{label:"Oakfield FAQs",url:"files/Oakfield-FAQs.pdf"}]}; return c; }); }
+state.meta=DATA.meta; state.info=DATA.info; state.contacts=DATA.contacts; state.appliances=DATA.appliances; withExtras();
 Object.keys(state.loaded).forEach(k=>state.loaded[k]=true);
 route(); renderAll();
 
@@ -1741,7 +1751,7 @@ async function startLive(){
     Object.assign(live,{fsm,fs,au,auth,ready:true});
     const wrap=r=>({ set:d=>fsm.setDoc(r,d), delete:()=>fsm.deleteDoc(r) });
     db={ doc:p=>wrap(fsm.doc(fs,p)), collection:n=>({doc:id=>wrap(id?fsm.doc(fs,n,id):fsm.doc(fsm.collection(fs,n)))}) };
-    const apply=()=>{ if(!live.on) return; Object.assign(state,live.snaps); state.info=(state.info||[]).filter(r=>!REMOVED_INFO.includes(r.id)); state.appliances=(state.appliances||[]).filter(a=>!REMOVED_APPLIANCES.includes(a.id)); state.contacts=fixed("contacts",state.contacts); if(!live.formsDone){ const have=new Set((state.info||[]).map(r=>r.id)); state.info=[...(state.info||[]),...FORMS_SEED.filter(r=>!have.has(r.id))]; } renderAll(); };
+    const apply=()=>{ if(!live.on) return; Object.assign(state,live.snaps); state.info=(state.info||[]).filter(r=>!REMOVED_INFO.includes(r.id)); state.appliances=(state.appliances||[]).filter(a=>!REMOVED_APPLIANCES.includes(a.id)); state.contacts=fixed("contacts",state.contacts); withExtras(); if(!live.formsDone){ const have=new Set((state.info||[]).map(r=>r.id)); state.info=[...(state.info||[]),...FORMS_SEED.filter(r=>!have.has(r.id))]; } renderAll(); };
     fsm.onSnapshot(fsm.doc(fs,"meta/building"),s=>{ live.on=s.exists(); if(live.on) state.meta=s.data(); apply(); renderAll(); },()=>{});
     for(const n of ["info","appliances","contacts"])
       fsm.onSnapshot(fsm.collection(fs,n),s=>{ live.snaps[n]=s.docs.map(d=>({id:d.id,...d.data()})); apply(); },()=>{});
