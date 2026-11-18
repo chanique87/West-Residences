@@ -443,6 +443,11 @@ main.wrap{max-width:760px;padding:0 0 56px}
 .care-i ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;line-height:1.5}
 .care-i li{margin:2px 0}
 .care-i .act{display:flex;justify-content:center;margin-top:10px}
+#finSeg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:0;overflow:hidden;padding:4px;border-radius:999px;background:var(--paper);border:1px solid var(--line-2);touch-action:pan-y;user-select:none}
+#finSeg::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);border-radius:999px;background:var(--thumb,#e8d8b2);transform:translateX(calc(var(--i,0)*100%));transition:transform .3s cubic-bezier(.4,.1,.2,1),background .3s;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+#finSeg[data-sel=s2]{--thumb:#525e53}#finSeg[data-sel=common]{--thumb:var(--blush,#edc0b2)}#finSeg[data-sel=s1]{--thumb:#e8d8b2}
+#finSeg .fseg-b,#finSeg .fseg-b.on,#finSeg .fseg-b.fseg-s1.on,#finSeg .fseg-b.fseg-s2.on,#finSeg .fseg-s1,#finSeg .fseg-s2{position:relative;z-index:1;background:transparent;border:0;box-shadow:none;border-radius:999px;color:var(--ink);padding:9px 4px;min-width:0;white-space:normal;text-align:center;transition:color .3s}
+#finSeg[data-sel=s1] .fseg-b.on{color:#4a3f26}#finSeg[data-sel=s2] .fseg-b.on{color:#f6f4e8}#finSeg[data-sel=common] .fseg-b.on{color:#4b4c46}
 </style>
 </head>
 <body>
@@ -532,7 +537,7 @@ main.wrap{max-width:760px;padding:0 0 56px}
   <section id="view-finishes" hidden>
     <div class="divider"><div class="dtxt"><h2>Finishes &amp;<br>Fixtures</h2></div><img class="sketch" src="img/sketch-street.webp" alt="" aria-hidden="true"></div>
     <div class="page-in">
-      <div class="intro">What your apartment is made of, for repairs and touch-ups. Pick your apartment's colour scheme: Steam (cream) or Patina (green). Not sure? Check your Handover documents or ask the strata manager.</div>
+      <div class="intro">What your apartment is made of: the materials, colours, brands and codes you need for repairs, touch-ups or replacements. Slide to choose your colour scheme, Steam (cream) or Patina (green), or the common areas.</div>
       <div class="fseg" id="finSeg" role="tablist" aria-label="Schedule sections"></div>
       <div class="toolbar"><input class="search grow" id="qFin" type="search" placeholder="Search tiles, paint, taps…" aria-label="Search the finishes schedule"></div>
       <div class="note" id="finNote"></div>
@@ -1509,6 +1514,7 @@ function renderFinishes(){
   if(!TABS_FIN.some(g=>g.id===finSel)) finSel="s1";
   const q=norm($("qFin").value).trim(), seg=$("finSeg"), box=$("finList");
   seg.replaceChildren(...TABS_FIN.map(g=>el("button",{type:"button",class:"fseg-b fseg-"+g.id+(g.id===finSel?" on":""),role:"tab","aria-selected":g.id===finSel,onclick:()=>{ finSel=g.id; lsSet("wr-fin",g.id); renderFinishes(); }},...g.name.split(" · ").map((t,k)=>el("span",{class:k?"fseg-2":"fseg-1",text:t})))));
+  seg.dataset.sel=finSel; seg.style.setProperty("--i",Math.max(0,TABS_FIN.findIndex(x=>x.id===finSel)));
   const g=FIN_SCHED.find(x=>x.id===finSel);
   const withFix=(g.id==="s1"||g.id==="s2")&&FIX;
   const allItems=withFix?g.items.concat(FIX.items.map(r=>({...r,_fix:true}))):g.items;
@@ -1748,6 +1754,13 @@ async function startLive(){
 startLive();
 </script>
 <script>
+
+(function(){ const seg=document.getElementById("finSeg"); if(!seg) return; let down=false;
+  const pick=e=>{ const r=seg.getBoundingClientRect(), n=seg.querySelectorAll(".fseg-b").length||3; const k=Math.min(n-1,Math.max(0,Math.floor((e.clientX-r.left)/r.width*n))); const b=seg.querySelectorAll(".fseg-b")[k]; if(b&&!b.classList.contains("on")) b.click(); };
+  seg.addEventListener("pointerdown",e=>{ down=true; });
+  seg.addEventListener("pointermove",e=>{ if(down&&e.pointerType!=="mouse"||down&&e.buttons) pick(e); });
+  addEventListener("pointerup",()=>{ down=false; }); addEventListener("pointercancel",()=>{ down=false; });
+})();
 /* In-app forms: fill in here, build a PDF in the browser, share it to the mail app so it is attached (or send as plain email text) */
 (function(){
   const STRATA="strata@oakfield.com.au", BUILD="hello@willingbuild.com";
