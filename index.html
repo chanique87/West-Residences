@@ -579,7 +579,7 @@ const ROOMS = ["Building documents","Kitchen","Laundry","Bathroom","Living","Bed
 const state = { tab:"welcome", meta:{}, info:[], appliances:[], contacts:[], room:"All", canEdit:false, loaded:{info:false,appliances:false,contacts:false} };
 let db = null, assets = null;
 const $ = id => document.getElementById(id);
-const SUP_LINKS={"Wood Pecker Flooring":"https://www.woodpeckerflooring.com.au/","Interface":"https://shop.interface.com/AU/en-AU/carpet-tile/"};
+const SUP_LINKS={"Wood Pecker Flooring":"https://www.woodpeckerflooring.com.au/","Interface":"https://shop.interface.com/AU/en-AU/carpet-tile/","Dulux":"https://www.dulux.com.au/","Laminex":"https://www.laminex.com.au/","Cosentino":"https://www.cosentino.com/en-au/","Godfrey Hirst":"https://www.ghcommercial.com/","Myaree ceramics":"https://myareeceramics.com.au/","CDK Stone":"https://www.cdkstone.com.au/","Surteco":"https://www.surteco.com/au/","Anodisers WA":"https://www.anodiserswa.com.au/"};
 const COPY_SVG='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
 const OK_SVG='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 function codePill(code){
@@ -1456,7 +1456,7 @@ function renderFinishes(){
         el("div",{class:"fin-h"},el("div",{class:"fin-t"},highlight(title,q)),(r.code?el("span",{class:"fin-c",text:r.code}):null)),
         r.loc?el("div",{class:"fin-s",text:r.loc}):null,
         r.link?el("div",{class:"acts"},actBtn("See it on the "+(/austworld/.test(r.link)?"Austworld":/astrawalker/.test(r.link)?"Astra Walker":/radiant/.test(r.link)?"Radiant":/cosentino/.test(r.link)?"Cosentino":/laminex/.test(r.link)?"Laminex":/polytec/.test(r.link)?"Polytec":/hafele/.test(r.link)?"Häfele":/blum/.test(r.link)?"Blum":/kethy/.test(r.link)?"Kethy":/rbw\.com/.test(r.link)?"RBW":/gsme/.test(r.link)?"GSME":/ghcommercial/.test(r.link)?"Godfrey Hirst":/tileempire/.test(r.link)?"Tile Empire":/dulux/.test(r.link)?"Dulux":/interface\.com/.test(r.link)?"Interface":/myareeceramics/.test(r.link)?"Myaree Ceramics":"Caroma")+" site",r.link)):null,
-        ...(isFix?[r.pcode?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Product code"}),codePill(r.pcode)):null]:[kv("Material",r.col?r.mat:""),kv("Size",r.desc),kv("Finish",r.fin),kv("Reference",r.ref),(r.sup?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Supplier"}),SUP_LINKS[r.sup]?el("a",{class:"fin-v sup-link",href:SUP_LINKS[r.sup],target:"_blank",rel:"noopener noreferrer",text:r.sup}):el("span",{class:"fin-v",text:r.sup})):null),kv("Notes",r.notes),r.pcode?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Product code"}),codePill(r.pcode)):null])));
+        ...(isFix?[r.pcode?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Product code"}),codePill(r.pcode)):null]:[kv("Material",r.col?r.mat:""),kv("Size",r.desc),kv("Finish",r.fin),(r.ref?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Reference"}),codePill(String(r.ref))):null),(r.sup?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Supplier"}),SUP_LINKS[r.sup]?el("a",{class:"fin-v sup-link",href:SUP_LINKS[r.sup],target:"_blank",rel:"noopener noreferrer",text:r.sup}):el("span",{class:"fin-v",text:r.sup})):null),kv("Notes",r.notes),r.pcode?el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Product code"}),codePill(r.pcode)):null])));
     }
     box.append(d);
   }
