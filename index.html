@@ -434,6 +434,15 @@ main.wrap{max-width:760px;padding:0 0 56px}
 .act:hover,.act.primary:hover{background:var(--olive);border-color:var(--olive);color:var(--olive-ink);filter:brightness(1.1)}
 .pcode.ok{background:var(--olive);border-color:var(--gold);color:#fff}
 .act svg,.pcode svg{opacity:1}
+.care{display:grid;gap:12px}
+.care-g{margin:14px 0 0!important;padding-bottom:8px;border-bottom:1px solid var(--blush);font:600 12px/1 var(--body)!important;letter-spacing:.2em!important;color:var(--binder)!important}
+.care-g:first-child{margin-top:0!important}
+.care-i{padding:12px 14px;border-left:3px solid var(--blush);background:rgba(237,192,178,.14);border-radius:0 8px 8px 0}
+.care-i h5{margin:0 0 4px;font:600 15px/1.3 var(--body);color:var(--binder)}
+.care-i p{margin:0;font-size:14px;line-height:1.55}
+.care-i ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;line-height:1.5}
+.care-i li{margin:2px 0}
+.care-i .act{display:flex;justify-content:center;margin-top:10px}
 </style>
 </head>
 <body>
@@ -770,6 +779,7 @@ function route(){
   if(!ids.includes(t)) t="welcome";
   lsSet("wr-last-tab", t);
   const changed = state.tab!==t; state.tab=t;
+  if(changed){ openSet.clear(); document.querySelectorAll(".toc>details[open]").forEach(o=>o.open=false); }
   document.querySelectorAll(".tabs a").forEach(a => { if (a.dataset.tab===t){ a.setAttribute("aria-current","page"); if(changed) a.scrollIntoView({inline:"nearest",block:"nearest"}); } else a.removeAttribute("aria-current"); });
   $("view-welcome").hidden = t!=="welcome";
   $("view-info").hidden = !INFO_TABS.includes(t);
@@ -786,6 +796,10 @@ function route(){
   if(changed && document.scrollingElement.scrollTop > $("tabs").getBoundingClientRect().top + window.scrollY) window.scrollTo({top:$("tabs").offsetTop - 0});
 }
 addEventListener("hashchange", route);
+document.addEventListener("toggle",e=>{
+  const d=e.target; if(!d.matches||!d.matches(".toc>details")||!d.open) return;
+  d.parentElement.querySelectorAll(":scope>details[open]").forEach(o=>{ if(o!==d){ o.open=false; const id=o.dataset.id; if(id) openSet.delete(id); } });
+},true);
 
 /* ---------- Warranty ---------- */
 function fmtDate(iso){ const d=new Date(iso+"T00:00:00"); return isNaN(d)?iso:d.toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}); }
@@ -1000,6 +1014,41 @@ function renderInfo(){
 }
 const _renderInfo=renderInfo; renderInfo=function(){ _renderInfo(); renderBylaws(); };
 const WELCOME_BODY="Congratulations on your new home, and welcome to West Residences.\n\nWe're delighted to have you in the community. This Handover Manual will help you settle in, with clear information about your apartment, the building and how to look after them.\n\nKeep it handy for whenever questions come up. We wish you many happy years in your new home.";
+const CARE=[
+["Safe living",[
+ ["Balconies and windows","Never drop or throw anything from a balcony or window. Keep the balcony door closed when the apartment is empty.",["Don't leave loose items out (bottles, plants) as wind is stronger on upper levels","Never climb or stand on the balustrade, and keep boxes and furniture away from it"]]]],
+["Surfaces and finishes",[
+ ["Stone benchtops and splashbacks","Wipe daily with a pH-neutral detergent, warm water and a soft cloth.",["Avoid oven cleaner and other strong products","Don't cut directly on the stone","Don't put hot pots or pans straight onto it (thermal shock can discolour it)"],["Call Austrend (stone)","tel:0892488248"]],
+ ["Joinery (Laminex)","Wipe up spills straight away and keep joinery away from steam and constant moisture."],
+ ["Floor and wall tiles","Clean regularly to stop grout staining. Use a soft bristle brush on grout.",["No heavy-duty abrasive cleaners"]],
+ ["Internal painting","Walls are low-sheen acrylic and ceilings flat acrylic. Wash gently with warm water, a little mild detergent and a soft cloth.",["Doors, architraves and skirting are semi-gloss enamel and take a little more effort","Never use abrasives or harsh caustic cleaners"]],
+ ["Hairline cracks","Hairline cracks in plasterboard are not a defect. Contact the Strata Manager about anything significant."],
+ ["Wool carpet","Vacuum at least once a week, more often in high-traffic areas.",["Use a strong-suction vacuum for fluff balls","Use curtains, blinds or UV film to limit sun fading","Use furniture cups and shift furniture a few inches now and then"],["Call Manchester Flooring","tel:0892424243"]],
+ ["Glass, mirrors and shower screens","Use mild soap or detergent with a clean, grit-free cloth.",["No abrasives, steel wool or scrapers","Guide the shower door shut gently and don't push the hinge past its limit"]]]],
+["Fittings and hardware",[
+ ["Tapware, basins and toilets","Use a mild, neutral cleaner with water. No ammonia and nothing abrasive, as it dulls, stains or scratches."],
+ ["Door hardware","Every 12 months, check and tighten the door closer screws. Never use steel wool on stainless steel."],
+ ["Bathroom fan","Comes on with the light. Dust the grille monthly and listen for unusual noise."],
+ ["Laundry","An exhaust fan starts when the dryer runs. Keep the glass doors open while doing laundry."],
+ ["Light globes","Never go above the wattage printed inside the fitting."],
+ ["Window coverings","Anything visible from outside needs white backing, or strata approval."]]],
+["Maintenance schedule",[
+ ["Caulking","Used around door and window frames, glazing, shower screens, benchtops, joinery joins, tiles, toilets and basins.",["Inspect every 3 months","Re-caulk every 12 months to keep out water, insects and dust","Worn caulking isn't a defect. It's the resident's job"]]]]
+];
+function careView(){
+  const root=el("div",{class:"care"});
+  CARE.forEach(([g,items])=>{
+    root.append(el("h4",{class:"care-g",text:g}));
+    items.forEach(([t,p,b,a])=>{
+      const c=el("div",{class:"care-i"},el("h5",{text:t}),el("p",{text:p}));
+      if(b){ const u=el("ul"); b.forEach(x=>u.append(el("li",{text:x}))); c.append(u); }
+      if(a) c.append(el("a",{class:"act",href:a[1],text:a[0]}));
+      root.append(c);
+    });
+  });
+  root.append(el("div",{class:"acts"},el("a",{class:"act primary",href:"files/Your-New-Residence-handover-manual.pdf",target:"_blank",rel:"noopener",text:"Open full handover manual"})));
+  return root;
+}
 function renderWelcome(){
   const w=state.info.find(r=>r.tab==="welcome");
   const box=$("letter"); box.replaceChildren();
@@ -1013,7 +1062,7 @@ function renderWelcome(){
     imp.forEach((r,k)=>{
       const d=el("details",{"data-id":r.id,open:openSet.has(r.id)},
         el("summary",{},el("span",{class:"num",text:String(k+1).padStart(2,"0")}),el("span",{class:"ttl",text:r.title||"Untitled"}),chev()),
-        el("div",{class:"toc-body"},prose(r.body||""),linkButtons(r.links),
+        el("div",{class:"toc-body"},/^looking after the apartment/i.test(r.title||"")?careView():prose(r.body||""),linkButtons(r.links),
           state.canEdit?el("div",{},el("button",{class:"edit",type:"button",text:"Edit this section",onclick:()=>openInfo(r)})):null));
       d.addEventListener("toggle",()=>{ d.open?openSet.add(r.id):openSet.delete(r.id); });
       toc.append(d);
