@@ -1671,7 +1671,7 @@ const EXTRA_DOCS=[
  {id:"d11",name:"Oakfield strata FAQs",room:"Building documents",notes:"What a strata company and strata manager do, and answers to common questions.",file:{path:"files/Oakfield-FAQs.pdf",name:"Oakfield FAQs.pdf"}},
  {id:"d12",name:"Car stacker induction policy",room:"Building documents",notes:"Why an induction is required and when you need one.",file:{path:"files/Car-stacker-induction-policy.pdf",name:"Car stacker induction policy.pdf"}}];
 function withExtras(){ const have=new Set((state.appliances||[]).map(a=>a.id)); state.appliances=[...(state.appliances||[]),...EXTRA_DOCS.filter(d=>!have.has(d.id))];
-  state.contacts=(state.contacts||[]).map(c=>{ if(c.group==="Strata Manager"&&!(c.links||[]).some(l=>/Stratafy-app-guide/.test(l.url||""))) return {...c,links:[...(c.links||[]),{label:"Stratafy app guide",url:"files/Stratafy-app-guide.pdf"},{label:"Oakfield FAQs",url:"files/Oakfield-FAQs.pdf"}]}; return c; }); }
+  state.contacts=(state.contacts||[]).map(c=>{ if(c.group==="Strata Manager"&&c.email!=="claire@oakfield.com.au") c={...c,email:"claire@oakfield.com.au",email2:"strata@oakfield.com.au"}; if(c.group==="Strata Manager"&&!(c.links||[]).some(l=>/Stratafy-app-guide/.test(l.url||""))) return {...c,links:[...(c.links||[]),{label:"Stratafy app guide",url:"files/Stratafy-app-guide.pdf"},{label:"Oakfield FAQs",url:"files/Oakfield-FAQs.pdf"}]}; return c; }); }
 state.meta=DATA.meta; state.info=DATA.info; state.contacts=DATA.contacts; state.appliances=DATA.appliances; withExtras();
 Object.keys(state.loaded).forEach(k=>state.loaded[k]=true);
 route(); renderAll();
