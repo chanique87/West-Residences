@@ -449,8 +449,8 @@ main.wrap{max-width:760px;padding:0 0 56px}
   <nav class="tabs" aria-label="Sections" id="tabs">
     <a href="#welcome" data-tab="welcome">Welcome</a>
     <a href="#contacts" data-tab="contacts">Contacts</a>
-    <a href="#strata" data-tab="strata">Strata</a>
     <a href="#forms" data-tab="forms">Forms</a>
+    <a href="#strata" data-tab="strata">Strata</a>
     <a href="#finishes" data-tab="finishes">Finishes &amp; Fixtures</a>
     <a href="#manuals" data-tab="manuals">Manuals &amp; Certificates</a>
   </nav>
@@ -569,8 +569,8 @@ main.wrap{max-width:760px;padding:0 0 56px}
 const TABS=[
   {id:"welcome",label:"Welcome",desc:"A note from the developer and how this folder is laid out"},
   {id:"contacts",label:"Contacts",desc:"Developer, strata manager, builder, trades and the council"},
-  {id:"strata",label:"Strata",desc:"Strata plan SP87928, the scheme by-laws and the car stacker plan",intro:"The strata plan and scheme by-laws for SP87928. These are the binding rules for owners and residents."},
   {id:"forms",label:"Forms",desc:"Application forms, request forms and where to lodge them",intro:"Forms and applications for the building, with a button to open or lodge each one."},
+  {id:"strata",label:"Strata",desc:"Strata plan SP87928, the scheme by-laws and the car stacker plan",intro:"The strata plan and scheme by-laws for SP87928. These are the binding rules for owners and residents."},
   {id:"finishes",label:"Finishes & Fixtures",desc:"Benchtops, joinery, tiles, floors, carpet and paint colours",intro:"What your apartment is made of, for repairs and touch-ups."},
   {id:"manuals",label:"Manuals & Certificates",desc:"Appliance manuals, warranties and every document from the folder"}];
 const INFO_TABS=["strata","forms"];   // "important" sections now live on the Welcome tab
@@ -689,8 +689,8 @@ function renderMenu(){
   const m=el("nav",{class:"menu","aria-label":"Menu"},
     nav("welcome","·","Welcome",null),
     nav("contacts","1","Contacts",state.contacts.length),
-    nav("strata","2","Strata",state.info.filter(r=>r.tab==='strata').length),
-    nav("forms","3","Forms",state.info.filter(r=>r.tab==='forms').length),
+    nav("forms","2","Forms",state.info.filter(r=>r.tab==='forms').length),
+    nav("strata","3","Strata",state.info.filter(r=>r.tab==='strata').length),
     nav("finishes","4","Finishes & Fixtures",null),
     nav("manuals","5","Manuals & Certificates",state.appliances.length),
     el("hr"),
