@@ -62,6 +62,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 .addr-link{color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-decoration-thickness:1px}
 .addr-link:hover{text-decoration-style:solid}
 .bl-ref{color:var(--accent);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;font-weight:500;cursor:pointer}
+.gs-refs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-4px 0 8px;padding:0 16px;font-size:12px;color:var(--muted)}.gs-refs button{border:1px solid var(--line);background:var(--panel);color:var(--accent);border-radius:999px;padding:5px 11px;font:500 12px var(--body);cursor:pointer}
 .bl-ref:hover{text-decoration-style:solid}
 #blBox{margin-top:4px}
 .toc .fin-g:not([open])>summary .chev{transform:none;color:var(--muted)}
@@ -1458,10 +1459,10 @@ function blLinkFrag(text,q,ctx){
 function goBylaw(s,n,from){
   closeSearch();
   if(from!==false && !(state.tab==="strata" && !blBoxEl.hidden)) blBackTo={hash:location.hash||"#welcome",y:window.scrollY,label:(TABS.find(t=>t.id===state.tab)||{}).label||"where you were"};
-  blSched=s; B("qBL").value=""; $("qInfo").value=""; openSet.add("bylaws");
+  blSched=s; B("qBL").value=""; $("qInfo").value="";
   const g=blGroups(s).find(g=>g.items.some(b=>b.n===n)); if(g) blOpen.add(s+"|"+g.title);
   if(location.hash!=="#strata") history.replaceState(null,"","#strata");
-  route(); renderAll();
+  route(); openSet.add("bylaws"); renderAll();
   requestAnimationFrame(()=>{
     const t=blBoxEl.querySelector(`[data-bl="${s}.${n}"]`); if(!t) return;
     const y=t.getBoundingClientRect().top+window.scrollY-$("tabs").offsetHeight-12;
@@ -1625,6 +1626,19 @@ function noAnswerCard(raw){
     el("div",{class:"ask-out"},el("p",{class:"ask-note",text:"The handbook doesn't seem to cover that. Try different words, or ask the Strata Manager."}),
       el("div",{class:"acts"},actBtn("Call Strata Manager","tel:0863555225",true),actBtn("Email","mailto:strata@oakfield.com.au?subject=West%20Residences"))));
 }
+function hitBylaws(h,marks){
+  if(h.kind==="bylaw") return [];
+  const txt=h.text||"", low=txt.toLowerCase(); let at=-1;
+  for(const t of marks){ const i=low.indexOf(t); if(i>=0&&(at<0||i<at)) at=i; }
+  const a=Math.max(0,(at<0?0:at)-250), win=txt.slice(a,(at<0?0:at)+450), out=[], seen=new Set();
+  const re=new RegExp(BL_RE.source,"g"); let m;
+  while((m=re.exec(win))){
+    const s=blResolve(m,0), n0=parseInt(m[2],10), n1=m[3]?parseInt(m[3],10):n0;
+    for(let n=n0;n<=Math.min(n1,n0+0);n++){ if(blFind(s,n)&&!seen.has(s+"."+n)){ seen.add(s+"."+n); out.push({s,n}); } }
+    if(m[3]){ const k=parseInt(m[3],10); if(blFind(s,k)&&!seen.has(s+"."+k)){ seen.add(s+"."+k); out.push({s,n:k}); } }
+  }
+  return out.slice(0,4);
+}
 function runSearch(){
   const raw=$("gsInput").value.trim(), box=$("gsResults"); box.replaceChildren();
   if(!raw){
@@ -1655,6 +1669,7 @@ function runSearch(){
       box.append(el("button",{type:"button",class:"gs-hit",onclick:()=>goTo(h)},
         el("div",{class:"gs-t"},markAll(h.title,marks)),
         el("div",{class:"gs-s"},markAll(snippet(h.text,marks),marks))));
+      const refs=hitBylaws(h,marks); if(refs.length) box.append(el("div",{class:"gs-refs"},el("span",{text:"Jump to"}),...refs.map(r=>el("button",{type:"button",onclick:()=>goBylaw(r.s,r.n)},"By-law "+r.n))));
     }
   }
 }
