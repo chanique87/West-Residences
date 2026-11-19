@@ -478,7 +478,7 @@ main.wrap{max-width:760px;padding:0 0 56px}
     <a href="#welcome" data-tab="welcome">Welcome</a>
     <a href="#contacts" data-tab="contacts">Contacts</a>
     <a href="#forms" data-tab="forms">Forms</a>
-    <a href="#strata" data-tab="strata">Strata</a>
+    <a href="#strata" data-tab="strata">Scheme by-laws</a>
     <a href="#finishes" data-tab="finishes">Finishes &amp; Fixtures</a>
     <a href="#manuals" data-tab="manuals">Manuals &amp; Certificates</a>
   </nav>
@@ -598,7 +598,7 @@ const TABS=[
   {id:"welcome",label:"Welcome",desc:"A note from the developer and how this folder is laid out"},
   {id:"contacts",label:"Contacts",desc:"Developer, strata manager, builder, trades and the council"},
   {id:"forms",label:"Forms",desc:"Application forms, request forms and where to lodge them",intro:"Forms and applications for the building, with a button to open or lodge each one."},
-  {id:"strata",label:"Strata",desc:"Strata plan SP87928 and the scheme by-laws",intro:"The strata plan and scheme by-laws for SP87928. These are the binding rules for owners and residents."},
+  {id:"strata",label:"Scheme by-laws",desc:"The full scheme by-laws, plus popular topics in by-law highlights",intro:"The scheme by-laws for SP87928. These are the binding rules for owners and residents."},
   {id:"finishes",label:"Finishes & Fixtures",desc:"Benchtops, joinery, tiles, floors, carpet and paint colours",intro:"What your apartment is made of, for repairs and touch-ups."},
   {id:"manuals",label:"Manuals & Certificates",desc:"Appliance manuals, building documents and certificates"}];
 const INFO_TABS=["strata","forms"];   // "important" sections now live on the Welcome tab
@@ -718,7 +718,7 @@ function renderMenu(){
     nav("welcome","·","Welcome",null),
     nav("contacts","1","Contacts",state.contacts.length),
     nav("forms","2","Forms",state.info.filter(r=>r.tab==='forms').length),
-    nav("strata","3","Strata",state.info.filter(r=>r.tab==='strata').length),
+    nav("strata","3","Scheme by-laws",null),
     nav("finishes","4","Finishes & Fixtures",null),
     nav("manuals","5","Manuals & Certificates",state.appliances.length),
     el("hr"),
@@ -1012,13 +1012,12 @@ function renderInfo(){
     else if(settings.infoOpen==="first") openSet.add(all[0].id);
   }
   const rows=all.filter(r=>!q||norm(r.title+" "+plainText(r.body)).includes(q));
-  const hasBL=state.tab==="strata" && (!q||norm("scheme by-laws full text").includes(q));
+  const hasBL=state.tab==="strata";
   $("tocLabel").textContent = q ? `${rows.length+(hasBL?1:0)} of ${all.length+(state.tab==="strata"?1:0)} sections match` : `${all.length+(state.tab==="strata"?1:0)} topics`;
   $("toggleAll").hidden = (!rows.length&&!hasBL) || !!q;
   if(!rows.length&&!hasBL){ box.append(el("div",{class:"empty",text: state.loaded.info ? (q?"Nothing matches that search.":"No building info yet."+(state.canEdit?" Tap Add section to start.":"")) : "Loading…"})); return; }
-  const toc=el("div",{class:"toc"});
-  for(const r of rows){
-    const num=String(all.indexOf(r)+1).padStart(2,"0");
+  const isSt=state.tab==="strata";
+  const mkRow=(r,num)=>{
     const d=el("details",{"data-id":r.id,open: q || openSet.has(r.id)},
       el("summary",{}, el("span",{class:"num",text:num}), el("span",{class:"ttl"},highlight(r.title||"Untitled",q)), chev()),
       el("div",{class:"toc-body"},
@@ -1026,16 +1025,24 @@ function renderInfo(){
         linkButtons(r.links),
         state.canEdit?el("div",{},el("button",{class:"edit",type:"button",text:"Edit this section",onclick:()=>openInfo(r)})):null));
     d.addEventListener("toggle",()=>{ if(q) return; d.open?openSet.add(r.id):openSet.delete(r.id); syncToggleAll(); });
-    toc.append(d);
+    return d;
+  };
+  const toc=el("div",{class:"toc"});
+  if(isSt){
+    if(rows.length){
+      const inner=el("div",{class:"toc"});
+      for(const r of rows) inner.append(mkRow(r,String(all.indexOf(r)+1).padStart(2,"0")));
+      const hl=el("details",{"data-id":"highlights",open:!!q||openSet.has("highlights")||rows.some(r=>openSet.has(r.id))},
+        el("summary",{},el("span",{class:"num",text:"\u2605"}),el("span",{class:"ttl",text:"By-law highlights"}),el("span",{class:"fin-n",text:"Popular items"}),chev()),
+        el("div",{class:"toc-body"},inner));
+      hl.addEventListener("toggle",()=>{ if(q) return; hl.open?openSet.add("highlights"):openSet.delete("highlights"); });
+      toc.append(hl);
+    }
+    box.append(toc);
+    blBoxEl.hidden=false; box.append(blBoxEl); $("toggleAll").hidden=true; $("tocLabel").textContent="Highlights and full by-laws";
+    return;
   }
-  if(hasBL){
-    const bl=el("details",{"data-id":"bylaws",open:!!q||openSet.has("bylaws")},
-      el("summary",{},el("span",{class:"num",text:String(all.length+1).padStart(2,"0")}),el("span",{class:"ttl"},highlight("Scheme by-laws",q)),chev()),
-      el("div",{class:"toc-body"}));
-    bl.lastChild.append(blBoxEl);
-    bl.addEventListener("toggle",()=>{ if(q) return; bl.open?openSet.add("bylaws"):openSet.delete("bylaws"); syncToggleAll(); });
-    toc.append(bl);
-  }
+  for(const r of rows) toc.append(mkRow(r,String(all.indexOf(r)+1).padStart(2,"0")));
   box.append(toc); syncToggleAll();
 }
 const _renderInfo=renderInfo; renderInfo=function(){ _renderInfo(); renderBylaws(); };
