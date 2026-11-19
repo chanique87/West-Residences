@@ -598,7 +598,7 @@ const TABS=[
   {id:"welcome",label:"Welcome",desc:"A note from the developer and how this folder is laid out"},
   {id:"contacts",label:"Contacts",desc:"Developer, strata manager, builder, trades and the council"},
   {id:"forms",label:"Forms",desc:"Application forms, request forms and where to lodge them",intro:"Forms and applications for the building, with a button to open or lodge each one."},
-  {id:"strata",label:"Strata",desc:"Strata plan SP87928, the scheme by-laws and the car stacker plan",intro:"The strata plan and scheme by-laws for SP87928. These are the binding rules for owners and residents."},
+  {id:"strata",label:"Strata",desc:"Strata plan SP87928 and the scheme by-laws",intro:"The strata plan and scheme by-laws for SP87928. These are the binding rules for owners and residents."},
   {id:"finishes",label:"Finishes & Fixtures",desc:"Benchtops, joinery, tiles, floors, carpet and paint colours",intro:"What your apartment is made of, for repairs and touch-ups."},
   {id:"manuals",label:"Manuals & Certificates",desc:"Appliance manuals, building documents and certificates"}];
 const INFO_TABS=["strata","forms"];   // "important" sections now live on the Welcome tab
@@ -921,6 +921,7 @@ function withLead(line,q){
   f.append(el("span",{class:"lead"},blLinkFrag(m[1]+":",q))," ",rich(m[2],q)); return f;
 }
 function prose(text,q){
+  text=(text||"").replace(/\n?[\u2022•] Special Use Plan Annexure A, the car stacker plan[^\n]*/g,"").replace(/\s*\[\[!?[^\]|]*\|files\/Car-stacker-plan\.pdf\]\]/g,"").replace(/ Your bay number is shown on the car stacker plan in the Strata section\./g,"");
   text=(text||"").split("Read the operating instructions in Your New Residence [[Open instructions|files/Your-New-Residence-handover-manual.pdf]]").join("Read the car stacker operating instructions [[Open instructions|files/Phoenix-car-stacker.pdf]]");
   text=(text||"").split("https://www.nbnco.com.au/rollout").join("https://www.nbnco.com.au/");
   text=(text||"").split("[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]").join("[[!Apply for mail redirection|https://auspost.com.au/receiving/manage-your-mail/redirect-hold-mail/redirect-mail]]\n[[Download the who-to-notify checklist|files/Who-to-notify-checklist.pdf]]");
@@ -1722,7 +1723,7 @@ function supplierContacts(){
   return [...out.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([n,o],k)=>({id:"sup-"+n.toLowerCase().replace(/[^a-z0-9]+/g,"-"),group:"Suppliers",name:[...o.cats].join(", "),role:n,order:300+k,website:SUP_LINKS[n==="Osborne Ceramics"?n:n]||SUP_LINKS[n.replace(/ceramics/i,"ceramics")]||"",...(n==="Wood Pecker Flooring"?WP:{}),
     notes:[...o.rows.values()].map(r=>(r.code&&r.code!=="-"?r.code+" \u00B7 ":"")+(r.loc||"")+": "+r.prod+" ("+r.sch.join(", ")+")").join("\n")}));
 }
-function withExtras(){ const have=new Set((state.appliances||[]).map(a=>a.id)); state.appliances=[...(state.appliances||[]),...EXTRA_DOCS.filter(d=>!have.has(d.id))];
+function withExtras(){ state.appliances=(state.appliances||[]).filter(a=>!/car stacker plan/i.test(a.name||"")&&!/Car-stacker-plan/.test(JSON.stringify(a))); const have=new Set((state.appliances||[]).map(a=>a.id)); state.appliances=[...(state.appliances||[]),...EXTRA_DOCS.filter(d=>!have.has(d.id))];
   state.contacts=(state.contacts||[]).map(c=>{ if(c.links&&c.links.length){ const FORMLBL=/^(Pet application form|Incident report|Insurance claim|Update my contact details|Register|Set up your account)$/i; c={...c,links:c.links.filter(l=>!FORMLBL.test((l.label||"").trim()))}; } if(c.group==="Strata Manager"&&c.email!=="claire@oakfield.com.au") c={...c,email:"claire@oakfield.com.au",email2:"strata@oakfield.com.au"}; if(c.group==="Strata Manager"&&!(c.links||[]).some(l=>/Stratafy-app-guide/.test(l.url||""))) return {...c,links:[...(c.links||[]),{label:"Stratafy app guide",url:"files/Stratafy-app-guide.pdf"},{label:"Oakfield FAQs",url:"files/Oakfield-FAQs.pdf"}]}; return c; }); }
 state.meta=DATA.meta; state.info=DATA.info; state.contacts=DATA.contacts; state.appliances=DATA.appliances; withExtras();
 Object.keys(state.loaded).forEach(k=>state.loaded[k]=true);
