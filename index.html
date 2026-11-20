@@ -641,7 +641,7 @@ function status(msg, err){ const s=$("status"); s.hidden=!msg; s.textContent=msg
 /* ---------- Settings (per person) ---------- */
 function lsGet(k){ try{ return localStorage.getItem(k); }catch{ return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch{} }
-const DEFAULTS={mode:"system",accent:"green",size:"default",density:"comfortable",header:"board",start:"welcome",infoOpen:"closed",motion:false,apt:""};
+const DEFAULTS={mode:"light",accent:"green",size:"default",density:"comfortable",header:"board",start:"welcome",infoOpen:"closed",motion:false,apt:""};
 const ACCENTS={
   green:{name:"Bottle green",l:"#24443a",d:"#9cc7b1"},
   blue:{name:"Harbour blue",l:"#24557e",d:"#7fb3e0"},
@@ -656,7 +656,7 @@ try{ Object.assign(settings, JSON.parse(lsGet("wr-settings")||"{}")); }catch{}
 let settingsRef=null, savedTo="this device", saveTimer=null, saving=Promise.resolve();
 function applySettings(){
   const r=document.documentElement;
-  if(settings.mode==="system") delete r.dataset.mode; else r.dataset.mode=settings.mode;
+  if(settings.mode!=="dark") settings.mode="light"; r.dataset.mode=settings.mode;
   const a=ACCENTS[settings.accent]||ACCENTS.green;
   r.style.setProperty("--acc-l",a.l); r.style.setProperty("--acc-d",a.d);
   r.style.setProperty("--zoom",SIZES[settings.size]||1);
@@ -757,7 +757,7 @@ function renderSettings(){
   $("drawerBody").replaceChildren(
     el("div",{class:"set-group"},
       el("h3",{text:"Appearance"}),
-      row("Theme",seg("mode",[["system","System"],["light","Light"],["dark","Dark"]])),
+      row("Theme",seg("mode",[["light","Light"],["dark","Dark"]])),
       row("Accent colour",sw,(ACCENTS[settings.accent]||ACCENTS.green).name),
       row("Text size",seg("size",[["small","Small"],["default","Default"],["large","Large"],["xl","X-Large"]])),
       row("Layout",seg("density",[["comfortable","Comfortable"],["compact","Compact"]])),
