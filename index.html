@@ -922,6 +922,7 @@ function withLead(line,q){
   f.append(el("span",{class:"lead"},blLinkFrag(m[1]+":",q))," ",rich(m[2],q)); return f;
 }
 function prose(text,q){
+  text=(text||"").replace(/ ?\[\[Open the operating manual\|files\/Phoenix-car-stacker\.pdf\]\]/g,"");
   text=(text||"").replace(/\n?[\u2022•] Special Use Plan Annexure A, the car stacker plan[^\n]*/g,"").replace(/\s*\[\[!?[^\]|]*\|files\/Car-stacker-plan\.pdf\]\]/g,"").replace(/ Your bay number is shown on the car stacker plan in the Strata section\./g,"");
   text=(text||"").split("Read the operating instructions in Your New Residence [[Open instructions|files/Your-New-Residence-handover-manual.pdf]]").join("Read the car stacker operating instructions [[Open instructions|files/Phoenix-car-stacker.pdf]]");
   text=(text||"").split("https://www.nbnco.com.au/rollout").join("https://www.nbnco.com.au/");
