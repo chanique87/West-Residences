@@ -27,12 +27,23 @@ addEventListener("DOMContentLoaded",function(){
   window.openInstall=async function(){
     if(dp){ dp.prompt(); try{ await dp.userChoice; }catch(e){} dp=null; return; }
     if(/android/i.test(navigator.userAgent)&&/SamsungBrowser|EdgA|OPR\/|Firefox|; wv\)/i.test(navigator.userAgent)){
-      location.href="intent://"+location.host+location.pathname+"#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url="+encodeURIComponent(location.href)+";end";
+      location.href="intent://"+location.host+location.pathname+"?install=1#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url="+encodeURIComponent(location.href)+";end";
       return;
     }
     sheet();
   };
   btn.addEventListener("click",window.openInstall);
+  if(/[?&]install=1/.test(location.search)){
+    history.replaceState(null,"",location.pathname+location.hash);
+    const ask=()=>{
+      const w=document.createElement("div"); w.className="inst-sheet";
+      w.innerHTML='<div class="inst-card" role="dialog" aria-label="Install the app"><h3>Install West Residences</h3><p style="margin:0 0 16px">Add the handbook to your home screen as an app.</p><button type="button" class="btn" id="instGo">Install</button></div>';
+      w.addEventListener("click",e=>{ if(e.target===w) w.remove(); });
+      document.body.append(w);
+      w.querySelector("#instGo").onclick=async()=>{ w.remove(); window.openInstall(); };
+    };
+    if(dp) ask(); else { let t=setTimeout(ask,2500); addEventListener("beforeinstallprompt",()=>{ clearTimeout(t); setTimeout(ask,50); },{once:true}); }
+  }
 });
 </script>
 <script>if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
