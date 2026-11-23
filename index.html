@@ -971,7 +971,7 @@ function withLead(line,q){
   f.append(el("span",{class:"lead"},blLinkFrag(m[1]+":",q))," ",rich(m[2],q)); return f;
 }
 function prose(text,q){
-  text=(text||"").replace(/The USB has manuals for three (?:Miele )?models\. Check/g,"Check");
+  text=(text||"").replace(/The USB has manuals[^.\n]*\.\s*/gi,"");
   text=(text||"").replace(/ ?\[\[Open the operating manual\|files\/Phoenix-car-stacker\.pdf\]\]/g,"");
   text=(text||"").replace(/\n?[\u2022•] Special Use Plan Annexure A, the car stacker plan[^\n]*/g,"").replace(/\s*\[\[!?[^\]|]*\|files\/Car-stacker-plan\.pdf\]\]/g,"").replace(/ Your bay number is shown on the car stacker plan in the Strata section\./g,"");
   text=(text||"").split("Read the operating instructions in Your New Residence [[Open instructions|files/Your-New-Residence-handover-manual.pdf]]").join("Read the car stacker operating instructions [[Open instructions|files/Phoenix-car-stacker.pdf]]");
@@ -1199,7 +1199,7 @@ function renderManuals(){
   const secOf=a=>MAN_SECTIONS.find(sx=>(sx.rooms||sx.cats.flatMap(c=>c.rooms)).includes(a.room))||MAN_SECTIONS[MAN_SECTIONS.length-1];
   const manItem=a=>{
     const w=warranty(a.warrantyUntil);
-    const has=fileKey(a.file)||a.link||(a.links&&a.links.length);
+    const has=fileKey(a.file)||a.link||(a.links&&a.links.length)||/\[\[[^\]]*\|[^\]]*\.pdf/i.test(a.notes||"");
     const sub=[a.brand,a.model].filter(Boolean).join(" · ");
     const quick = fileKey(a.file) ? el("span",{class:"quick"},actBtn("Read",fileKey(a.file),true,[a.name,[a.brand,a.model].filter(Boolean).join(" ")].filter(Boolean).join(" · "))) : null;
     const d=el("details",{"data-id":a.id,open: openMan.has(a.id)},
