@@ -971,6 +971,7 @@ function withLead(line,q){
   f.append(el("span",{class:"lead"},blLinkFrag(m[1]+":",q))," ",rich(m[2],q)); return f;
 }
 function prose(text,q){
+  text=(text||"").replace(/The USB has manuals for three (?:Miele )?models\. Check/g,"Check");
   text=(text||"").replace(/ ?\[\[Open the operating manual\|files\/Phoenix-car-stacker\.pdf\]\]/g,"");
   text=(text||"").replace(/\n?[\u2022•] Special Use Plan Annexure A, the car stacker plan[^\n]*/g,"").replace(/\s*\[\[!?[^\]|]*\|files\/Car-stacker-plan\.pdf\]\]/g,"").replace(/ Your bay number is shown on the car stacker plan in the Strata section\./g,"");
   text=(text||"").split("Read the operating instructions in Your New Residence [[Open instructions|files/Your-New-Residence-handover-manual.pdf]]").join("Read the car stacker operating instructions [[Open instructions|files/Phoenix-car-stacker.pdf]]");
@@ -1198,7 +1199,7 @@ function renderManuals(){
   const secOf=a=>MAN_SECTIONS.find(sx=>(sx.rooms||sx.cats.flatMap(c=>c.rooms)).includes(a.room))||MAN_SECTIONS[MAN_SECTIONS.length-1];
   const manItem=a=>{
     const w=warranty(a.warrantyUntil);
-    const has=fileKey(a.file)||a.link;
+    const has=fileKey(a.file)||a.link||(a.links&&a.links.length);
     const sub=[a.brand,a.model].filter(Boolean).join(" · ");
     const quick = fileKey(a.file) ? el("span",{class:"quick"},actBtn("Read",fileKey(a.file),true,[a.name,[a.brand,a.model].filter(Boolean).join(" ")].filter(Boolean).join(" · "))) : null;
     const d=el("details",{"data-id":a.id,open: openMan.has(a.id)},
@@ -1263,10 +1264,20 @@ function safeUrl(u){ try{ const x=new URL(u); return /^https?:$/.test(x.protocol
 function renderContacts(){
   const q=norm($("qCon").value), box=$("conList"); box.replaceChildren();
   const rows=state.contacts.filter(c=>!q||norm([c.role,c.name,c.phone,c.phone2,c.email,c.website,c.address,plainText(c.notes)].join(" ")).includes(q)).sort(byOrder);
-  if(!rows.length){ box.append(el("div",{class:"empty",text: state.loaded.contacts ? (q?"Nothing matches.":"No contacts yet.") : "Loading…"})); return; }
   const GROUPS=["Emergency","Developer","Strata Manager","Builder","Trades","Police","Local Authority","Utilities & services"];
   const groupOf=c=>c.group||((c.order??999)<10?"Emergency":(c.order??999)<20?"Utilities & services":"Trades");
   rows.sort((a,b)=>{ const ga=GROUPS.indexOf(groupOf(a)), gb=GROUPS.indexOf(groupOf(b)); return (ga<0?99:ga)-(gb<0?99:gb) || byOrder(a,b); });
+  const appsRow=state.info.find(r=>r.id==="apps");
+  if(appsRow&&(!q||/app|phone/.test(q))){
+    box.append(el("h3",{class:"group-h",text:"Phone apps"}));
+    const t0=el("div",{class:"toc"});
+    const da=el("details",{"data-id":"apps-con",open:!!q||openCon.has("apps-con")},
+      el("summary",{},el("span",{class:"ttl"},"Handy phone applications"),chev()),
+      el("div",{class:"toc-body apps-body",style:"padding-left:2px"},prose(appsRow.body)));
+    da.addEventListener("toggle",()=>{ if(q) return; da.open?openCon.add("apps-con"):openCon.delete("apps-con"); });
+    t0.append(da); box.append(t0);
+  }
+  if(!rows.length&&!(appsRow&&(!q||/app|phone/.test(q)))){ box.append(el("div",{class:"empty",text: state.loaded.contacts ? (q?"Nothing matches.":"No contacts yet.") : "Loading…"})); return; }
   let group=null, toc=null;
   for(const c of rows){
     const g=groupOf(c);
