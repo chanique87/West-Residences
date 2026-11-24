@@ -2013,7 +2013,46 @@ startLive();
   const tx=async(mode,fn)=>{ const db=await open(); return new Promise((res,rej)=>{ const t=db.transaction(ST,mode), s=t.objectStore(ST), q=fn(s); t.oncomplete=()=>res(q&&q.result); t.onerror=()=>rej(t.error); }); };
   const all=()=>tx("readonly",s=>s.getAll()).then(x=>x||[]).catch(()=>[]);
   const put=o=>tx("readwrite",s=>s.put(o)); const del=id=>tx("readwrite",s=>s.delete(id));
-  let items=[];
+  let items=[]; let syncing=false, status="";
+  const CH=600000, MAXB=8*1024*1024;
+  const live_=()=>{ try{ return typeof live!=="undefined"&&live&&live.user&&live.fsm&&live.fs?live:null; }catch{ return null; } };
+  const b64=blob=>new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(",")[1]||""); r.onerror=()=>rej(r.error); r.readAsDataURL(blob); });
+  const fromB64=(str,type)=>{ const bin=atob(str), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return new Blob([u],{type}); };
+  async function cloudDelete(L,id){
+    const f=L.fsm, base=["users",L.user.uid,"mine",id];
+    try{ const cs=await f.getDocs(f.collection(L.fs,...base,"chunks")); for(const c of cs.docs) await f.deleteDoc(c.ref); }catch{}
+    await f.deleteDoc(f.doc(L.fs,...base));
+  }
+  async function cloudPut(L,it){
+    const f=L.fsm, base=["users",L.user.uid,"mine",it.id];
+    let n=0, parts=[];
+    if(it.file){ if(it.file.size>MAXB) return "big"; const all=await b64(it.file); for(let i=0;i<all.length;i+=CH) parts.push(all.slice(i,i+CH)); n=parts.length; }
+    for(let i=0;i<parts.length;i++) await f.setDoc(f.doc(L.fs,...base,"chunks",String(i).padStart(4,"0")),{d:parts[i]});
+    await f.setDoc(f.doc(L.fs,...base),{name:it.name,brand:it.brand||"",model:it.model||"",link:it.link||"",notes:it.notes||"",fileName:it.fileName||"",fileType:it.file?it.file.type:"",chunks:n,updated:it.updated||Date.now()});
+    return "ok";
+  }
+  async function syncMine(){
+    const L=live_(); if(!L||syncing) return; syncing=true;
+    try{
+      const f=L.fsm, snap=await f.getDocs(f.collection(L.fs,"users",L.user.uid,"mine"));
+      const cloud=new Map(snap.docs.map(d=>[d.id,d.data()]));
+      const local=await all(); let big=0;
+      for(const it of local){
+        const c=cloud.get(it.id);
+        if(!c){ if(it.synced){ await del(it.id); continue; } const r=await cloudPut(L,it); if(r==="big") big++; else { it.synced=true; await put(it); } }
+        else if((it.updated||0)>(c.updated||0)){ const r=await cloudPut(L,it); if(r==="big") big++; }
+      }
+      const have=new Map((await all()).map(i=>[i.id,i]));
+      for(const [id,c] of cloud){
+        const it=have.get(id); if(it&&(it.updated||0)>=(c.updated||0)) continue;
+        let file=null;
+        if(c.chunks){ const cs=await f.getDocs(f.collection(L.fs,"users",L.user.uid,"mine",id,"chunks")); const ds=cs.docs.sort((a,b)=>a.id.localeCompare(b.id)).map(d=>d.data().d).join(""); file=fromB64(ds,c.fileType||"application/octet-stream"); }
+        await put({id,name:c.name,brand:c.brand,model:c.model,link:c.link,notes:c.notes,file,fileName:c.fileName,updated:c.updated||Date.now(),synced:true});
+      }
+      status=big?"Saved to your account. "+big+" file(s) over 8 MB stay on this device only.":"Synced with your account.";
+    }catch(e){ console.warn("My appliances sync",e); status="Saved on this device. Account sync isn't set up yet."; }
+    syncing=false; items=await all(); if(typeof renderManuals==="function") renderManuals();
+  }
   const $=id=>document.getElementById(id);
   const mk=(t,a,...k)=>{ const e=document.createElement(t); for(const [x,v] of Object.entries(a||{})){ if(x==="class") e.className=v; else if(x==="text") e.textContent=v; else if(x.startsWith("on")) e[x]=v; else e.setAttribute(x,v); } e.append(...k.filter(Boolean)); return e; };
   const NOTE="These are private to you and saved on this phone only. PDFs can be searched for specific words inside the reader. Photos and links can be opened but can't be searched.";
@@ -2033,7 +2072,7 @@ startLive();
       mk("div",{class:"toc-body",style:"padding-left:2px"},it.notes?mk("p",{text:it.notes}):null,acts.childNodes.length?acts:null,
         mk("div",{style:"margin-top:10px;display:flex;gap:8px"},
           mk("button",{class:"btn sec",type:"button",text:"Edit",onclick:()=>form(it)}),
-          mk("button",{class:"btn sec",type:"button",text:"Delete",onclick:async()=>{ if(confirm("Delete "+it.name+" from this phone?")){ await del(it.id); await refresh(); } }}))));
+          mk("button",{class:"btn sec",type:"button",text:"Delete",onclick:async()=>{ if(confirm("Delete "+it.name+"?")){ await del(it.id); const L=live_(); if(L&&it.synced){ try{ await cloudDelete(L,it.id); }catch(e){ console.warn(e); } } await refresh(); } }}))));
     return d;
   }
   function section(){
@@ -2042,7 +2081,7 @@ startLive();
     const d=mk("details",{"data-sec":"mine"},
       mk("summary",{},mk("span",{class:"num",text:"★"}),mk("span",{class:"ttl",text:"My appliances"}),mk("span",{class:"fin-n",text:String(items.length)})),
       mk("div",{class:"toc-body",style:"padding-left:0"},
-        mk("p",{class:"hint",style:"margin:0 0 10px;font-size:13px;color:var(--muted)",text:NOTE}),
+        mk("p",{class:"hint",style:"margin:0 0 10px;font-size:13px;color:var(--muted)",text:live_()?NOTE.replace("saved on this phone only","saved to your account, so they follow you to any device you sign in on"):NOTE}),live_()&&status?mk("p",{class:"hint",style:"margin:0 0 10px;font-size:12px;color:var(--muted)",text:status}):null,
         mk("div",{class:"toc"},...list.map(card)),
         mk("button",{class:"btn",type:"button",style:"margin-top:12px",text:"Add my own",onclick:()=>form(null)})));
     d.open=!!((q&&list.length)||window.__mineOpen);
@@ -2062,16 +2101,17 @@ startLive();
     $("mnSave").onclick=async()=>{
       const name=$("mnName").value.trim(); if(!name){ $("mnName").focus(); return; }
       const fl=$("mnFile").files[0]; let link=$("mnLink").value.trim(); if(link&&!/^https?:\/\//i.test(link)) link="https://"+link;
-      const o={id:it?it.id:"m"+Date.now(),name,brand:$("mnBrand").value.trim(),model:$("mnModel").value.trim(),link,notes:$("mnNotes").value.trim(),file:fl||(it&&it.file)||null,fileName:fl?fl.name:(it&&it.fileName)||""};
+      const o={id:it?it.id:"m"+Date.now(),name,brand:$("mnBrand").value.trim(),model:$("mnModel").value.trim(),link,notes:$("mnNotes").value.trim(),file:fl||(it&&it.file)||null,fileName:fl?fl.name:(it&&it.fileName)||"",updated:Date.now(),synced:!!(it&&it.synced)};
       try{ await put(o); }catch(e){ alert("Couldn't save this on your phone. The file may be too large for your device storage."); return; }
       try{ navigator.storage&&navigator.storage.persist&&navigator.storage.persist(); }catch{}
-      window.__mineOpen=true; w.remove(); await refresh();
+      window.__mineOpen=true; w.remove(); await refresh(); syncMine();
     };
   }
   async function refresh(){ items=await all(); if(typeof renderManuals==="function") renderManuals(); }
   const _rm=renderManuals;
   renderManuals=function(){ _rm(); const box=$("manList"); if(box) box.prepend(mk("div",{class:"toc",style:"margin-bottom:0"},section())); };
-  all().then(x=>{ items=x; renderManuals(); });
+  all().then(x=>{ items=x; renderManuals(); syncMine(); });
+  try{ const _ro=refreshOwner; refreshOwner=function(){ _ro(); syncMine(); }; }catch{}
 })();
 </script>
 <script src="reader.js" defer>

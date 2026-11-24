@@ -13,6 +13,11 @@ service cloud.firestore {
         && !exists(/databases/$(database)/documents/meta/owner)
         && request.resource.data.uid == request.auth.uid;
     }
+    // Each signed-in person has a private area (their own appliances and manuals) that only they can read or write.
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
     // Anyone can read the handbook. Only the owner can change it.
     match /{collection}/{document} {
       allow read: if true;
