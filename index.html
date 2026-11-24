@@ -1191,7 +1191,7 @@ function renderFilters(){
 function renderManuals(){
   const q=norm($("qMan").value), box=$("manList"); box.replaceChildren();
   const all=state.appliances;
-  const withManual=all.filter(a=>fileKey(a.file)||a.link).length;
+  const withManual=all.filter(a=>fileKey(a.file)||a.link||(a.links&&a.links.length)||/\[\[[^\]]*\|[^\]]*\.pdf/i.test(a.notes||"")).length;
   $("manSummary").textContent = all.length ? `${withManual} of ${all.length} saved · ${all.length-withManual} still to find` : "";
   const rows=all.filter(a=>(state.room==="All"||a.room===state.room) && (!q||norm([a.name,a.brand,a.model,a.room,a.notes].join(" ")).includes(q)))
     .sort((a,b)=>ROOMS.indexOf(a.room)-ROOMS.indexOf(b.room)||norm(a.name).localeCompare(norm(b.name)));
