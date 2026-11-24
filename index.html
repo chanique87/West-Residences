@@ -2079,7 +2079,7 @@ startLive();
     const q=(($("qMan")||{}).value||"").toLowerCase().trim();
     const list=items.filter(i=>!q||[i.name,i.brand,i.model,i.notes].join(" ").toLowerCase().includes(q));
     const d=mk("details",{"data-sec":"mine"},
-      mk("summary",{},mk("span",{class:"num",text:"★"}),mk("span",{class:"ttl",text:"My appliances - Manuals & Warranties"}),mk("span",{class:"fin-n",text:String(items.length)})),
+      mk("summary",{},mk("span",{class:"num",text:"★"}),mk("span",{class:"ttl",text:"My Appliances - Manuals & Warranties"}),mk("span",{class:"fin-n",text:String(items.length)})),
       mk("div",{class:"toc-body",style:"padding-left:0"},
         mk("p",{class:"hint",style:"margin:0 0 10px;font-size:13px;color:var(--muted)",text:live_()?NOTE.replace("saved on this phone only","saved to your account, so they follow you to any device you sign in on"):NOTE}),live_()&&status?mk("p",{class:"hint",style:"margin:0 0 10px;font-size:12px;color:var(--muted)",text:status}):null,
         mk("div",{class:"toc"},...list.map(card)),
