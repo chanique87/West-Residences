@@ -2005,6 +2005,75 @@ startLive();
   document.addEventListener("click",e=>{ const a=e.target.closest&&e.target.closest('a[href^="#send"]'); if(!a) return; const k=a.getAttribute("href").slice(5); const map={contact:"contact",insurance:"insurance",incident:"incident",defect:"defect",move:"move",indemnity:"indemnity",reno:"reno",ev:"ev",stacker:"stacker",pet:"pet",dispute:"dispute"}; if(!map[k]) return; e.preventDefault(); open(map[k]); });
 })();
 </script>
+<script>
+/* ---------- My appliances: private to this phone (IndexedDB), added by the resident ---------- */
+(function(){
+  const DB="wr-mine", ST="items";
+  const open=()=>new Promise((res,rej)=>{ const r=indexedDB.open(DB,1); r.onupgradeneeded=()=>r.result.createObjectStore(ST,{keyPath:"id"}); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); });
+  const tx=async(mode,fn)=>{ const db=await open(); return new Promise((res,rej)=>{ const t=db.transaction(ST,mode), s=t.objectStore(ST), q=fn(s); t.oncomplete=()=>res(q&&q.result); t.onerror=()=>rej(t.error); }); };
+  const all=()=>tx("readonly",s=>s.getAll()).then(x=>x||[]).catch(()=>[]);
+  const put=o=>tx("readwrite",s=>s.put(o)); const del=id=>tx("readwrite",s=>s.delete(id));
+  let items=[];
+  const $=id=>document.getElementById(id);
+  const mk=(t,a,...k)=>{ const e=document.createElement(t); for(const [x,v] of Object.entries(a||{})){ if(x==="class") e.className=v; else if(x==="text") e.textContent=v; else if(x.startsWith("on")) e[x]=v; else e.setAttribute(x,v); } e.append(...k.filter(Boolean)); return e; };
+  const NOTE="These are private to you and saved on this phone only. PDFs can be searched for specific words inside the reader. Photos and links can be opened but can't be searched.";
+  function card(it){
+    const sub=[it.brand,it.model].filter(Boolean).join(" · ");
+    const acts=mk("div",{class:"acts"});
+    if(it.file){
+      const url=()=>URL.createObjectURL(it.file);
+      if(it.file.type==="application/pdf"||/\.pdf$/i.test(it.fileName||"")){
+        acts.append(mk("a",{class:"act primary",href:"#",text:"Read manual",onclick:e=>{ e.preventDefault(); window.WRReader&&WRReader.open(url(),[it.name,sub].filter(Boolean).join(" · ")); }}));
+        const dl=mk("a",{class:"act",href:"#",text:"Download",onclick:e=>{ e.preventDefault(); const a=mk("a",{href:url(),download:it.fileName||"manual.pdf"}); document.body.append(a); a.click(); a.remove(); }}); acts.append(dl);
+      } else acts.append(mk("a",{class:"act primary",href:"#",text:"Open photo",onclick:e=>{ e.preventDefault(); window.open(url(),"_blank"); }}));
+    }
+    if(it.link) acts.append(mk("a",{class:"act",href:it.link,target:"_blank",rel:"noopener",text:"Manufacturer page"}));
+    const d=mk("details",{"data-id":it.id},
+      mk("summary",{},mk("span",{class:"ttl"},it.name,sub?mk("span",{class:"sub",text:sub}):null),(()=>{ const s=document.createElementNS("http://www.w3.org/2000/svg","svg"); s.setAttribute("viewBox","0 0 24 24"); s.setAttribute("class","chev"); s.innerHTML='<path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'; return s; })()),
+      mk("div",{class:"toc-body",style:"padding-left:2px"},it.notes?mk("p",{text:it.notes}):null,acts.childNodes.length?acts:null,
+        mk("div",{style:"margin-top:10px;display:flex;gap:8px"},
+          mk("button",{class:"btn sec",type:"button",text:"Edit",onclick:()=>form(it)}),
+          mk("button",{class:"btn sec",type:"button",text:"Delete",onclick:async()=>{ if(confirm("Delete "+it.name+" from this phone?")){ await del(it.id); await refresh(); } }}))));
+    return d;
+  }
+  function section(){
+    const q=(($("qMan")||{}).value||"").toLowerCase().trim();
+    const list=items.filter(i=>!q||[i.name,i.brand,i.model,i.notes].join(" ").toLowerCase().includes(q));
+    const d=mk("details",{"data-sec":"mine"},
+      mk("summary",{},mk("span",{class:"num",text:"★"}),mk("span",{class:"ttl",text:"My appliances"}),mk("span",{class:"fin-n",text:String(items.length)})),
+      mk("div",{class:"toc-body",style:"padding-left:0"},
+        mk("p",{class:"hint",style:"margin:0 0 10px;font-size:13px;color:var(--muted)",text:NOTE}),
+        mk("div",{class:"toc"},...list.map(card)),
+        mk("button",{class:"btn",type:"button",style:"margin-top:12px",text:"Add my own",onclick:()=>form(null)})));
+    d.open=!!((q&&list.length)||window.__mineOpen);
+    d.addEventListener("toggle",()=>{ window.__mineOpen=d.open; });
+    return d;
+  }
+  function form(it){
+    const w=mk("div",{class:"inst-sheet"}); const c=mk("div",{class:"inst-card",role:"dialog","aria-label":"Add my own appliance",style:"max-height:88vh;overflow:auto"});
+    const f=(id,label,type,val,ph)=>mk("div",{class:"field",style:"margin-bottom:10px"},mk("label",{for:id,text:label}),type==="area"?mk("textarea",{id,placeholder:ph||"",style:"min-height:70px"}):mk("input",{id,type:type||"text",placeholder:ph||""}));
+    c.append(mk("h3",{text:it?"Edit appliance":"Add my own appliance"}),
+      f("mnName","Appliance name","text","","e.g. Washing machine"),f("mnBrand","Brand","text","","e.g. Bosch"),f("mnModel","Model number","text","","On the sticker or plate"),
+      mk("div",{class:"field",style:"margin-bottom:10px"},mk("label",{for:"mnFile",text:"Manual (PDF) or a photo"}),mk("input",{id:"mnFile",type:"file",accept:"application/pdf,image/*"}),mk("div",{style:"font-size:12px;color:var(--muted);margin-top:4px",text:"Only PDFs can be searched for specific words. Photos can be opened but not searched."})),
+      f("mnLink","Manufacturer page (optional)","url","","https://"),f("mnNotes","Notes (optional)","area"),
+      mk("div",{style:"display:flex;gap:8px;margin-top:6px"},mk("button",{class:"btn",type:"button",id:"mnSave",text:"Save"}),mk("button",{class:"btn sec",type:"button",text:"Cancel",onclick:()=>w.remove()})));
+    w.append(c); document.body.append(w); w.addEventListener("click",e=>{ if(e.target===w) w.remove(); });
+    if(it){ $("mnName").value=it.name||""; $("mnBrand").value=it.brand||""; $("mnModel").value=it.model||""; $("mnLink").value=it.link||""; $("mnNotes").value=it.notes||""; }
+    $("mnSave").onclick=async()=>{
+      const name=$("mnName").value.trim(); if(!name){ $("mnName").focus(); return; }
+      const fl=$("mnFile").files[0]; let link=$("mnLink").value.trim(); if(link&&!/^https?:\/\//i.test(link)) link="https://"+link;
+      const o={id:it?it.id:"m"+Date.now(),name,brand:$("mnBrand").value.trim(),model:$("mnModel").value.trim(),link,notes:$("mnNotes").value.trim(),file:fl||(it&&it.file)||null,fileName:fl?fl.name:(it&&it.fileName)||""};
+      try{ await put(o); }catch(e){ alert("Couldn't save this on your phone. The file may be too large for your device storage."); return; }
+      try{ navigator.storage&&navigator.storage.persist&&navigator.storage.persist(); }catch{}
+      window.__mineOpen=true; w.remove(); await refresh();
+    };
+  }
+  async function refresh(){ items=await all(); if(typeof renderManuals==="function") renderManuals(); }
+  const _rm=renderManuals;
+  renderManuals=function(){ _rm(); const box=$("manList"); if(box) box.prepend(mk("div",{class:"toc",style:"margin-bottom:0"},section())); };
+  all().then(x=>{ items=x; renderManuals(); });
+})();
+</script>
 <script src="reader.js" defer>
 </script>
 </body>
