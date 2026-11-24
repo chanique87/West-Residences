@@ -1197,8 +1197,12 @@ function renderManuals(){
     .sort((a,b)=>ROOMS.indexOf(a.room)-ROOMS.indexOf(b.room)||norm(a.name).localeCompare(norm(b.name)));
   if(!rows.length){ box.append(el("div",{class:"empty",text: state.loaded.appliances ? (all.length?"Nothing matches.":"No appliances yet."+(state.canEdit?" Tap Add appliance.":"")) : "Loading…"})); return; }
   const secOf=a=>MAN_SECTIONS.find(sx=>(sx.rooms||sx.cats.flatMap(c=>c.rooms)).includes(a.room))||MAN_SECTIONS[MAN_SECTIONS.length-1];
-  const manItem=a=>{
-    const w=warranty(a.warrantyUntil);
+  const manItem=a0=>{
+    const isW=a0.room==="Warranties";
+    const a=isW?{...a0,notes:(a0.notes||"").replace("[[!Book a service|","[[!Book a service for warranties|")}:{...a0,
+      links:(a0.links||[]).filter(l=>!/book miele service|^warranty$/i.test(l.label||"")),
+      notes:(a0.notes||"").replace(/\n?Miele models have the 2-year warranty[^\n]*/i,"").replace(/ ?Serial number needed for warranty claims\./i,"")};
+    const w=isW?warranty(a.warrantyUntil):null;
     const has=fileKey(a.file)||a.link||(a.links&&a.links.length)||/\[\[[^\]]*\|[^\]]*\.pdf/i.test(a.notes||"");
     const sub=[a.brand,a.model].filter(Boolean).join(" · ");
     const quick = fileKey(a.file) ? el("span",{class:"quick"},actBtn("Read",fileKey(a.file),true,[a.name,[a.brand,a.model].filter(Boolean).join(" ")].filter(Boolean).join(" · "))) : null;
