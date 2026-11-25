@@ -2028,7 +2028,7 @@ startLive();
     let n=0, parts=[];
     if(it.file){ if(it.file.size>MAXB) return "big"; const all=await b64(it.file); for(let i=0;i<all.length;i+=CH) parts.push(all.slice(i,i+CH)); n=parts.length; }
     for(let i=0;i<parts.length;i++) await f.setDoc(f.doc(L.fs,...base,"chunks",String(i).padStart(4,"0")),{d:parts[i]});
-    await f.setDoc(f.doc(L.fs,...base),{name:it.name,brand:it.brand||"",model:it.model||"",link:it.link||"",notes:it.notes||"",fileName:it.fileName||"",fileType:it.file?it.file.type:"",chunks:n,updated:it.updated||Date.now()});
+    await f.setDoc(f.doc(L.fs,...base),{name:it.name,brand:it.brand||"",model:it.model||"",link:it.link||"",notes:it.notes||"",cat:it.cat||"",fileName:it.fileName||"",fileType:it.file?it.file.type:"",chunks:n,updated:it.updated||Date.now()});
     return "ok";
   }
   async function syncMine(){
@@ -2047,7 +2047,7 @@ startLive();
         const it=have.get(id); if(it&&(it.updated||0)>=(c.updated||0)) continue;
         let file=null;
         if(c.chunks){ const cs=await f.getDocs(f.collection(L.fs,"users",L.user.uid,"mine",id,"chunks")); const ds=cs.docs.sort((a,b)=>a.id.localeCompare(b.id)).map(d=>d.data().d).join(""); file=fromB64(ds,c.fileType||"application/octet-stream"); }
-        await put({id,name:c.name,brand:c.brand,model:c.model,link:c.link,notes:c.notes,file,fileName:c.fileName,updated:c.updated||Date.now(),synced:true});
+        await put({id,name:c.name,brand:c.brand,model:c.model,link:c.link,notes:c.notes,cat:c.cat||"",file,fileName:c.fileName,updated:c.updated||Date.now(),synced:true});
       }
       status=big?"Saved to your account. "+big+" file(s) over 8 MB stay on this device only.":"Synced with your account.";
     }catch(e){ console.warn("My appliances sync",e); status="Saved on this device. Account sync isn't set up yet."; }
@@ -2082,11 +2082,16 @@ startLive();
       mk("summary",{},mk("span",{class:"num",text:"★"}),mk("span",{class:"ttl",text:"My Appliances - Manuals & Warranties"}),mk("span",{class:"fin-n",text:String(items.length)})),
       mk("div",{class:"toc-body",style:"padding-left:0"},
         mk("p",{class:"hint",style:"margin:0 0 10px;font-size:13px;color:var(--muted)",text:live_()?NOTE.replace("saved on this phone only","saved to your account, so they follow you to any device you sign in on"):NOTE}),live_()&&status?mk("p",{class:"hint",style:"margin:0 0 10px;font-size:12px;color:var(--muted)",text:status}):null,
-        mk("div",{class:"toc"},...list.map(card)),
+        mk("div",{class:"toc"},...list.filter(i=>!i.cat).map(card)),
+        ...[...new Set(list.map(i=>i.cat).filter(Boolean))].sort().map(cn=>{ const g=list.filter(i=>i.cat===cn); const key="mc:"+cn; const dd=mk("details",{class:"fin-g"},mk("summary",{},mk("span",{class:"ttl",text:cn}),mk("span",{class:"fin-n",text:String(g.length)}),(()=>{ const sv=document.createElementNS("http://www.w3.org/2000/svg","svg"); sv.setAttribute("viewBox","0 0 24 24"); sv.setAttribute("class","chev"); sv.innerHTML='<path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'; return sv; })()),mk("div",{class:"bl-body"},mk("div",{class:"toc"},...g.map(card)))); dd.open=!!q||(window.__mineCats||(window.__mineCats=new Set())).has(key); dd.addEventListener("toggle",()=>{ dd.open?window.__mineCats.add(key):window.__mineCats.delete(key); }); return dd; }),
         mk("button",{class:"btn",type:"button",style:"margin-top:12px",text:"Add my own",onclick:()=>form(null)})));
     d.open=!!((q&&list.length)||window.__mineOpen);
     d.addEventListener("toggle",()=>{ window.__mineOpen=d.open; });
     return d;
+  }
+  function catField(){
+    const cats=[...new Set(items.map(i=>i.cat).filter(Boolean))].sort();
+    return mk("div",{class:"field",style:"margin-bottom:10px"},mk("label",{for:"mnCat",text:"Category (optional)"}),mk("input",{id:"mnCat",type:"text",list:"mnCats",placeholder:"e.g. Kitchen, Laundry, Outdoor"}),mk("datalist",{id:"mnCats"},...cats.map(c=>mk("option",{value:c}))));
   }
   function form(it){
     const w=mk("div",{class:"inst-sheet"}); const c=mk("div",{class:"inst-card",role:"dialog","aria-label":"Add my own appliance",style:"max-height:88vh;overflow:auto"});
@@ -2094,14 +2099,14 @@ startLive();
     c.append(mk("h3",{text:it?"Edit appliance":"Add my own appliance"}),
       f("mnName","Appliance name","text","","e.g. Washing machine"),f("mnBrand","Brand","text","","e.g. Bosch"),f("mnModel","Model number","text","","On the sticker or plate"),
       mk("div",{class:"field",style:"margin-bottom:10px"},mk("label",{for:"mnFile",text:"Manual (PDF) or a photo"}),mk("input",{id:"mnFile",type:"file",accept:"application/pdf,image/*"}),mk("div",{style:"font-size:12px;color:var(--muted);margin-top:4px",text:"Only PDFs can be searched for specific words. Photos can be opened but not searched."})),
-      f("mnLink","Manufacturer page (optional)","url","","https://"),f("mnNotes","Notes (optional)","area"),
+      catField(),f("mnLink","Manufacturer page (optional)","url","","https://"),f("mnNotes","Notes (optional)","area"),
       mk("div",{style:"display:flex;gap:8px;margin-top:6px"},mk("button",{class:"btn",type:"button",id:"mnSave",text:"Save"}),mk("button",{class:"btn sec",type:"button",text:"Cancel",onclick:()=>w.remove()})));
     w.append(c); document.body.append(w); w.addEventListener("click",e=>{ if(e.target===w) w.remove(); });
-    if(it){ $("mnName").value=it.name||""; $("mnBrand").value=it.brand||""; $("mnModel").value=it.model||""; $("mnLink").value=it.link||""; $("mnNotes").value=it.notes||""; }
+    if(it){ $("mnName").value=it.name||""; $("mnBrand").value=it.brand||""; $("mnModel").value=it.model||""; $("mnLink").value=it.link||""; $("mnNotes").value=it.notes||""; $("mnCat").value=it.cat||""; }
     $("mnSave").onclick=async()=>{
       const name=$("mnName").value.trim(); if(!name){ $("mnName").focus(); return; }
       const fl=$("mnFile").files[0]; let link=$("mnLink").value.trim(); if(link&&!/^https?:\/\//i.test(link)) link="https://"+link;
-      const o={id:it?it.id:"m"+Date.now(),name,brand:$("mnBrand").value.trim(),model:$("mnModel").value.trim(),link,notes:$("mnNotes").value.trim(),file:fl||(it&&it.file)||null,fileName:fl?fl.name:(it&&it.fileName)||"",updated:Date.now(),synced:!!(it&&it.synced)};
+      const o={id:it?it.id:"m"+Date.now(),name,brand:$("mnBrand").value.trim(),model:$("mnModel").value.trim(),link,notes:$("mnNotes").value.trim(),cat:$("mnCat").value.trim(),file:fl||(it&&it.file)||null,fileName:fl?fl.name:(it&&it.fileName)||"",updated:Date.now(),synced:!!(it&&it.synced)};
       try{ await put(o); }catch(e){ alert("Couldn't save this on your phone. The file may be too large for your device storage."); return; }
       try{ navigator.storage&&navigator.storage.persist&&navigator.storage.persist(); }catch{}
       window.__mineOpen=true; w.remove(); await refresh(); syncMine();
