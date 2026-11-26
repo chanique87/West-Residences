@@ -243,6 +243,7 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 .prose .acts,.toc-body>.acts{flex-direction:column;gap:0;margin-top:0}
 .prose .acts .act{margin-top:8px}
 .prose p.app-row{display:flex;gap:12px;align-items:center;margin:14px 0 6px}.app-ic{width:44px;height:44px;border-radius:10px;flex:none;box-shadow:0 1px 3px rgba(0,0,0,.2)}.app-tx{flex:1;min-width:0}
+.co-ic{width:34px;height:34px;border-radius:8px;flex:none;margin-right:10px;background:#fff;border:1px solid rgba(0,0,0,.12);display:inline-flex;align-items:center;justify-content:center;overflow:hidden}.co-ic img{width:26px;height:26px;object-fit:contain}.co-ic.co-fb{background:#6f7d68;color:#f3e9d2;font-size:12px;font-weight:700;letter-spacing:.3px}
 .toc-body.apps-body .acts{flex-direction:row;gap:8px}.toc-body.apps-body .acts .act{flex:1 1 0;width:auto;margin:6px 0 14px;padding:7px 10px;font-size:13px}
 .prose li>.acts{margin-bottom:2px}
 
@@ -1284,6 +1285,18 @@ function manKeys(a){
 const openMan=new Set(), openCon=new Set();
 function safeUrl(u){ try{ const x=new URL(u); return /^https?:$/.test(x.protocol)?x.href:"#"; }catch{ return "#"; } }
 
+
+function coLogo(name,site){
+  const w=document.createElement("span"); w.className="co-ic";
+  const ini=(String(name||"?").replace(/[^A-Za-z0-9 ]/g," ").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("")||"?").toUpperCase();
+  const fb=()=>{ w.replaceChildren(); w.classList.add("co-fb"); w.textContent=ini; };
+  let host=""; try{ host=new URL(/^https?:/i.test(site||"")?site:"https://"+site).hostname; }catch(e){}
+  if(!host||!site){ fb(); return w; }
+  const img=document.createElement("img"); img.alt=""; img.loading="lazy"; img.decoding="async";
+  img.src="https://www.google.com/s2/favicons?sz=128&domain="+encodeURIComponent(host);
+  img.onerror=fb; img.onload=()=>{ if(img.naturalWidth<=16) fb(); };
+  w.appendChild(img); return w;
+}
 function renderContacts(){
   const q=norm($("qCon").value), box=$("conList"); box.replaceChildren();
   const rows=state.contacts.filter(c=>!q||norm([c.role,c.name,c.phone,c.phone2,c.email,c.website,c.address,plainText(c.notes)].join(" ")).includes(q)).sort(byOrder);
@@ -1322,6 +1335,7 @@ function renderContacts(){
       : c.email?el("span",{class:"quick"},(()=>{ const b=actBtn("",mailHref(c.email,c.emailSubject)); b.classList.add("icon-only"); b.setAttribute("aria-label","Email "+(c.name||c.role)); return b; })()):null;
     const d=el("details",{"data-id":c.id,open: q ? rows.length<=3 : openCon.has(c.id)},
       el("summary",{},
+        coLogo(c.name||c.role,site),
         el("span",{class:"ttl"},highlight(c.role||"Contact",q), c.name?el("span",{class:"sub"},highlight(c.name,q)):null),
         quick, chev()),
       el("div",{class:"toc-body",style:"padding-left:2px"},
@@ -1622,7 +1636,7 @@ function renderSuppliers(){
   body.append(el("p",{class:"fin-sup-note",text:"Who supplied each finish, for repairs, touch-ups and replacements."}));
   sups.forEach(c=>{
     const k2="sup|"+c.id;
-    const it=el("details",{class:"fin-sub",open:finOpen.has(k2)},el("summary",{},el("span",{class:"ttl",text:c.role}),el("span",{class:"fin-n",text:c.name}),chev()));
+    const it=el("details",{class:"fin-sub",open:finOpen.has(k2)},el("summary",{},coLogo(c.role,c.website),el("span",{class:"ttl",text:c.role}),el("span",{class:"fin-n",text:c.name}),chev()));
     it.addEventListener("toggle",()=>{ it.open?finOpen.add(k2):finOpen.delete(k2); });
     const b=el("div",{class:"fin-sup-b"});
     if(c.phone) b.append(el("div",{class:"fin-r"},el("span",{class:"fin-k",text:"Phone"}),el("a",{class:"fin-v sup-link",href:"tel:"+c.phone.replace(/[^\d+]/g,""),text:c.phone})));
