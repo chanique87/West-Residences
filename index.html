@@ -242,6 +242,7 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 .prose .act:not(.icon-only),.toc-body>.acts .act,.fin-card .act{display:flex;width:100%;box-sizing:border-box;justify-content:center;text-align:center;margin:10px 0 0;padding:12px 16px;font-size:14.5px}
 .prose .acts,.toc-body>.acts{flex-direction:column;gap:0;margin-top:0}
 .prose .acts .act{margin-top:8px}
+.prose p.app-row{display:flex;gap:12px;align-items:center;margin:14px 0 6px}.app-ic{width:44px;height:44px;border-radius:10px;flex:none;box-shadow:0 1px 3px rgba(0,0,0,.2)}.app-tx{flex:1;min-width:0}
 .toc-body.apps-body .acts{flex-direction:row;gap:8px}.toc-body.apps-body .acts .act{flex:1 1 0;width:auto;margin:6px 0 14px;padding:7px 10px;font-size:13px}
 .prose li>.acts{margin-bottom:2px}
 
@@ -831,6 +832,23 @@ function renderSettings(){
 }
 
 /* ---------- Routing ---------- */
+
+const APP_ICONS={"stratafy":"stratafy","akuvox smartplus":"smartplus","auspost":"auspost","my parcel locker":"parcel","miele":"miele","lucci connect":"lucci"};
+function decorateApps(root){
+  try{
+    const hold=root&&root.nodeType===1?root:null; if(!hold) return root;
+    hold.querySelectorAll(".lead").forEach(l=>{
+      const k=(l.textContent||"").replace(/:\s*$/,"").trim().toLowerCase(), f=APP_ICONS[k]; if(!f) return;
+      const p=l.closest("p"); if(!p||p.querySelector(".app-ic")) return;
+      const img=document.createElement("img"); img.className="app-ic"; img.src="img/apps/"+f+".webp"; img.alt=""; img.width=44; img.height=44; img.loading="lazy";
+      p.classList.add("app-row"); p.insertBefore(img,p.firstChild);
+      const t=document.createElement("span"); t.className="app-tx";
+      while(img.nextSibling) t.appendChild(img.nextSibling);
+      p.appendChild(t);
+    });
+  }catch(e){}
+  return root;
+}
 function route(){
   const ids=TABS.map(t=>t.id), h=location.hash.slice(1)==="important"?"welcome":location.hash.slice(1);
   let t = ids.includes(h) ? h : (h==="info" ? "welcome" : (settings.start==="last" ? lsGet("wr-last-tab") : settings.start));
@@ -1157,7 +1175,7 @@ function renderWelcome(){
     imp.forEach((r,k)=>{
       const d=el("details",{"data-id":r.id,open:openSet.has(r.id)},
         el("summary",{},el("span",{class:"num",text:String(k+1).padStart(2,"0")}),el("span",{class:"ttl",text:r.title||"Untitled"}),chev()),
-        el("div",{class:"toc-body"+(r.id==="apps"?" apps-body":"")},/^looking after the apartment/i.test(r.title||"")?careView():prose(r.body||""),linkButtons(r.links),
+        el("div",{class:"toc-body"+(r.id==="apps"?" apps-body":"")},/^looking after the apartment/i.test(r.title||"")?careView():(r.id==="apps"?decorateApps(prose(r.body||"")):prose(r.body||"")),linkButtons(r.links),
           state.canEdit?el("div",{},el("button",{class:"edit",type:"button",text:"Edit this section",onclick:()=>openInfo(r)})):null));
       d.addEventListener("toggle",()=>{ d.open?openSet.add(r.id):openSet.delete(r.id); });
       toc.append(d);
@@ -1278,7 +1296,7 @@ function renderContacts(){
     const t0=el("div",{class:"toc"});
     const da=el("details",{"data-id":"apps-con",open:!!q||openCon.has("apps-con")},
       el("summary",{},el("span",{class:"ttl"},"Handy phone applications"),chev()),
-      el("div",{class:"toc-body apps-body",style:"padding-left:2px"},prose(appsRow.body)));
+      el("div",{class:"toc-body apps-body",style:"padding-left:2px"},decorateApps(prose(appsRow.body))));
     da.addEventListener("toggle",()=>{ if(q) return; da.open?openCon.add("apps-con"):openCon.delete("apps-con"); });
     t0.append(da); box.append(t0);
   }
