@@ -245,6 +245,7 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 .prose p.app-row{display:flex;gap:12px;align-items:center;margin:14px 0 6px}.app-ic{width:44px;height:44px;border-radius:10px;flex:none;box-shadow:0 1px 3px rgba(0,0,0,.2)}.app-tx{flex:1;min-width:0}
 .co-ic{width:34px;height:34px;border-radius:8px;flex:none;margin-right:10px;background:#fff;border:1px solid rgba(0,0,0,.12);display:inline-flex;align-items:center;justify-content:center;overflow:hidden}.co-ic img{width:26px;height:26px;object-fit:contain}.co-ic.co-fb{background:#6f7d68;color:#f3e9d2;font-size:12px;font-weight:700;letter-spacing:.3px}
 .toc-body.apps-body .acts{flex-direction:row;gap:8px}.toc-body.apps-body .acts .act{flex:1 1 0;width:auto;margin:6px 0 14px;padding:7px 10px;font-size:13px}
+.acts.app-pair{flex-direction:row!important;flex-wrap:wrap;gap:8px!important}.acts.app-pair .act{flex:1 1 100%;width:auto}.acts.app-pair .act.store{flex:1 1 40%;margin:6px 0 14px;padding:7px 10px;font-size:13px}
 .prose li>.acts{margin-bottom:2px}
 
 .act.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
@@ -2163,6 +2164,43 @@ startLive();
 })();
 </script>
 <script src="reader.js" defer>
+</script>
+<script>
+/* Title Case for headings and buttons, and side-by-side App Store / Google Play buttons */
+(function(){
+  const SMALL=new Set("a an and as at but by for from in is it of on or the to via with vs".split(" "));
+  const cap=w=>w.replace(/^([^A-Za-z0-9]*)([a-z])/,(m,p,c)=>p+c.toUpperCase());
+  function tc(str){
+    let first=true;
+    return str.replace(/[^\s]+/g,tok=>{
+      const bare=tok.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g,"");
+      const afterBreak=first; first=/[:\u2013\u2014\-]$/.test(tok)&&false; 
+      if(!bare) return tok;
+      if(/[A-Z]/.test(bare.slice(1))||/\d/.test(bare)) return tok;
+      const parts=tok.split(/(-)/);
+      const out=parts.map((p,i)=>{ if(p==="-") return p; const b=p.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g,"").toLowerCase();
+        const isFirst=afterBreak&&i===0; if(!isFirst&&SMALL.has(b)&&!/^\(/.test(p)) return p; return cap(p); });
+      return out.join("");
+    });
+  }
+  const SEL='h1,h2,h3,h4,summary .ttl,.ttl,.act,.btn,.bt b,.bt small,.tabs a,.fseg-b,.group-h,.edit,.dfm h3,.dfm button,.inst-card h3,.inst-card button';
+  function fix(el){
+    if(el.closest&&el.closest(".prose p,.prose li")&&!el.matches(".act,h4")) return;
+    const nodes=[...el.childNodes].filter(n=>n.nodeType===3&&n.nodeValue.trim());
+    if(nodes.length!==1) return;
+    const n=nodes[0], v=tc(n.nodeValue); if(v!==n.nodeValue) n.nodeValue=v;
+  }
+  function pairs(root){
+    root.querySelectorAll("a.act").forEach(a=>{
+      const t=(a.textContent||"").trim();
+      if(t==="App Store"||t==="Google Play"){ a.classList.add("store"); const p=a.parentElement; if(p&&!p.classList.contains("app-pair")&&[...p.children].some(x=>(x.textContent||"").trim()==="App Store")&&[...p.children].some(x=>(x.textContent||"").trim()==="Google Play")) p.classList.add("app-pair"); }
+    });
+  }
+  let busy=false;
+  function run(){ if(busy) return; busy=true; try{ document.querySelectorAll(SEL).forEach(fix); pairs(document); }catch(e){} busy=false; }
+  let t=null; new MutationObserver(()=>{ clearTimeout(t); t=setTimeout(run,30); }).observe(document.body,{childList:true,subtree:true,characterData:true});
+  document.addEventListener("DOMContentLoaded",run); run();
+})();
 </script>
 </body>
 </html>
