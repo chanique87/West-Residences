@@ -245,7 +245,7 @@ main.wrap{padding-top:34px;padding-bottom:72px}
 .prose p.app-row{display:flex;gap:12px;align-items:center;margin:14px 0 6px}.app-ic{width:44px;height:44px;border-radius:10px;flex:none;box-shadow:0 1px 3px rgba(0,0,0,.2)}.app-tx{flex:1;min-width:0}
 .co-ic{width:34px;height:34px;border-radius:8px;flex:none;margin-right:10px;background:#fff;border:1px solid rgba(0,0,0,.12);display:inline-flex;align-items:center;justify-content:center;overflow:hidden}.co-ic img{width:26px;height:26px;object-fit:contain}.co-ic.co-fb{background:#6f7d68;color:#f3e9d2;font-size:12px;font-weight:700;letter-spacing:.3px}
 .toc-body.apps-body .acts{flex-direction:row;gap:8px}.toc-body.apps-body .acts .act{flex:1 1 0;width:auto;margin:6px 0 14px;padding:7px 10px;font-size:13px}
-.acts.app-pair{flex-direction:row!important;flex-wrap:wrap;gap:8px!important}.acts.app-pair .act{flex:1 1 100%;width:auto}.acts.app-pair .act.store{flex:1 1 40%;margin:6px 0 14px;padding:7px 10px;font-size:13px}
+.da.app-pair{display:flex!important;flex-direction:row;gap:8px}.da.app-pair .act{flex:1 1 0;justify-content:center;white-space:nowrap;padding:6px 8px}.acts.app-pair{flex-direction:row!important;flex-wrap:wrap;gap:8px!important}.acts.app-pair .act{flex:1 1 100%;width:auto}.acts.app-pair .act.store{flex:1 1 40%;margin:6px 0 14px;padding:7px 10px;font-size:13px}
 .prose li>.acts{margin-bottom:2px}
 
 .act.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
@@ -2193,13 +2193,31 @@ startLive();
   function pairs(root){
     root.querySelectorAll("a.act").forEach(a=>{
       const t=(a.textContent||"").trim();
-      if(t==="App Store"||t==="Google Play"){ a.classList.add("store"); const p=a.parentElement; if(p&&!p.classList.contains("app-pair")&&[...p.children].some(x=>(x.textContent||"").trim()==="App Store")&&[...p.children].some(x=>(x.textContent||"").trim()==="Google Play")) p.classList.add("app-pair"); }
+      if(t!=="App Store"&&t!=="Google Play") return;
+      a.classList.add("store"); const p=a.parentElement; if(!p||p.classList.contains("app-pair")) return;
+      const kids=[...p.children].filter(x=>x.tagName==="A");
+      const as=kids.find(x=>(x.textContent||"").trim()==="App Store"), gp=kids.find(x=>(x.textContent||"").trim()==="Google Play");
+      if(!as||!gp) return;
+      if(p.classList.contains("acts")||p.classList.contains("da")){ p.classList.add("app-pair"); return; }
+      const w=document.createElement("div"); w.className="acts app-pair"; p.appendChild(w); w.append(as,gp);
     });
   }
   let busy=false;
   function run(){ if(busy) return; busy=true; try{ document.querySelectorAll(SEL).forEach(fix); pairs(document); }catch(e){} busy=false; }
   let t=null; new MutationObserver(()=>{ clearTimeout(t); t=setTimeout(run,30); }).observe(document.body,{childList:true,subtree:true,characterData:true});
   document.addEventListener("DOMContentLoaded",run); run();
+})();
+</script>
+<script>
+/* When a section is opened by tapping, line its top up under the tab bar so the page doesn't jump around */
+(function(){
+  let lastTap=0, tapEl=null;
+  document.addEventListener("click",e=>{ const sm=e.target.closest&&e.target.closest("summary"); if(sm){ lastTap=Date.now(); tapEl=sm.parentElement; } },true);
+  document.addEventListener("toggle",e=>{
+    const d=e.target; if(!d||d.tagName!=="DETAILS"||!d.open||d!==tapEl||Date.now()-lastTap>800) return;
+    const go=()=>{ const sm=d.querySelector(":scope>summary"); if(!sm) return; const tb=document.getElementById("tabs"); const off=(tb?tb.getBoundingClientRect().bottom:0)+8; const r=sm.getBoundingClientRect(); if(Math.abs(r.top-off)>4) window.scrollTo({top:Math.max(0,window.scrollY+r.top-off),behavior:"auto"}); };
+    requestAnimationFrame(()=>requestAnimationFrame(go)); setTimeout(go,250);
+  },true);
 })();
 </script>
 </body>
